@@ -1,0 +1,39 @@
+| **Từ khóa**     | **Ý nghĩa**                                                        | **Foreign Key (FK)**                          | **Local Key**                               | **Query PHP (Eloquent)**                                                         | **Query SQL thuần / raw SQL**                                                                                               |
+| --------------- | ------------------------------------------------------------------ | --------------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `belongsTo`     | n-1, bảng hiện tại thuộc về target                                 | Cột trong bảng hiện tại                       | Cột trong bảng target (PK)                  | `$employee->department`<or>`Employee::with('department')->get()`                 | `SELECT * FROM departments WHERE id_department = <employee.id_department> LIMIT 1`                                          |
+| `hasOne`        | 1-1, bảng hiện tại có 1 bản ghi liên quan                          | Cột trong bảng target                         | Cột trong bảng hiện tại (PK)                | `$employee->user`<or>`Employee::with('user')->get()`                             | `SELECT * FROM users WHERE id_employee = <employee.id_employee> LIMIT 1`                                                    |
+| `hasMany`       | 1-n, bảng hiện tại có nhiều bản ghi liên quan                      | Cột trong bảng target                         | Cột trong bảng hiện tại (PK)                | `$employee->performanceReviews`<or>`Employee::with('performanceReviews')->get()` | `SELECT * FROM performance_reviews WHERE id_employee = <employee.id_employee>`                                              |
+| `belongsToMany` | n-n, bảng hiện tại liên kết nhiều với target thông qua pivot table | Cột trong bảng pivot tham chiếu bảng hiện tại | Cột trong bảng pivot tham chiếu bảng target | `$employee->projects`<or>`Employee::with('projects')->get()`                     | `SELECT p.* FROM projects p JOIN assignments a ON p.id_project = a.id_project WHERE a.id_employee = <employee.id_employee>` |
+
+
+
+
+| **Từ khóa / Method**       | **Query PHP (Eloquent)**                                    | **Query SQL thuần / raw SQL**                                                      | **Mô tả / Ý nghĩa**                                                           |
+| -------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `find($id)`                | `$employee = Employee::find(1);`                            | `SELECT * FROM employees WHERE id_employee = 1 LIMIT 1;`                           | Tìm một bản ghi theo primary key, trả về model hoặc `null` nếu không tìm thấy |
+| `findOrFail($id)`          | `$employee = Employee::findOrFail(1);`                      | `SELECT * FROM employees WHERE id_employee = 1 LIMIT 1;`                           | Tìm theo primary key, **nếu không tìm thấy sẽ ném exception 404**             |
+| `where('column', 'value')` | `$employees = Employee::where('status', 'active')->get();`  | `SELECT * FROM employees WHERE status = 'active';`                                 | Lọc bản ghi theo điều kiện                                                    |
+| `with('relation')`         | `$departments = Department::with('employees')->get();`      | `SELECT * FROM departments; SELECT * FROM employees WHERE id_department IN (...);` | Eager loading quan hệ, load luôn dữ liệu liên quan để tránh N+1 query         |
+| `first()`                  | `$employee = Employee::where('status', 'active')->first();` | `SELECT * FROM employees WHERE status = 'active' LIMIT 1;`                         | Lấy bản ghi đầu tiên thỏa điều kiện                                           |
+| `get()`                    | `$employees = Employee::where('status', 'active')->get();`  | `SELECT * FROM employees WHERE status = 'active';`                                 | Lấy tất cả bản ghi thỏa điều kiện, trả về **Collection**                      |
+| `all()`                    | `$employees = Employee::all();`                             | `SELECT * FROM employees;`                                                         | Lấy tất cả bản ghi trong bảng                                                 |
+| `pluck('column')`          | `$emails = Employee::pluck('email');`                       | `SELECT email FROM employees;`                                                     | Lấy một cột dữ liệu, trả về **collection**                                    |
+| `count()`                  | `$count = Employee::where('status','active')->count();`     | `SELECT COUNT(*) FROM employees WHERE status='active';`                            | Đếm số bản ghi thỏa điều kiện                                                 |
+
+
+
+
+| Bước | Hoạt động                | Hàm / Method Eloquent                            | Query SQL                                 |
+| ---- | ------------------------ | ------------------------------------------------ | ----------------------------------------- |
+| 1    | Chuẩn bị điều kiện       | `where(...)`                                     | Chưa query, chỉ build query               |
+| 2    | Thực thi query           | `get()`, `first()`, `find()`, `findOrFail()`     | `SELECT * FROM ... WHERE ...`             |
+| 3    | Map dữ liệu thành object | Eloquent tự map mỗi row thành **model instance** | N/A                                       |
+| 4    | Truy cập quan hệ         | `->relationName` hoặc `with('relation')`         | Tự query bảng liên quan dựa FK / LocalKey |
+
+
+
+| PHP (Eloquent)                       | SQL tương ứng             | Vai trò                |
+| ------------------------------------ | ------------------------- | ---------------------- |
+| `Employee::where('status','active')` | `WHERE status='active'`   | Điều kiện lọc          |  ===> SELECT name FROM employees WHERE status='active';
+| `->get()`                            | `SELECT * FROM employees` | Lấy tất cả cột dữ liệu |
+| Model Employee                       | `FROM employees`          | Xác định bảng          |
