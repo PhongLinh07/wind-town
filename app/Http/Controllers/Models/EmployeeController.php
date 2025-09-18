@@ -4,7 +4,7 @@
 namespace App\Http\Controllers\Models;
 
 use App\Http\Controllers\Controller;  // <- thêm dòng này
-
+use Illuminate\Support\Facades\DB;
 use App\Models\Employee;
 use App\Models\Hierarchy;
 use Illuminate\Http\Request;
@@ -13,7 +13,7 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        return Employee::with('hierarchy')->get();
+        return response()->json(Employee::with('hierarchy')->get());
     }
 
     public function show($id)
@@ -73,5 +73,14 @@ class EmployeeController extends Controller
         $employee->delete();
 
         return response()->json(['message' => 'Deleted successfully']);
+    }
+
+
+    public function getEnumColumn(string $column)
+    {
+        $table = Employee::tableName(); // Lấy tên bảng từ model
+        $columnType = DB::table($table)->pluck($column);
+
+        return response()->json($columnType);
     }
 }

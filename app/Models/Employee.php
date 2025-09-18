@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
+    
     protected $table = 'employees';
     protected $primaryKey = 'id_employee';
     public $timestamps = true;
@@ -24,6 +25,11 @@ class Employee extends Model
         'status',
         'description'
     ];
+
+    public static function tableName()
+    {
+        return (new static)->getTable(); // getTable() là method của Eloquent Model
+    }
 
     public function hierarchy()
     {

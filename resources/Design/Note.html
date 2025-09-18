@@ -37,3 +37,331 @@
 | `Employee::where('status','active')` | `WHERE status='active'`   | Điều kiện lọc          |  ===> SELECT name FROM employees WHERE status='active';
 | `->get()`                            | `SELECT * FROM employees` | Lấy tất cả cột dữ liệu |
 | Model Employee                       | `FROM employees`          | Xác định bảng          |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- https://wind-town.test/dataTables/employees -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tabulator CRUD Multi-Tab</title>
+   <!-- Tabulator CSS -->
+    <link href="/css/tabulator.min.css" rel="stylesheet">
+    <!-- Tabulator JS UMD đầy đủ -->
+    <script src="/js/tabulator.min.js"></script>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+   <style>
+        /* Tổng thể bảng */
+.tabulator {
+    border: 2px solid #2ecc71; /* viền xanh nổi bật */
+    border-radius: 6px;
+    font-family: "Arial", sans-serif;
+    background-color: #1e1e1e; /* nền tối */
+    color: #fff;
+}
+
+/* Header */
+.tabulator .tabulator-header {
+    background-color: #111;
+    color: #fff;
+    border-bottom: 2px solid #2ecc71;
+}
+
+/* Ô tiêu đề */
+.tabulator .tabulator-col {
+    background-color: #111;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* Ô dữ liệu */
+.tabulator .tabulator-cell {
+    border-bottom: 1px solid #333;
+    padding: 4px 8px;
+}
+
+/* Hover dòng */
+.tabulator .tabulator-row:hover {
+    background-color: #2c3e50;
+}
+
+/* Progress bar tùy chỉnh */
+.tabulator .tabulator-progress .tabulator-progress-bar {
+    background-color: #2ecc71;
+}
+
+/* Tick/Cross */
+.tabulator .tabulator-cell .tabulator-tick, 
+.tabulator .tabulator-cell .tabulator-cross {
+    font-size: 16px;
+}
+
+/* Pagination */
+.tabulator .tabulator-footer {
+    background-color: #111;
+    color: #fff;
+    border-top: 2px solid #2ecc71;
+}
+
+/* Input filter */
+.tabulator input, 
+.tabulator select {
+    border-radius: 4px;
+    border: 1px solid #2ecc71;
+    padding: 4px 6px;
+    background-color: #222;
+    color: #fff;
+}
+
+    </style>
+</head>
+<body>
+
+
+<div>
+  <select id="filter-field">
+    <option></option>
+    <option value="id_employee">ID</option>
+    <option value="name">Name</option>
+    <option value="gender">Gender</option>
+    <option value="cccd">CCCD</option>
+    <option value="date_of_birth">Date of Birth</option>
+    <option value="address">Address</option>
+    <option value="email">Email</option>
+    <option value="phone">Phone</option>
+    <option value="bank_infor">Bank Infor</option>
+    <option value="hire_date">Hire Date</option>
+    <option value="hierarchy.name_position">Hierarchy</option>
+    <option value="status">Status</option>
+    <option value="description">Description</option>
+    <option value="created_at">Create At</option>
+    <option value="updated_at">Update At</option>
+  </select>
+
+   
+
+  <select id="filter-type">
+    <option value="=">=</option>
+    <option value="<"><</option>
+    <option value="<="><=</option>
+    <option value=">">></option>
+    <option value=">=">>=</option>
+    <option value="!=">!=</option>
+    <option value="like">like</option>
+  </select>
+
+  <input id="filter-value" type="text" placeholder="value to filter">
+
+  <button id="filter-clear">Clear Filter</button>
+</div>
+
+
+
+  <div class="search-container">
+    <input type="text" id="employee-search-input" placeholder="Tìm kiếm...">
+    <button class="add-row-btn" data-tab="employeeTab">Add Employee</button>
+    <button class="delete-selected-btn" data-tab="employeeTab">Delete Selected</button>
+    <span class="select-stats"></span>
+  </div>
+  <div class="tabulator-header", id="employeeTable"></div>
+
+  <script>
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+      //Define variables for input elements
+      var fieldEl = document.getElementById("filter-field");
+      var typeEl = document.getElementById("filter-type");
+      var valueEl = document.getElementById("filter-value");
+
+      //Custom filter example
+      function customFilter(data)
+      {
+          return data.car && data.rating < 3;
+      }
+
+      //Trigger setFilter function with correct parameters
+      function updateFilter()
+      {
+        var filterVal = fieldEl.options[fieldEl.selectedIndex].value;
+        var typeVal = typeEl.options[typeEl.selectedIndex].value;
+
+        var filter = filterVal == "function" ? customFilter : filterVal;
+
+        if(filterVal == "function" )
+        {
+          typeEl.disabled = true;
+          valueEl.disabled = true;
+        }else
+        {
+          typeEl.disabled = false;
+          valueEl.disabled = false;
+        }
+
+        if(filterVal)
+        {
+          instance.setFilter(filter.toLowerCase(),typeVal.toLowerCase(), valueEl.value.toLowerCase());
+        }
+      }
+
+      
+      //Update filters on value change
+      document.getElementById("filter-field").addEventListener("change", updateFilter);
+      document.getElementById("filter-type").addEventListener("change", updateFilter);
+      document.getElementById("filter-value").addEventListener("keyup", updateFilter);
+
+      //Clear filters on "Clear Filters" button click
+      document.getElementById("filter-clear").addEventListener("click", function()
+      {
+          fieldEl.value = "";
+          typeEl.value = "=";
+          valueEl.value = "";
+
+          instance.clearFilter();
+      });
+
+   
+    let instance; // dùng let để gán lại
+    
+    // Table config
+    const tableConfig = 
+    {
+        selector: "#employeeTable",
+        tableName: "employees",
+        searchInput: "#employee-search-input",
+        primaryKey: "id_employee",
+        columns: [
+          { title: "ID", field: "id_employee", editor: false, headerFilter:"input"},
+          { title: "Name", field: "name", editor: "input", headerFilter:"input"},
+          { title: "Gender", field: "gender", editor: "list", editorParams:{values:{"1":"Male", "0":"Female", "3":"Unknown"}}, formatter: "lookup", formatterParams:{"1":"Male", "0":"Female", "3":"Unknown"}, headerFilter:"list", headerFilterParams:{values:{"male":"Male", "female":"Female", "3":"Unknown"}}},
+          { title: "CCCD", field: "cccd", editor: "input", headerFilter: "input" },
+          { title: "Date of Birth", field: "date_of_birth", editor: "input" },
+          { title: "Address", field: "address", editor: "input", headerFilter:"list", headerFilterParams:{valuesLookup:true, clearable:true, autocomplete:true}},    
+          { title: "Email", field: "email", editor: "input", headerFilter:"input"},
+          { title: "Phone", field: "phone", editor: "input", headerFilter:"input"},
+          { title: "Bank Infor", field: "bank_infor", editor: "input", headerFilter:"input"},
+          { title: "Hire Date", field: "hire_date", editor: "input" },
+          { title: "Hierarchy", field: "hierarchy.name_position", editor:"list", editorParams:{valuesURL: "/modelController/hierarchys/getColumn/name_position", ajaxFiltering: true }, headerFilter:"list", headerFilterParams:{valuesLookup:true, clearable:true, autocomplete:true}},
+          { title: "Status", field: "status", editor:"list", editorParams:{values:{"active":"active", "inactive":"inactive", "resigned":"resigned"}, headerFilter:"list", headerFilterParams:{valuesLookup:true, clearable:true}} },
+          { title: "Description", field: "description", editor: false, headerFilter:"input"},
+          { title: "Create At", field: "created_at", editor: false },
+          { title: "Update At", field: "updated_at", editor: false }
+        ]
+    };
+
+    // Hàm tạo bảng
+    async function createTable() 
+    {
+
+      const cfg = tableConfig;
+      instance = new Tabulator
+      (cfg.selector, 
+      {
+        ajaxURL: `/modelController/${cfg.tableName}`,
+        layout: "fitColumns",
+        pagination: "local",
+        paginationSize: 10,
+        paginationSizeSelector: [10, 20, 30, 50],
+        movableColumns: true,
+        paginationCounter:"pages",
+        paginationButtonCount: 0,
+        index: cfg.primaryKey,
+        columns: cfg.columns,
+        rowSelectionChanged: function (data, rows) 
+        {
+          const stats = document.querySelector(".select-stats");
+          if (stats) stats.innerHTML = `Rows selected: ${data.length}`;
+        }
+      });
+
+      instance.on("cellEdited", function(cell)
+      {
+        if(cell.getValue() === "" || cell.getValue() === null)
+        {
+            cell.setValue(cell.getOldValue(), true);
+        }        
+      });
+
+
+
+
+      // Filter search
+      const searchInput = document.querySelector(cfg.searchInput);
+      if (searchInput) {
+        searchInput.addEventListener("keyup", e => {
+          instance.setFilter([
+            {field:"name", type:"like", value:e.target.value},
+            {field:"email", type:"like", value:e.target.value},
+            {field:"phone", type:"like", value:e.target.value}
+          ]);
+        });
+      }
+    }
+
+    
+    // chạy ngay khi load trang
+    createTable();
+  </script>
+</body>
+</html>

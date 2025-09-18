@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Models;
 
 use App\Http\Controllers\Controller;  // <- thêm dòng này
-
+use Illuminate\Support\Facades\DB;
 use App\Models\Hierarchy;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -70,4 +70,21 @@ class HierarchyController extends Controller
         $hierarchy->delete();
         return response()->json(['message' => 'Deleted successfully']);
     }
+
+   
+    public function getEnumColumn(string $column)
+{
+    $table = Hierarchy::tableName(); // Lấy tên bảng từ model
+
+    // Lấy các giá trị duy nhất trong cột
+    $values = DB::table($table)->select($column)->distinct()->pluck($column);
+
+    // Chuyển thành associative array { value: value }
+    $json = [];
+    foreach ($values as $value) { $json[$value] = $value; }
+
+    return response()->json($json);
+}
+
+    
 }

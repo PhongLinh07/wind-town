@@ -10,12 +10,12 @@
 // 1 nhân viên chỉ có 1 chức vụ vì: đây là 1 công ty có độ phân hóa 
 // 1 nhân viên chỉ có 1 chức vụ, gắn liền với thứ bậc, lương, vị trí trong công ty.
 // =======================
-Table hierarchy
+Table hierarchys
 {
   id_hierarchy INT [pk, increment] // Khóa chính rễ ràng truy vấn
   
   name_position VARCHAR(100) [unique, not null]    // Tên chức vụ: Developer, Team Lead, Manager
-  level_name VARCHAR(50) [not null, note: "Tên cấp bậc, ví dụ: Junior, Senior, Lead"]
+  name_level VARCHAR(50) [not null, note: "Tên cấp bậc, ví dụ: Junior, Senior, Lead"]
 
   salary_multiplier DECIMAL(15,2) [note: " hệ số lương cơ bản tương ứng cấp bậc dùng nhân base_salary"]
   allowance DECIMAL(15,2) [note: "Phụ cấp theo cấp bậc là tiền cố định"]
@@ -23,23 +23,11 @@ Table hierarchy
   description TEXT // Mô tả
   created_at TIMESTAMP
   updated_at TIMESTAMP
+
+  indexes {
+    (name_position, name_level) [unique]
+  }
 }
-
-// =======================
-// TABLE: Cấp bậc chức vụ – Position Levels
-// =======================
-Table levels 
-{
-    
-    level INT [not null, note: "1=Junior, 2=Senior, 3=Lead, 4=Manager"]
-    level_name VARCHAR(50) [not null, note: "Tên cấp bậc, ví dụ: Junior, Senior, Lead"]
-    salary_multiplier DECIMAL(15,2) [note: " hệ số lương cơ bản tương ứng cấp bậc dùng nhân base_salary"]
-    allowance DECIMAL(15,2) [note: "Phụ cấp theo cấp bậc là tiền cố định"]
-
-    created_at TIMESTAMP
-    updated_at TIMESTAMP
-}
-
 
 // =======================
 // TABLE: Nhân viên – Employees
@@ -61,7 +49,7 @@ Table employees
 
     hire_date DATE // Ngày bắt đầu làm việc
 
-    id_hierarchy INT [ref: > hierarchy.id_hierarchy] // FK -> hierarchy  
+    id_hierarchy INT [ref: > hierarchys.id_hierarchy] // FK -> hierarchy  
 
     status ENUM('active','inactive','resigned') // Trạng thái nhân viên
 
@@ -116,6 +104,8 @@ Table contracts
     created_at TIMESTAMP
     updated_at TIMESTAMP
 
+    note: "Ràng buộc: chỉ có thể tồn tại 1 bản hợp đồng còn hiệu lực"
+
 }
 
 // =======================
@@ -146,6 +136,8 @@ Table salary_details
     indexes {
         (id_contract, salary_month) [unique] // Mỗi hợp đồng lương chỉ có 1 bản ghi/tháng
     }
+
+    note: "Ràng buộc: id_employee phải khác approved_by (không cho tự duyệt)"
 }
 
 
@@ -173,11 +165,14 @@ Table leaves
     indexes {
         (id_employee, start_date, end_date) 
     }
+
+    note: "Ràng buộc: id_employee phải khác approved_by (không cho tự duyệt) | chỉ 1 bản phép có hiệu lực tồn tại"
 }
 
 
 // =======================
 // TABLE: Quy định lương – Payroll_rules
+// định nghĩa kiểu dữ liệu đặc trung cho sys. dùng chung cho toàn bộ nhân viên
 // =======================
 Table payroll_rules
 {
@@ -187,10 +182,10 @@ Table payroll_rules
     value_type ENUM('money','multiplier') [DEFAULT: 'money']
     value DECIMAL(15,2)  //-- số tiền hoặc % áp dụng
     
-    description TEXT
     effective_date DATE
     expiry_date DATE  //-- NULL nếu áp dụng vô thời hạn
 
+    description TEXT
     created_at TIMESTAMP
     updated_at TIMESTAMP
 }

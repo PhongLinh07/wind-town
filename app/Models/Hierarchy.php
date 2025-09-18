@@ -18,6 +18,11 @@ class Hierarchy extends Model
         'description'
     ];
 
+    public static function tableName()
+    {
+        return (new static)->getTable(); // getTable() là method của Eloquent Model
+    }
+
     public function employees()
     {
         return $this->hasMany(Employee::class, 'id_hierarchys');
