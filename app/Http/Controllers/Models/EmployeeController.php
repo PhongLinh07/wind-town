@@ -1,67 +1,69 @@
 <?php
 
+
 namespace App\Http\Controllers\Models;
 
 use App\Http\Controllers\Controller;  // <- thêm dòng này
 
-use Illuminate\Http\Request;
 use App\Models\Employee;
-use Carbon\Carbon;
+use App\Models\Hierarchy;
+use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
     public function index()
     {
-        return response()->json(Employee::with(['department','position','manager'])->get());
-    }
-
-    public function store(Request $request)
-    {
-        /*
-        $data = $request->validate([
-            'name' => 'required|string',
-            'gender' => 'required|integer',
-            'cccd' => 'required|unique:employees,cccd',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
-            'email' => 'required|email|unique:employees,email',
-            'phone' => 'nullable|string',
-            'hire_date' => 'nullable|date',
-            'id_department' => 'required|exists:departments,id_department',
-            'id_position' => 'required|exists:positions,id_position',
-            'status' => 'required|in:active,inactive,resigned',
-            'description' => 'nullable|string'
-        ]);*/
-
-        $data = [];
-
-        $employee = Employee::create($data);
-        return response()->json($employee, 201);
+        return Employee::with('hierarchy')->get();
     }
 
     public function show($id)
     {
-        return response()->json(Employee::with(['department','position','manager','subordinates'])->findOrFail($id));
+        return Employee::with(['hierarchy', 'attendances', 'contracts', 'leaves'])->findOrFail($id);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:150',
+            'gender' => 'nullable|integer|in:0,1,3',
+            'cccd' => 'required|string|max:20|unique:employees,cccd',
+            'date_of_birth' => 'nullable|date',
+            'address' => 'nullable|string|max:300',
+            'email' => 'required|email|unique:employees,email',
+            'phone' => 'nullable|string|max:15',
+            'bank_infor' => 'nullable|string|max:20',
+            'hire_date' => 'nullable|date',
+            'id_hierarchy' => 'required|exists:hierarchy,id_hierarchy',
+            'status' => 'nullable|in:active,inactive,resigned',
+            'description' => 'nullable|string',
+        ]);
+
+        $employee = Employee::create($validated);
+
+        return response()->json($employee, 201);
     }
 
     public function update(Request $request, $id)
     {
         $employee = Employee::findOrFail($id);
-        $data = $request->validate([
-            'name' => 'required|string',
-            'gender' => 'required|integer',
-            'cccd' => 'required|unique:employees,cccd,'.$id.',id_employee',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string',
-            'email' => 'required|email|unique:employees,email,'.$id.',id_employee',
-            'phone' => 'nullable|string',
-            'hire_date' => 'nullable|date',
-            'id_department' => 'required|exists:departments,id_department',
-            'id_position' => 'required|exists:positions,id_position',
-            'status' => 'required|in:active,inactive,resigned',
-            'description' => 'nullable|string'
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:150',
+            'gender' => 'sometimes|integer|in:0,1,3',
+            'cccd' => 'sometimes|string|max:20|unique:employees,cccd,' . $id . ',id_employee',
+            'date_of_birth' => 'sometimes|date',
+            'address' => 'sometimes|string|max:300',
+            'email' => 'sometimes|email|unique:employees,email,' . $id . ',id_employee',
+            'phone' => 'sometimes|string|max:15',
+            'bank_infor' => 'sometimes|string|max:20',
+            'hire_date' => 'sometimes|date',
+            'id_hierarchy' => 'sometimes|exists:hierarchy,id_hierarchy',
+            'status' => 'sometimes|in:active,inactive,resigned',
+            'description' => 'sometimes|string',
         ]);
-        $employee->update($data);
+
+        $employee->update($validated);
+
         return response()->json($employee);
     }
 
@@ -69,6 +71,7 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($id);
         $employee->delete();
-        return response()->json(null, 204);
+
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

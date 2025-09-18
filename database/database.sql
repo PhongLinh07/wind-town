@@ -200,6 +200,8 @@ ADD CONSTRAINT fk_assignments_employee
 FOREIGN KEY (id_employee) REFERENCES employees(id_employee),
 ADD CONSTRAINT fk_assignments_project
 FOREIGN KEY (id_project) REFERENCES projects(id_project);
+ADD CONSTRAINT fk_assignments_role
+FOREIGN KEY (id_role) REFERENCES roles(id_role);
 
 -- Khóa ngoại cho Bảng `leaves`
 ALTER TABLE leaves

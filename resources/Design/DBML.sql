@@ -1,36 +1,54 @@
-// =======================
-// TABLE: Phòng ban – Departments
-// =======================
-Table departments 
-{
-    id_department INT [pk, increment] // Khóa chính
-    name VARCHAR(100) [unique, not null] // Tên phòng ban, duy nhất (VD: IT, HR, Kinh doanh)
+//📌 Nguyên tắc thiết kế DB:
 
-    description TEXT // Mô tả chi tiết phòng ban
-    created_at TIMESTAMP // Thời gian tạo
-    updated_at TIMESTAMP // Thời gian cập nhật
+// Bảng cha (1) → không chứa khóa ngoại tới bảng con.
+
+// Bảng con (n) → luôn chứa FK để biết nó thuộc về ông cha nào.
+
+
+// =======================
+// TABLE: Hierarchy - phân cấp theo chức vụ và cấp bậc
+// 1 nhân viên chỉ có 1 chức vụ vì: đây là 1 công ty có độ phân hóa 
+// 1 nhân viên chỉ có 1 chức vụ, gắn liền với thứ bậc, lương, vị trí trong công ty.
+// =======================
+Table hierarchy
+{
+  id_hierarchy INT [pk, increment] // Khóa chính rễ ràng truy vấn
+  
+  name_position VARCHAR(100) [unique, not null]    // Tên chức vụ: Developer, Team Lead, Manager
+  level_name VARCHAR(50) [not null, note: "Tên cấp bậc, ví dụ: Junior, Senior, Lead"]
+
+  salary_multiplier DECIMAL(15,2) [note: " hệ số lương cơ bản tương ứng cấp bậc dùng nhân base_salary"]
+  allowance DECIMAL(15,2) [note: "Phụ cấp theo cấp bậc là tiền cố định"]
+
+  description TEXT // Mô tả
+  created_at TIMESTAMP
+  updated_at TIMESTAMP
 }
 
 // =======================
-// TABLE: Chức vụ – Positions
+// TABLE: Cấp bậc chức vụ – Position Levels
 // =======================
-Table positions 
+Table levels 
 {
-    id_position INT [pk, increment] // Khóa chính
-    name VARCHAR(100) [unique, not null] // Tên chức vụ (VD: Developer, Team Lead, Manager)
-    level INT [note: "Cấp bậc: 1=staff, 2=lead, 3=manager…"] // Thứ bậc để phân quyền/so sánh
+    
+    level INT [not null, note: "1=Junior, 2=Senior, 3=Lead, 4=Manager"]
+    level_name VARCHAR(50) [not null, note: "Tên cấp bậc, ví dụ: Junior, Senior, Lead"]
+    salary_multiplier DECIMAL(15,2) [note: " hệ số lương cơ bản tương ứng cấp bậc dùng nhân base_salary"]
+    allowance DECIMAL(15,2) [note: "Phụ cấp theo cấp bậc là tiền cố định"]
 
-    description TEXT // Mô tả chức vụ
     created_at TIMESTAMP
     updated_at TIMESTAMP
 }
 
+
 // =======================
 // TABLE: Nhân viên – Employees
+// 1 nhân viên chỉ có 1 profile tạm thời để chung cho ít bảng
 // =======================
 Table employees 
 {
     id_employee INT [pk, increment] // Khóa chính
+
     name VARCHAR(150) [not null] // Họ và tên nhân viên
     gender INT [note: "1=male, 0=female, 3=unknown"] // Giới tính
     cccd VARCHAR(20) [unique, not null, note: "giữ dạng text để không mất số 0 đầu"] // CCCD/CMND
@@ -38,159 +56,141 @@ Table employees
     address VARCHAR(300) // Địa chỉ
     email VARCHAR(150) [unique, not null] // Email công việc
     phone VARCHAR(15) // Số điện thoại
+
+    bank_infor  VARCHAR(20) [note:"BankType_id"]// bank lương: const str = 'vietcombank_123456789'; const [bankName, accountNumber] = str.split('_');
+
     hire_date DATE // Ngày bắt đầu làm việc
-    id_department INT [ref: > departments.id_department] // FK -> departments
-    id_position INT [ref: > positions.id_position] // FK -> positions    
+
+    id_hierarchy INT [ref: > hierarchy.id_hierarchy] // FK -> hierarchy  
+
     status ENUM('active','inactive','resigned') // Trạng thái nhân viên
+
     description TEXT // Mô tả
     created_at TIMESTAMP
     updated_at TIMESTAMP
 }
 
-// =======================
-// TABLE: employee_manager quản lí nhân viên
-// =======================
-Table employee_manager
-{
-    id_employee_manager INT [pk, increment] // Khóa chính tự tăng
-    id_employee INT [ref: > employees.id_employee] // FK -> employees
-    id_manager INT [ref: > employees.id_employee] // FK -> employees
-    indexes {
-        (id_employee, id_manager) [unique] // đảm bảo không trùng
-    }
-}
 
-
-// =======================
-// TABLE: Vai trò hệ thống / dự án – Roles
-// =======================
-Table roles 
-{
-    id_role INT [pk, increment] // Khóa chính
-    name VARCHAR(80) [unique, not null, note: "admin','hr','employee, Project Leader, Developer, Tester, Mentor"] // Tên vai trò
-    
-    description TEXT // Mô tả chi tiết
-    created_at TIMESTAMP
-    updated_at TIMESTAMP
-}
-
-// =======================
-// TABLE: Tài khoản – Users
-// =======================
-Table users 
-{
-    id_user INT [pk, increment] // Khóa chính
-    id_employee INT [unique, ref: > employees.id_employee] // Liên kết với nhân viên
-    email VARCHAR(100) [unique, not null] // Email đăng nhập
-    password VARCHAR(255) [not null] // Mật khẩu (hash)
-    id_role INT [ref: > roles.id_role] // FK -> roles
-    last_login TIMESTAMP // Lần đăng nhập gần nhất
-    
-    description TEXT // Mô tả
-    created_at TIMESTAMP
-    updated_at TIMESTAMP
-}
 
 // =======================
 // TABLE: Chấm công – Attendances
+// 1 nhân viên có 1 bảng chấm công trong 1 ngày
 // =======================
 Table attendances 
 {
     id_attendance INT [pk, increment] // Khóa chính
     id_employee INT [ref: > employees.id_employee] // FK -> employees
-    check_in DATETIME // Giờ vào
-    check_out DATETIME // Giờ ra
-    work_hours DECIMAL(5,2) [note: "số giờ làm"] // Số giờ làm việc
-    status ENUM('present','absent','late','leave') [default: 'present'] // Trạng thái chấm công
-    
+
+    of_date DATE // ngày nào
+    office_hours DECIMAL(5,2)
+    over_time DECIMAL(5,2) // luôn bằng 0 nếu office_hours < 8
+    late_time DECIMAL(5,2)   // 8 - over_time > 0 <=>  office_hours > 0
+    is_night_shift bool
+
     description TEXT // Mô tả thêm
     created_at TIMESTAMP
-    updated_at TIMESTAMP
+    updated_at timestamp
+    indexes {
+       (id_employee, of_date) [unique]
+    }
 }
 
 // =======================
-// TABLE: Lương – Salaries
+// TABLE: Hợp đồng không xác định thời hạn (indefinite)
+// 1 nhân viên chỉ có thể có 1 hợp đồng có hiệu lực 
+// nếu 2 hợp đồng thì sẽ có 2 lương: 8h mà lại có 2 lương=> bất khả thi
 // =======================
-Table salaries 
+Table contracts 
 {
-    id_salary INT [pk, increment] // Khóa chính
+    id_contract INT [pk, increment] // Khóa chính
     id_employee INT [ref: > employees.id_employee] // FK -> employees
-    month YEAR [not null] // Tháng lương
-    base_salary DECIMAL(15,2) // Lương cơ bản
-    bonus DECIMAL(15,2) // Thưởng
-    allowance DECIMAL(15,2) // Phụ cấp
-    deduction DECIMAL(15,2) // Khấu trừ
-    net_salary DECIMAL(15,2) [note: "lương thực nhận"] // Lương thực nhận
-    status ENUM('pending','paid') [default: 'pending'] // Trạng thái thanh toán
+    
+    contract_type ENUM('fixed_term','indefinite','seasonal') // Loại hợp đồng
+    base_salary DECIMAL(15,2) // Lương cơ bản | lý do đặt ở đây vì đề phòng lương theo thỏa thuận
+
+    effective_date DATE // Ngày bắt đầu hiệu lực
+    expiry_date DATE // Ngày kết thúc hiệu lực (có thể NULL)
+    status ENUM('active','expired','terminated') // Trạng thái hợp đồng
 
     description TEXT // Mô tả
     created_at TIMESTAMP
     updated_at TIMESTAMP
+
 }
 
 // =======================
-// TABLE: Dự án – Projects
+// TABLE: Lương chi tiết – Salary_details
+// 1 bảng lương cơ bản(còn hiệu lực) có 1 bảng lương chi tiết / tháng
 // =======================
-Table projects 
+Table salary_details
 {
-    id_project INT [pk, increment] // Khóa chính
-    name VARCHAR(150) [not null] // Tên dự án
-    start_date DATE // Ngày bắt đầu
-    end_date DATE // Ngày kết thúc
-    status ENUM('planning','in_progress','completed','cancelled') [default: 'planning'] // Trạng thái
-    
-    description TEXT // Mô tả chi tiết
-    created_at TIMESTAMP
-    updated_at TIMESTAMP
-}
+    id_salary_details INT [pk, increment] // Khóa chính
+    id_contract INT [ref: > contracts.id_contract] // FK -> salaries
+    approved_by INT [ref: > employees.id_employee]
 
-// =======================
-// TABLE: Phân công – Assignments
-// =======================
-Table assignments 
-{
-    id_employee INT [ref: > employees.id_employee] // FK -> employees
-    id_project INT [ref: > projects.id_project] // FK -> projects
-    role VARCHAR(100) [note: "vai trò trong dự án (dev, tester, PM…)"] // Vai trò
-    assigned_date DATE // Ngày phân công
-    
+    salary_month DATE [not null] // Tháng lương (dùng ngày = 01)
+
+    overtime DECIMAL(15,2) [default: 0]
+    bonus DECIMAL(15,2) [default: 0, not null] // Thưởng lễ , tết
+    attendance_bonus DECIMAL(15,2) [default: 0] // Phụ cấp chuyên cần | nếu ko đủ ngày công trừ (50% phụ cấp)
+    deduction DECIMAL(15,2) [default: 0, not null] // Khấu trừ | phạt | bảo hiểm | thuế
+   
+    net_salary DECIMAL(15,2) // Lương thực nhận
+
+    status ENUM('pending','paid') [default: 'pending'] // Trạng thái trả lương
+
     description TEXT // Mô tả
-    created_at TIMESTAMP
-    updated_at TIMESTAMP
-    primary key(id_employee, id_project) // Khóa chính ghép
+    created_at TIMESTAMP [default: `current_timestamp`]
+    updated_at TIMESTAMP [default: `current_timestamp`]
+
+    indexes {
+        (id_contract, salary_month) [unique] // Mỗi hợp đồng lương chỉ có 1 bản ghi/tháng
+    }
 }
+
+
 
 // =======================
 // TABLE: Nghỉ phép – Leaves
+// 1 nhân viên có nhiều lần nghỉ phép (không trùng thời gian)
 // =======================
 Table leaves 
 {
     id_leave INT [pk, increment] // Khóa chính
     id_employee INT [ref: > employees.id_employee] // FK -> employees
+    approved_by INT [ref: > employees.id_employee] // FK -> employees
+    
     start_date DATE // Ngày bắt đầu nghỉ
     end_date DATE // Ngày kết thúc nghỉ
     type ENUM('annual','sick','unpaid','other') // Loại nghỉ phép
     reason TEXT // Lý do
     status ENUM('pending','approved','rejected') [default: 'pending'] // Trạng thái đơn
-   
+    
     description TEXT // Mô tả
     created_at TIMESTAMP
     updated_at TIMESTAMP
+
+    indexes {
+        (id_employee, start_date, end_date) 
+    }
 }
 
+
 // =======================
-// TABLE: Đánh giá – Performance Reviews
+// TABLE: Quy định lương – Payroll_rules
 // =======================
-Table performance_reviews 
+Table payroll_rules
 {
-    id_review INT [pk, increment] // Khóa chính
-    id_employee INT [ref: > employees.id_employee] // Nhân viên được đánh giá
-    id_reviewer INT [ref: > employees.id_employee, note: "người đánh giá"] // Nhân viên đánh giá
-    review_date DATE // Ngày đánh giá
-    score INT [note: "1-10"] // Điểm đánh giá
-    comments TEXT // Nhận xét
+    id_rule INT [pk, increment]
+
+    type ENUM('attendance_bonus','overtime_rate','night_shift','holiday_bonus','meal_allowance','late_penalty','other')
+    value_type ENUM('money','multiplier') [DEFAULT: 'money']
+    value DECIMAL(15,2)  //-- số tiền hoặc % áp dụng
     
-    description TEXT // Mô tả
+    description TEXT
+    effective_date DATE
+    expiry_date DATE  //-- NULL nếu áp dụng vô thời hạn
+
     created_at TIMESTAMP
     updated_at TIMESTAMP
 }

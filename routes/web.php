@@ -48,20 +48,13 @@ Route::post('/confirmOTP', [ConfirmOTPController::class , 'checkOTP'])->name('co
 
 
 
-use App\Http\Controllers\Models\DepartmentController;
-use App\Http\Controllers\Models\PositionController;
-use App\Http\Controllers\Models\EmployeeController;
-use App\Http\Controllers\Models\EmployeeManagerController;
-use App\Http\Controllers\Models\RoleController;
-use App\Http\Controllers\Models\UserController;
 use App\Http\Controllers\Models\AttendanceController;
-use App\Http\Controllers\Models\SalaryController;
-use App\Http\Controllers\Models\ProjectController;
-use App\Http\Controllers\Models\AssignmentController;
+use App\Http\Controllers\Models\ContractController;
+use App\Http\Controllers\Models\EmployeeController;
+use App\Http\Controllers\Models\HierarchyController;
 use App\Http\Controllers\Models\LeaveController;
-use App\Http\Controllers\Models\PerformanceReviewController;
-
-
+use App\Http\Controllers\Models\PayrollRuleController;
+use App\Http\Controllers\Models\SalaryDetailController;
 
 /*
 Method	        URL
@@ -73,38 +66,24 @@ DELETE	        /dataTables/person/{id}
 */
 
 
-// 1. Departments
-Route::apiResource('/dataTables/departments', DepartmentController::class);
+// 1. attendences
+Route::apiResource('/dataTables/attendances', AttendanceController::class);
 
-// 2. Positions
-Route::apiResource('/dataTables/positions', PositionController::class);
+// 2. contracts
+Route::apiResource('/dataTables/contracts', ContractController::class);
 
 // 3. Employees
 Route::apiResource('/dataTables/employees', EmployeeController::class);
 
-// 4. Employee Manager (quản lý nhân viên)
-Route::apiResource('/dataTables/employee_manager', EmployeeManagerController::class);
+// 4. hierrachys
+Route::apiResource('/dataTables/hierarchys', HierarchyController::class);
 
-// 5. Roles
-Route::apiResource('/dataTables/roles', RoleController::class);
-
-// 6. Users / Accounts
-Route::apiResource('/dataTables/users', UserController::class);
-
-// 7. Attendances
-Route::apiResource('/dataTables/attendances', AttendanceController::class);
-
-// 8. Salaries
-Route::apiResource('/dataTables/salaries', SalaryController::class);
-
-// 9. Projects
-Route::apiResource('/dataTables/projects', ProjectController::class);
-
-// 10. Assignments (Phân công)
-Route::apiResource('/dataTables/assignments', AssignmentController::class);
-
-// 11. Leaves
+// 5. leaves
 Route::apiResource('/dataTables/leaves', LeaveController::class);
 
-// 12. Performance Reviews
-Route::apiResource('/dataTables/performance_reviews', PerformanceReviewController::class);
+// 6. payroll_rule
+Route::apiResource('/dataTables/payroll_rules', PayrollRuleController::class);
+
+// 7. salary_details
+Route::apiResource('/dataTables/salary_details', SalaryDetailController::class);
+

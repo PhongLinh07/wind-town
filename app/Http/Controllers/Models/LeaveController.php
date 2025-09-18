@@ -4,52 +4,62 @@ namespace App\Http\Controllers\Models;
 
 use App\Http\Controllers\Controller;  // <- thêm dòng này
 
-use Illuminate\Http\Request;
 use App\Models\Leave;
+use Illuminate\Http\Request;
 
 class LeaveController extends Controller
 {
     public function index()
     {
-        return response()->json(Leave::with('employee')->get());
+        return Leave::with(['employee', 'approver'])->get();
+    }
+
+    public function show($id)
+    {
+        return Leave::with(['employee', 'approver'])->findOrFail($id);
     }
 
     public function store(Request $request)
     {
-        /*
-        $data = $request->validate([
+        $validated = $request->validate([
             'id_employee' => 'required|exists:employees,id_employee',
+            'approved_by' => 'required|exists:employees,id_employee',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
             'type' => 'required|in:annual,sick,unpaid,other',
             'reason' => 'nullable|string',
             'status' => 'nullable|in:pending,approved,rejected',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
         ]);
-        */
-        $data = [];
-        $leave = Leave::create($data);
-        return response()->json($leave, 201);
-    }
 
-    public function show($id)
-    {
-        return response()->json(Leave::with('employee')->findOrFail($id));
+        if (!Leave::validateApprover($validated['id_employee'], $validated['approved_by'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Người duyệt không được là chính nhân viên.'
+            ], 400);
+        }
+
+        $validated['status'] = $validated['status'] ?? 'pending';
+        $leave = Leave::create($validated);
+
+        return response()->json($leave, 201);
     }
 
     public function update(Request $request, $id)
     {
         $leave = Leave::findOrFail($id);
-        $data = $request->validate([
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'type' => 'nullable|in:annual,sick,unpaid,other',
-            'reason' => 'nullable|string',
-            'status' => 'nullable|in:pending,approved,rejected',
-            'description' => 'nullable|string'
+
+        $validated = $request->validate([
+            'start_date' => 'sometimes|date',
+            'end_date' => 'sometimes|date|after_or_equal:start_date',
+            'type' => 'sometimes|in:annual,sick,unpaid,other',
+            'reason' => 'sometimes|string',
+            'status' => 'sometimes|in:pending,approved,rejected',
+            'description' => 'sometimes|string',
         ]);
 
-        $leave->update($data);
+        $leave->update($validated);
+
         return response()->json($leave);
     }
 
@@ -57,6 +67,7 @@ class LeaveController extends Controller
     {
         $leave = Leave::findOrFail($id);
         $leave->delete();
-        return response()->json(null, 204);
+
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

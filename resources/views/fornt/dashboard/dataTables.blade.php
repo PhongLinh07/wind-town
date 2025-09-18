@@ -67,253 +67,254 @@
     <div>
         <!-- Tab links -->
         <ul class="tab">
-            <li class="tablinks active" data-tabid="departmentsTab">Departments</li>
-            <li class="tablinks" data-tabid="positionsTab">Positions</li>
-            <li class="tablinks" data-tabid="employeesTab">Employees</li>
-            <li class="tablinks" data-tabid="rolesTab">Roles</li>
-            <li class="tablinks" data-tabid="usersTab">Users</li>
-            <li class="tablinks" data-tabid="projectsTab">Projects</li>
-            <li class="tablinks" data-tabid="assignmentsTab">Assignments</li>
-            <li class="tablinks" data-tabid="attendancesTab">Attendances</li>
-            <li class="tablinks" data-tabid="salariesTab">Salaries</li>
-            <li class="tablinks" data-tabid="leavesTab">Leaves</li>
-            <li class="tablinks" data-tabid="performanceTab">Performance Reviews</li>
+            <li class="tablinks active" data-tabid="attendanceTab">Attendance</li>
+            <li class="tablinks" data-tabid="contractTab">Contract</li>
+            <li class="tablinks" data-tabid="employeeTab">Employees</li>
+            <li class="tablinks" data-tabid="hierarchyTab">Hierarchy</li>
+            <li class="tablinks" data-tabid="leaveTab">Leave</li>
+            <li class="tablinks" data-tabid="payrollRuleTab">PayrollRule</li>
+            <li class="tablinks" data-tabid="salaryDetailTab">SalaryDetail</li>
+            
         </ul>
 
         <!-- Tab contents -->
-        <div class="tabcontent" id="departmentsTab">
+        <div class="tabcontent" id="attendanceTab">
             <div class="search-container">
-                <input type="text" id="departments-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="departmentsTab">Add Department</button>
-                <button class="delete-selected-btn" data-tab="departmentsTab">Delete Selected</button>
+                <input type="text" id="attendance-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="attendanceTab">Add Department</button>
+                <button class="delete-selected-btn" data-tab="attendanceTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="departmentsTable"></div>
+            <div id="attendanceTable"></div>
         </div>
 
-        <div class="tabcontent" id="positionsTab">
+        <div class="tabcontent" id="contractTab">
             <div class="search-container">
-                <input type="text" id="positions-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="positionsTab">Add Position</button>
-                <button class="delete-selected-btn" data-tab="positionsTab">Delete Selected</button>
+                <input type="text" id="contract-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="contractTab">Add Position</button>
+                <button class="delete-selected-btn" data-tab="contractTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="positionsTable"></div>
+            <div id="contractTable"></div>
         </div>
 
-        <div class="tabcontent" id="employeesTab">
+        <div class="tabcontent" id="employeeTab">
             <div class="search-container">
-                <input type="text" id="employees-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="employeesTab">Add Employee</button>
-                <button class="delete-selected-btn" data-tab="employeesTab">Delete Selected</button>
+                <input type="text" id="employee-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="employeeTab">Add Employee</button>
+                <button class="delete-selected-btn" data-tab="employeeTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="employeesTable"></div>
+            <div id="employeeTable"></div>
         </div>
 
-        <div class="tabcontent" id="rolesTab">
+        <div class="tabcontent" id="hierarchyTab">
             <div class="search-container">
-                <input type="text" id="roles-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="rolesTab">Add Role</button>
-                <button class="delete-selected-btn" data-tab="rolesTab">Delete Selected</button>
+                <input type="text" id="hierarchy-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="hierarchyTab">Add Role</button>
+                <button class="delete-selected-btn" data-tab="hierarchyTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="rolesTable"></div>
+            <div id="hierarchyTable"></div>
         </div>
 
-        <div class="tabcontent" id="usersTab">
+        <div class="tabcontent" id="leaveTab">
             <div class="search-container">
-                <input type="text" id="users-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="usersTab">Add User</button>
-                <button class="delete-selected-btn" data-tab="usersTab">Delete Selected</button>
+                <input type="text" id="leave-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="leaveTab">Add User</button>
+                <button class="delete-selected-btn" data-tab="leaveTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="usersTable"></div>
+            <div id="leaveTable"></div>
         </div>
 
-        <div class="tabcontent" id="projectsTab">
+        <div class="tabcontent" id="payrollRuleTab">
             <div class="search-container">
-                <input type="text" id="projects-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="projectsTab">Add Project</button>
-                <button class="delete-selected-btn" data-tab="projectsTab">Delete Selected</button>
+                <input type="text" id="payrollRule-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="payrollRuleTab">Add Project</button>
+                <button class="delete-selected-btn" data-tab="payrollRuleTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="projectsTable"></div>
+            <div id="payrollRuleTable"></div>
         </div>
 
-        <div class="tabcontent" id="assignmentsTab">
+        <div class="tabcontent" id="salaryDetailTab">
             <div class="search-container">
-                <input type="text" id="assignments-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="assignmentsTab">Add Assignment</button>
-                <button class="delete-selected-btn" data-tab="assignmentsTab">Delete Selected</button>
+                <input type="text" id="salaryDetail-search-input" placeholder="Tìm kiếm...">
+                <button class="add-row-btn" data-tab="salaryDetailTab">Add Assignment</button>
+                <button class="delete-selected-btn" data-tab="salaryDetailTab">Delete Selected</button>
                 <span class="select-stats"></span>
             </div>
-            <div id="assignmentsTable"></div>
+            <div id="salaryDetailTable"></div>
         </div>
 
-        <div class="tabcontent" id="attendancesTab">
-            <div class="search-container">
-                <input type="text" id="attendances-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="attendancesTab">Add Attendance</button>
-                <button class="delete-selected-btn" data-tab="attendancesTab">Delete Selected</button>
-                <span class="select-stats"></span>
-            </div>
-            <div id="attendancesTable"></div>
-        </div>
-
-        <div class="tabcontent" id="salariesTab">
-            <div class="search-container">
-                <input type="text" id="salaries-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="salariesTab">Add Salary</button>
-                <button class="delete-selected-btn" data-tab="salariesTab">Delete Selected</button>
-                <span class="select-stats"></span>
-            </div>
-            <div id="salariesTable"></div>
-        </div>
-
-        <div class="tabcontent" id="leavesTab">
-            <div class="search-container">
-                <input type="text" id="leaves-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="leavesTab">Add Leave</button>
-                <button class="delete-selected-btn" data-tab="leavesTab">Delete Selected</button>
-                <span class="select-stats"></span>
-            </div>
-            <div id="leavesTable"></div>
-        </div>
-
-        <div class="tabcontent" id="performanceTab">
-            <div class="search-container">
-                <input type="text" id="performance-search-input" placeholder="Tìm kiếm...">
-                <button class="add-row-btn" data-tab="performanceTab">Add Review</button>
-                <button class="delete-selected-btn" data-tab="performanceTab">Delete Selected</button>
-                <span class="select-stats"></span>
-            </div>
-            <div id="performanceTable"></div>
-        </div>
-    </div>
+       
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
+/*
         // Options for selects
-        window.employeesOptions = {};
-        window.rolesOptions = {};
-        window.projectsOptions = {};
-        window.departmentsOptions = {};
-        window.positionsOptions = {};
-        window.departmentOptions = {};
+        window.employeeOptions = {};
+        window.hierarchyOptions = {};
+        window.payrollRuleOptions = {};
+        window.attendanceOptions = {};
+        window.contractOptions = {};
+        
 
 
         window.loadOptions = async function () {
             const [empRes, roleRes, projRes, depRes, posRes] = await Promise.all([
-                fetch('/dataTables/employees'),
-                fetch('/dataTables/roles'),
-                fetch('/dataTables/projects'),
-                fetch('/dataTables/departments'),
-                fetch('/dataTables/positions'),
+                fetch('/dataTables/employee'),
+                fetch('/dataTables/hierarchy'),
+                fetch('/dataTables/payrollRule'),
+                fetch('/dataTables/attendance'),
+                fetch('/dataTables/contract'),
             ]);
             const [empData, roleData, projData, depData, posData] = await Promise.all([
                 empRes.json(), roleRes.json(), projRes.json(), depRes.json(), posRes.json()
             ]);
 
-            empData.forEach(e => window.employeesOptions[e.id_employee] = e.name || e.full_name);
-            roleData.forEach(r => window.rolesOptions[r.id_role] = r.name);
-            projData.forEach(p => window.projectsOptions[p.id_project] = p.name);
-            depData.forEach(d => window.departmentsOptions[d.id_department] = d.name);
-            posData.forEach(p => window.positionsOptions[p.id_position] = p.name);
+            empData.forEach(e => window.employeeOptions[e.id_employee] = e.name || e.full_name);
+            roleData.forEach(r => window.hierarchyOptions[r.id_role] = r.name);
+            projData.forEach(p => window.payrollRuleOptions[p.id_project] = p.name);
+            depData.forEach(d => window.attendanceOptions[d.id_department] = d.name);
+            posData.forEach(p => window.contractOptions[p.id_position] = p.name);
         };
-
+*/
         // Table storage
         const tables = {};
         const tableConfigs = {
-            departmentsTab: {
-                selector: "#departmentsTable",
-                tableName: "departments",
-                searchInput: "#departments-search-input",
-                primaryKey: "id_department",
+            attendanceTab: {
+                selector: "#attendanceTable",
+                tableName: "attendances",
+                searchInput: "#attendance-search-input",
+                primaryKey: "id_attendance",
                 columns: [
-                    { title: "ID", field: "id_department", editor: false },
-                    { title: "Name", field: "name", editor: "input" },
-                    { title: "Description", field: "description", editor: "input" },
+                    { title: "ID", field: "id_attendance", editor: false },
+                    { title: "ID_Employee", field: "id_employee", editor: false },
+                    { title: "Date", field: "of_date", editor: false },
+                    { title: "Office Hours", field: "office_hours", editor: false },
+                    { title: "Over Time", field: "over_time", editor: false },
+                    { title: "late Time", field: "late_time", editor: false },
+                    { title: "Is Night Shift", field: "is_night_shift", editor: false },
+                    { title: "Description", field: "description", editor: false },
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
                 ]
             },
-            positionsTab: {
-                selector: "#positionsTable",
-                tableName: "positions",
-                searchInput: "#positions-search-input",
-                primaryKey: "id_position",
-                columns: [
-                    { title: "ID", field: "id_position", editor: false },
-                    { title: "Name", field: "name", editor: "input" },
-                    { title: "Description", field: "description", editor: "input" },
-                ]
-            },
-            employeesTab: {
-                selector: "#employeesTable",
+            employeeTab: {
+                selector: "#employeeTable",
                 tableName: "employees",
-                searchInput: "#employees-search-input",
+                searchInput: "#employee-search-input",
                 primaryKey: "id_employee",
                 columns: [
                     { title: "ID", field: "id_employee", editor: false },
-                    { title: "Full Name", field: "full_name", editor: "input" },
+                    { title: "Name", field: "name", editor: "input" },
+                    { title: "Gender", field: "gender", editor: "input", headerFilter: "input" },
+                    { title: "CCCD", field: "cccd", editor: "input", headerFilter: "input" },
+                    { title: "Date of Birth", field: "date_of_birth", editor: "input" },
+                    { title: "Address", field: "address", editor: "input" },
                     { title: "Email", field: "email", editor: "input" },
-                    { title: "Phone", field: "phone", editor: "input" },
-                    { title: "Department", field: "id_department", editor: "list", editorParams: { values: window.departmentsOptions }, formatter: "lookup", formatterParams: window.departmentsOptions },
-                    { title: "Position", field: "id_position", editor: "list", editorParams: { values: window.positionsOptions }, formatter: "lookup", formatterParams: window.positionsOptions },
-                    { title: "Active", field: "is_active", editor: "tickCross", formatter: "tickCross" }
+                   // { title: "Phone", field: "phone", editor: "list", editorParams: { values: window.attendanceOptions }, formatter: "lookup", formatterParams: window.attendanceOptions },
+                  //  { title: "Bank Infor", field: "bank_infor", editor: "list", editorParams: { values: window.contractOptions }, formatter: "lookup", formatterParams: window.contractOptions },
+                    { title: "Hire Date", field: "hire_date", editor: "tickCross", formatter: "tickCross" },
+                    { title: "Hierarchy", field: "id_hierarchy", editor: "tickCross", formatter: "tickCross" },
+                    { title: "Status", field: "status", editor: "tickCross", formatter: "tickCross" },
+                    { title: "Description", field: "description", editor: false },
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
                 ]
             },
-            rolesTab: {
-                selector: "#rolesTable",
-                tableName: "roles",
-                searchInput: "#roles-search-input",
-                primaryKey: "id_role",
+            hierarchyTab: {
+                selector: "#hierarchyTable",
+                tableName: "hierarchys",
+                searchInput: "#hierarchy-search-input",
+                primaryKey: "id_hierarchy",
                 columns: [
-                    { title: "ID", field: "id_role", editor: false },
-                    { title: "Name", field: "name", editor: "input" },
-                    { title: "Description", field: "description", editor: "input" }
+                    { title: "ID", field: "id_hierarchy", editor: false },
+                    { title: "Position", field: "name_position", editor: "input" },
+                    { title: "Level", field: "name_level", editor: "input" },
+                    { title: "Salary Multiplier", field: "salary_multiplier", editor: false },
+                    { title: "Allowance", field: "allowance", editor: false },
+                    { title: "Description", field: "description", editor: false },
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
                 ]
             },
-            usersTab: {
-                selector: "#usersTable",
-                tableName: "users",
-                searchInput: "#users-search-input",
-                primaryKey: "id_user",
+            leaveTab: {
+                selector: "#leaveTable",
+                tableName: "leaves",
+                searchInput: "#leave-search-input",
+                primaryKey: "id_leave",
                 columns: [
-                    { title: "ID", field: "id_user", editor: false },
-                    { title: "Username", field: "username", editor: "input" },
-                    { title: "Employee", field: "id_employee", editor: "list", editorParams: { values: window.employeesOptions }, formatter: "lookup", formatterParams: window.employeesOptions },
-                    { title: "Role", field: "id_role", editor: "list", editorParams: { values: window.rolesOptions }, formatter: "lookup", formatterParams: window.rolesOptions },
-                    { title: "Active", field: "is_active", editor: "tickCross", formatter: "tickCross" }
+                    { title: "ID", field: "id_leave", editor: false },
+                    { title: "ID_Employee", field: "id_employee", editor: "input" },
+                   // { title: "Approved by", field: "approved_by", editor: "list", editorParams: { values: window.employeeOptions }, formatter: "lookup", formatterParams: window.employeeOptions },
+                   // { title: "Start Date", field: "start_date", editor: "list", editorParams: { values: window.hierarchyOptions }, formatter: "lookup", formatterParams: window.hierarchyOptions },
+                    { title: "End Date", field: "end_date", editor: false },
+                    { title: "Type", field: "type", editor: false },
+                    { title: "Reason", field: "reason", editor: false },
+                    { title: "Status", field: "status", editor: false },
+                    { title: "Description", field: "description", editor: false },
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
                 ]
             },
-            projectsTab: {
-                selector: "#projectsTable",
-                tableName: "projects",
-                searchInput: "#projects-search-input",
-                primaryKey: "id_project",
+            payrollRuleTab: {
+                selector: "#payrollRuleTable",
+                tableName: "payroll_rules",
+                searchInput: "#payrollRule-search-input",
+                primaryKey: "id_rule",
                 columns: [
-                    { title: "ID", field: "id_project", editor: false },
-                    { title: "Name", field: "name", editor: "input" },
-                    { title: "Description", field: "description", editor: "input" },
-                    { title: "Date Begin", field: "date_begin", editor: "input" },
-                    { title: "Date End", field: "date_end", editor: "input" },
-                    { title: "Status", field: "status", editor: "list", editorParams: { values: { "Planning": "Planning", "Working": "Working", "Completed": "Completed" } }, formatter: "lookup", formatterParams: { "Planning": "Planning", "Working": "Working", "Completed": "Completed" } }
+                    { title: "ID", field: "id_rule", editor: false },
+                    { title: "Type", field: "type", editor: "input" },
+                    { title: "Value Type", field: "value_type", editor: "input", headerFilter: "input" },
+                    { title: "Value", field: "value", editor: "input" },
+                    { title: "Effective Date", field: "effective_date", editor: "input" },
+                    { title: "Expiry Date", field: "expiry_date", editor: "input" },
+                    { title: "Description", field: "description", editor: false },
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
                 ]
             },
-            assignmentsTab: {
-                selector: "#assignmentsTable",
-                tableName: "assignments",
-                searchInput: "#assignments-search-input",
-                primaryKey: "id_assignment",
+            salaryDetailTab: {
+                selector: "#salaryDetailTable",
+                tableName: "salary_details",
+                searchInput: "#salaryDetail-search-input",
+                primaryKey: "id_salary_details",
                 columns: [
-                    { title: "ID", field: "id_assignment", editor: false },
-                    { title: "Employee", field: "id_employee", editor: "list", editorParams: { values: window.employeesOptions }, formatter: "lookup", formatterParams: window.employeesOptions },
-                    { title: "Project", field: "id_project", editor: "list", editorParams: { values: window.projectsOptions }, formatter: "lookup", formatterParams: window.projectsOptions },
-                    { title: "Role", field: "id_role", editor: "list", editorParams: { values: window.rolesOptions }, formatter: "lookup", formatterParams: window.rolesOptions },
-                    { title: "Date Begin", field: "date_begin", editor: "input" },
-                    { title: "Date End", field: "date_end", editor: "input" },
-                    { title: "Primary", field: "is_primary", editor: "tickCross", formatter: "tickCross" }
+                    { title: "ID", field: "id_salary_details", editor: false },
+                   // { title: "Id Contract", field: "id_contract", editor: "list", editorParams: { values: window.employeeOptions }, formatter: "lookup", formatterParams: window.employeeOptions },
+                   // { title: "Id Approved by", field: "approved_by", editor: "list", editorParams: { values: window.payrollRuleOptions }, formatter: "lookup", formatterParams: window.payrollRuleOptions },
+                   // { title: "Salary month", field: "salary_month", editor: "list", editorParams: { values: window.hierarchyOptions }, formatter: "lookup", formatterParams: window.hierarchyOptions },
+                    { title: "Over Time", field: "overtime", editor: "input" },
+                    { title: "Bonus", field: "bonus", editor: "input" },
+                    { title: "Attendence Bonus", field: "attendance_bonus", editor: false },
+                    { title: "Deduction", field: "deduction", editor: false },
+                    { title: "Net Salary", field: "net_salary", editor: false, formatter: "tickCross"},
+                    { title: "Status", field: "status", editor: false },
+                    { title: "Description", field: "description", editor: false, formatter: "tickCross"},
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
+                    
+                ]
+            },
+            contractTab: {
+                selector: "#contractTable",
+                tableName: "contracts",
+                searchInput: "#contract-search-input",
+                primaryKey: "id_contract",
+                columns: [
+                  //  { title: "ID", field: "id_contract", editor: false },
+                  //  { title: "Id Employee", field: "id_employee", editor: "list", editorParams: { values: window.payrollRuleOptions }, formatter: "lookup", formatterParams: window.payrollRuleOptions },
+                   // { title: "Base Salary", field: "base_salary", editor: "list", editorParams: { values: window.hierarchyOptions }, formatter: "lookup", formatterParams: window.hierarchyOptions },
+                    { title: "Effective Date", field: "effective_date", editor: "input" },
+                    { title: "Expiry Date", field: "expiry_date", editor: "input" },
+                    { title: "Status", field: "status", editor: false },
+                    { title: "Description", field: "description", editor: false, formatter: "tickCross"} ,
+                    { title: "Create At", field: "created_at", editor: false },
+                    { title: "Update At", field: "updated_at", editor: false, formatter: "tickCross"}
+                    
                 ]
             }
             // Có thể thêm Attendances, Salaries, Leaves, Performance Reviews theo mẫu giống Assignments/Employees
@@ -325,7 +326,7 @@
                 const config = tableConfigs[tabid];
 
                 // Đợi options load xong
-                await window.loadOptions();
+              //  await window.loadOptions();
 
                 const table = new Tabulator(config.selector, {
                     ajaxURL: `/dataTables/${config.tableName}`,
