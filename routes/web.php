@@ -70,15 +70,19 @@ DELETE	        /modelController/person/{id}
 Route::apiResource('/modelController/attendances', AttendanceController::class);
 
 // 2. contracts
+Route::get('/dataTables/contracts', function () { return view('fornt/dashboard/dataTables/contracts'); })->name('contracts'); 
 Route::apiResource('/modelController/contracts', ContractController::class);
+Route::apiResource('/modelController/employees.contracts', EmployeeContractController::class);
+
 
 // 3. Employees
 Route::get('/dataTables/employees', function () { return view('fornt/dashboard/dataTables/employees'); })->name('employees'); 
 Route::apiResource('/modelController/employees', EmployeeController::class);
-Route::get('modelController/employees/getColumn/{column}', [EmployeeController::class, 'getEnumColumn'])->name('employees.getEnumColumn'); ;;
+Route::get('modelController/employees/getColumn/{column}', [EmployeeController::class, 'getEnumColumn'])->name('employees.getEnumColumn');
 
 
 // 4. hierrachys
+Route::get('/dataTables/hierarchys', function () { return view('fornt/dashboard/dataTables/hierarchys'); })->name('hierarchys'); 
 Route::apiResource('/modelController/hierarchys', HierarchyController::class);
 Route::get('modelController/hierarchys/getColumn/{column}', [HierarchyController::class, 'getEnumColumn'])->name('hierarchys.getEnumColumn');
 
@@ -87,8 +91,9 @@ Route::get('modelController/hierarchys/getColumn/{column}', [HierarchyController
 Route::apiResource('/modelController/leaves', LeaveController::class);
 
 // 6. payroll_rule
+Route::get('/dataTables/payroll_rules', function () { return view('fornt/dashboard/dataTables/payroll_rules'); })->name('payroll_rules'); 
 Route::apiResource('/modelController/payroll_rules', PayrollRuleController::class);
+
 
 // 7. salary_details
 Route::apiResource('/modelController/salary_details', SalaryDetailController::class);
-

@@ -33,7 +33,7 @@ class EmployeeController extends Controller
             'phone' => 'nullable|string|max:15',
             'bank_infor' => 'nullable|string|max:20',
             'hire_date' => 'nullable|date',
-            'id_hierarchy' => 'required|exists:hierarchy,id_hierarchy',
+            'id_hierarchy' => 'required|exists:hierarchys,id_hierarchy',
             'status' => 'nullable|in:active,inactive,resigned',
             'description' => 'nullable|string',
         ]);
@@ -57,14 +57,14 @@ class EmployeeController extends Controller
             'phone' => 'sometimes|string|max:15',
             'bank_infor' => 'sometimes|string|max:20',
             'hire_date' => 'sometimes|date',
-            'id_hierarchy' => 'sometimes|exists:hierarchy,id_hierarchy',
+            'id_hierarchy' => 'sometimes|exists:hierarchys,id_hierarchy',
             'status' => 'sometimes|in:active,inactive,resigned',
             'description' => 'sometimes|string',
         ]);
 
         $employee->update($validated);
 
-        return response()->json($employee);
+        return response()->json( Employee::with('hierarchy')->findOrFail($employee->id_employee), 200);
     }
 
     public function destroy($id)

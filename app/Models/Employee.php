@@ -43,7 +43,7 @@ class Employee extends Model
 
     public function contracts()
     {
-        return $this->hasMany(Contract::class, 'id_employee');
+        return $this->hasMany(Contract::class, 'id_employee', 'id_employee');
     }
 
     public function leaves()

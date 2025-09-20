@@ -17,8 +17,8 @@ CREATE TABLE hierarchys (
     id_hierarchy INT PRIMARY KEY AUTO_INCREMENT,
     name_position VARCHAR(100) NOT NULL,
     name_level VARCHAR(50) NOT NULL,
-    salary_multiplier DECIMAL(15,2),
-    allowance DECIMAL(15,2),
+    salary_multiplier FLOAT,
+    allowance FLOAT,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -45,9 +45,9 @@ CREATE TABLE employees (
 
 CREATE TABLE payroll_rules (
     id_rule INT PRIMARY KEY AUTO_INCREMENT,
-    type ENUM('attendance_bonus','overtime_rate','night_shift','holiday_bonus','meal_allowance','late_penalty','other'),
-    value_type ENUM('money','multiplier') DEFAULT 'money',
-    value DECIMAL(15,2),
+    type VARCHAR(20) NOT NULL UNIQUE,
+    value_type ENUM('Percentage','Fixed Amount') DEFAULT 'Fixed Amount',
+    value FLOAT,
     effective_date DATE,
     expiry_date DATE,
     description TEXT,
@@ -62,7 +62,7 @@ CREATE TABLE contracts (
     id_contract INT PRIMARY KEY AUTO_INCREMENT,
     id_employee INT,
     contract_type ENUM('fixed_term','indefinite','seasonal'),
-    base_salary DECIMAL(15,2),
+    base_salary FLOAT,
     effective_date DATE,
     expiry_date DATE,
     status ENUM('active','expired','terminated'),
@@ -90,11 +90,11 @@ CREATE TABLE salary_details (
     id_contract INT,
     approved_by INT,
     salary_month DATE NOT NULL,
-    overtime DECIMAL(15,2) DEFAULT 0,
-    bonus DECIMAL(15,2) DEFAULT 0 NOT NULL,
-    attendance_bonus DECIMAL(15,2) DEFAULT 0,
-    deduction DECIMAL(15,2) DEFAULT 0 NOT NULL,
-    net_salary DECIMAL(15,2),
+    overtime FLOAT DEFAULT 0,
+    bonus FLOAT DEFAULT 0 NOT NULL,
+    attendance_bonus FLOAT DEFAULT 0,
+    deduction FLOAT DEFAULT 0 NOT NULL,
+    net_salary FLOAT,
     status ENUM('pending','paid') DEFAULT 'pending',
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -190,8 +190,8 @@ INSERT INTO employees (name, gender, cccd, date_of_birth, address, email, phone,
 -- payroll_rules
 INSERT INTO payroll_rules (type, value_type, value, effective_date)
 VALUES
-('attendance_bonus','money',200000,'2025-01-01'),
-('overtime_rate','multiplier',1.5,'2025-01-01');
+('attendance_bonus','Percentage',200000,'2025-01-01'),
+('overtime_rate','Fixed Amount',1.5,'2025-01-01');
 
 -- contracts
 INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, status) VALUES

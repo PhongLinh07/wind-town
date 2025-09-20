@@ -25,7 +25,7 @@ class Hierarchy extends Model
 
     public function employees()
     {
-        return $this->hasMany(Employee::class, 'id_hierarchys');
+        return $this->hasMany(Employee::class, 'id_hierarchy');
     }
 }
 

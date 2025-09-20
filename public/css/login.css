@@ -1,0 +1,128 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #4a90e2, #ff6ec4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.login-box {
+  display: flex;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.graphic-side {
+  flex: 1;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+}
+
+.graphic img {
+  width: 120px;
+}
+
+.shapes {
+  margin-top: 20px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.circle, .square, .triangle {
+  width: 20px;
+  height: 20px;
+}
+
+.circle {
+  background: #4a90e2;
+  border-radius: 50%;
+}
+
+.square {
+  background: #ff6ec4;
+}
+
+.triangle {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 20px solid #50e3c2;
+}
+
+.form-side {
+  flex: 1;
+  padding: 40px;
+}
+
+.form-side h2 {
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #333;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #ccc;
+}
+
+.input-group .icon {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.input-group input {
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #43a047;
+}
+
+.forgot {
+  display: block;
+  margin-top: 10px;
+  font-size: 14px;
+  color: #888;
+  text-decoration: none;
+}
+
+.create-account {
+  display: block;
+  margin-top: 30px;
+  font-size: 15px;
+  color: #4a90e2;
+  text-decoration: none;
+}

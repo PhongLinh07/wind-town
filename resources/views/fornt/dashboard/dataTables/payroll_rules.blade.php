@@ -1,4 +1,5 @@
-<!-- https://wind-town.test/dataTables/employees -->
+
+<!-- https://wind-town.test/dataTables/payroll_rules -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -127,18 +128,12 @@
       </span>
       <select class="input-field" id="filter-field">
         <option></option>
-        <option value="id_employee">ID</option>
-        <option value="name">Name</option>
-        <option value="gender">Gender</option>
-        <option value="cccd">CCCD</option>
-        <option value="date_of_birth">Date of Birth</option>
-        <option value="address">Address</option>
-        <option value="email">Email</option>
-        <option value="phone">Phone</option>
-        <option value="bank_infor">Bank Infor</option>
-        <option value="hire_date">Hire Date</option>
-        <option value="hierarchy.name_position">Hierarchy</option>
-        <option value="status">Status</option>
+        <option value="id_rule">ID</option>
+        <option value="type">Type</option>
+        <option value="value_type">Value Type</option>
+        <option value="value">Value</option>
+        <option value="effective_date">Effective Date</option>
+        <option value="expiry_date">Expiry Date</option>
         <option value="description">Description</option>
         <option value="created_at">Create At</option>
         <option value="updated_at">Update At</option>
@@ -170,16 +165,16 @@
     <div class="filter-block">
       <button class="input-field" id="filter-clear">Clear Filter</button>
     </div>
-    <input class="input-field" type="text" id="employee-search-input" placeholder="Tìm kiếm...">
+    <input class="input-field" type="text" id="contract-search-input" placeholder="Tìm kiếm...">
 
-    <button class="add-row-btn" data-tab="employeeTab">Add Employee</button>
-    <button class="delete-selected-btn" data-tab="employeeTab">Delete Selected</button>
+    <button class="add-row-btn" data-tab="contractTab">Add Hierarchy</button>
+    <button class="delete-selected-btn" data-tab="contractTab">Delete Selected</button>
     <span class="select-stats"></span>
   </div>
 
 
   <div>
-    <div class="tabulator-table-theme" , id="tabulator-table-theme"></div>
+    <div id="tabulator-table"></div>
   </div>
 
   <script>
@@ -236,26 +231,20 @@
     // Table config
     const tableConfig =
     {
-      selector: "#tabulator-table-theme",
-      tableName: "employees",
-      searchInput: "employee-search-input",
-      primaryKey: "id_employee",
+      selector: "#tabulator-table",
+      tableName: "payroll_rules",
+      searchInput: "contract-search-input",
+      primaryKey: "id_contract",
       columns: [
-        { title: "ID", field: "id_employee", editor: false },
-        { title: "Name", field: "name", editor: "input" },
-        { title: "Gender", field: "gender", editor: "list", editorParams: { values: { "1": "Male", "0": "Female", "3": "Unknown" } }, formatter: "lookup", formatterParams: { "1": "Male", "0": "Female", "3": "Unknown" } },
-        { title: "CCCD", field: "cccd", editor: "input" },
-        { title: "Date of Birth", field: "date_of_birth", editor: "date" },
-        { title: "Address", field: "address", editor: "input", },
-        { title: "Email", field: "email", editor: "input" },
-        { title: "Phone", field: "phone", editor: "input" },
-        { title: "Bank Infor", field: "bank_infor", editor: "input" },
-        { title: "Hire Date", field: "hire_date", editor: false },
-        { title: "Hierarchy", field: "hierarchy.name_position", editor: "list", editorParams: { valuesURL: "/modelController/hierarchys/getColumn/name_position", ajaxFiltering: true } },
-        { title: "Status", field: "status", editor: "list", editorParams: { values: { "active": "active", "inactive": "inactive", "resigned": "resigned" }, headerFilter: "list" } },
-        { title: "Description", field: "description", editor: false },
-        { title: "Create At", field: "created_at", editor: false, formatter: formatDate},
-        { title: "Update At", field: "updated_at", editor: false, formatter: formatDate}
+         { title: "ID", field: "id_rule", editor: false },
+         { title: "Type", field: "type", editor: "input" },
+         //{ title: "Value Type", field: "value_type", editor: "input", headerFilter: "input" },
+         { title: "Value", field: "value", editor: "input" },
+         { title: "Effective Date", field: "effective_date", editor: "input" },
+         { title: "Expiry Date", field: "expiry_date", editor: "date" },
+         { title: "Description", field: "description", editor: "input" },
+         { title: "Create At", field: "created_at", editor: false },
+         { title: "Update At", field: "updated_at", editor: false}
       ]
     };
 

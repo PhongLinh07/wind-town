@@ -23,7 +23,7 @@ class Contract extends Model
 
     public function employee()
     {
-        return $this->belongsTo(Employee::class, 'id_employee');
+        return $this->belongsTo(Employee::class, 'id_employee', 'id_employee');
     }
 
     public function salaryDetails()
@@ -36,7 +36,8 @@ class Contract extends Model
     {
         return self::where('id_employee', $employeeId)
             ->where('status', 'active')
-            ->where(function ($q) {
+            ->where(function ($q) 
+            {
                 $q->whereNull('expiry_date')
                   ->orWhere('expiry_date', '>=', Carbon::today());
             })

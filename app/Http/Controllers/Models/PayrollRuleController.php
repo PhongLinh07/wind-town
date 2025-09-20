@@ -29,18 +29,15 @@ class PayrollRuleController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'type' => ['required', Rule::in(['attendance_bonus','overtime_rate','night_shift','holiday_bonus','meal_allowance','late_penalty','other'])],
-            'value_type' => ['nullable', Rule::in(['money','multiplier'])],
+            'type' => 'nullable|string',
+            'value_type' => 'nullable',
             'value' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'effective_date' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:effective_date',
         ]);
 
-        if (!isset($data['value_type'])) {
-            $data['value_type'] = 'money';
-        }
-
+      
         $rule = PayrollRule::create($data);
         return response()->json($rule, 201);
     }

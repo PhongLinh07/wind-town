@@ -1,4 +1,4 @@
-<!-- https://wind-town.test/dataTables/employees -->
+<!-- https://wind-town.test/dataTables/hierarchys -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -127,18 +127,11 @@
       </span>
       <select class="input-field" id="filter-field">
         <option></option>
-        <option value="id_employee">ID</option>
-        <option value="name">Name</option>
-        <option value="gender">Gender</option>
-        <option value="cccd">CCCD</option>
-        <option value="date_of_birth">Date of Birth</option>
-        <option value="address">Address</option>
-        <option value="email">Email</option>
-        <option value="phone">Phone</option>
-        <option value="bank_infor">Bank Infor</option>
-        <option value="hire_date">Hire Date</option>
-        <option value="hierarchy.name_position">Hierarchy</option>
-        <option value="status">Status</option>
+        <option value="id_hierarchy">ID</option>
+        <option value="name_position">Position</option>
+        <option value="name_level">Level</option>
+        <option value="salary_multiplier">Salary Multiplier</option>
+        <option value="allowance">Allowance</option>
         <option value="description">Description</option>
         <option value="created_at">Create At</option>
         <option value="updated_at">Update At</option>
@@ -170,10 +163,10 @@
     <div class="filter-block">
       <button class="input-field" id="filter-clear">Clear Filter</button>
     </div>
-    <input class="input-field" type="text" id="employee-search-input" placeholder="Tìm kiếm...">
+    <input class="input-field" type="text" id="hierarchy-search-input" placeholder="Tìm kiếm...">
 
-    <button class="add-row-btn" data-tab="employeeTab">Add Employee</button>
-    <button class="delete-selected-btn" data-tab="employeeTab">Delete Selected</button>
+    <button class="add-row-btn" data-tab="hierarchyTab">Add Hierarchy</button>
+    <button class="delete-selected-btn" data-tab="hierarchyTab">Delete Selected</button>
     <span class="select-stats"></span>
   </div>
 
@@ -237,22 +230,15 @@
     const tableConfig =
     {
       selector: "#tabulator-table-theme",
-      tableName: "employees",
-      searchInput: "employee-search-input",
-      primaryKey: "id_employee",
+      tableName: "hierarchys",
+      searchInput: "hierarchy-search-input",
+      primaryKey: "id_hierarchy",
       columns: [
-        { title: "ID", field: "id_employee", editor: false },
-        { title: "Name", field: "name", editor: "input" },
-        { title: "Gender", field: "gender", editor: "list", editorParams: { values: { "1": "Male", "0": "Female", "3": "Unknown" } }, formatter: "lookup", formatterParams: { "1": "Male", "0": "Female", "3": "Unknown" } },
-        { title: "CCCD", field: "cccd", editor: "input" },
-        { title: "Date of Birth", field: "date_of_birth", editor: "date" },
-        { title: "Address", field: "address", editor: "input", },
-        { title: "Email", field: "email", editor: "input" },
-        { title: "Phone", field: "phone", editor: "input" },
-        { title: "Bank Infor", field: "bank_infor", editor: "input" },
-        { title: "Hire Date", field: "hire_date", editor: false },
-        { title: "Hierarchy", field: "hierarchy.name_position", editor: "list", editorParams: { valuesURL: "/modelController/hierarchys/getColumn/name_position", ajaxFiltering: true } },
-        { title: "Status", field: "status", editor: "list", editorParams: { values: { "active": "active", "inactive": "inactive", "resigned": "resigned" }, headerFilter: "list" } },
+        { title: "ID", field: "id_hierarchy", editor: false },
+        { title: "Position", field: "name_position", editor: "input" },
+        { title: "Level", field: "name_level", editor: "input"},
+        { title: "Salary Multiplier", field: "salary_mutiplier", editor: "input" },
+        { title: "Allowance", field: "allowance", editor: "input" },
         { title: "Description", field: "description", editor: false },
         { title: "Create At", field: "created_at", editor: false, formatter: formatDate},
         { title: "Update At", field: "updated_at", editor: false, formatter: formatDate}

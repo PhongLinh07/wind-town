@@ -28,7 +28,7 @@ class HierarchyController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'name_position' => 'required|string|max:100|unique:hierarchy,name_position,NULL,id_hierarchy,name_level,' . ($request->name_level ?? ''),
+            'name_position' => 'required|string|max:100|unique:hierarchys,name_position,NULL,id_hierarchy,name_level,' . ($request->name_level ?? ''),
             'name_level' => 'required|string|max:50',
             'salary_multiplier' => 'nullable|numeric|min:0',
             'allowance' => 'nullable|numeric|min:0',

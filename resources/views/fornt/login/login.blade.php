@@ -10,7 +10,7 @@
 </head>
 
 <body>
-     @if(session('passwordRecovery_success'))
+          @if(session('passwordRecovery_success'))
           <div id="flash-msg" style="
             position: fixed;
             top: 20px;
