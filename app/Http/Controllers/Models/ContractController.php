@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Models;
-use App\Http\Controllers\Controller;  // <- thêm dòng này
+use App\Http\Controllers\Controller;
 
 use App\Models\Contract;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class ContractController extends Controller
     {
         $validated = $request->validate([
             'id_employee' => 'required|exists:employees,id_employee',
-            'contract_type' => 'required|in:fixed_term,indefinite,seasonal',
+            'contract_type' => 'required|in:1,2,3',
             'base_salary' => 'required|numeric|min:0',
             'effective_date' => 'required|date',
             'expiry_date' => 'nullable|date|after_or_equal:effective_date',
@@ -50,7 +50,7 @@ class ContractController extends Controller
         $contract = Contract::findOrFail($id);
 
         $validated = $request->validate([
-            'contract_type' => 'sometimes|in:fixed_term,indefinite,seasonal',
+            'contract_type' => 'sometimes|in:1,2,3',
             'base_salary' => 'sometimes|numeric|min:0',
             'effective_date' => 'sometimes|date',
             'expiry_date' => 'nullable|date|after_or_equal:effective_date',
@@ -76,28 +76,71 @@ class ContractController extends Controller
     public function destroy($id)
     {
         $contract = Contract::findOrFail($id);
+        
+        // Kiểm tra hợp đồng đã hết hạn ít nhất 3 tháng chưa
+        if (!$contract->expiry_date) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa hợp đồng không có ngày hết hạn.'
+            ], 400);
+        }
+        
+        $expiryDate = Carbon::parse($contract->expiry_date);
+        $threeMonthsAgo = Carbon::now()->subMonths(3);
+        
+        if ($expiryDate->gt($threeMonthsAgo)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Chỉ có thể xóa hợp đồng đã hết hạn ít nhất 3 tháng.'
+            ], 400);
+        }
+        
+        // Kiểm tra hợp đồng có đang được sử dụng trong bảng salary_details không
+        if ($contract->salaryDetails()->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa hợp đồng đang được sử dụng trong bảng lương (salary_details).'
+            ], 400);
+        }
+
         $contract->delete();
 
-        return response()->json(['message' => 'Deleted successfully']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Deleted successfully'
+        ]);
+    }
+
+    public function checkUsage($id)
+    {
+        $contract = Contract::findOrFail($id);
+        
+        $usageLocation = [];
+        
+        // Kiểm tra sử dụng trong bảng salary_details
+        if ($contract->salaryDetails()->exists()) {
+            $usageLocation[] = 'salary_details';
+        }
+        
+        return response()->json([
+            'isUsed' => !empty($usageLocation),
+            'usageLocation' => !empty($usageLocation) ? implode(', ', $usageLocation) : 'none'
+        ]);
     }
 
     public function activeCheck($idEmployee)
     {
-   
         $activeContract = Contract::where('id_employee', $idEmployee)
             ->where('status', 'active')
-            ->where(function ($q) 
-            {
+            ->where(function ($q) {
                 $q->whereNull('expiry_date')
                   ->orWhere('expiry_date', '>=', Carbon::today());
             })
-            ->first(); // lấy hợp đồng đầu tiên (nếu có)
+            ->first();
 
-            return response()->json([
+        return response()->json([
             'hasActive' => $activeContract ? true : false,
-            'data'  => $activeContract // null nếu không có
-            ]);
-    
+            'data' => $activeContract
+        ]);
     }
-
 }

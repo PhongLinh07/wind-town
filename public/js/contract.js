@@ -1,4 +1,3 @@
-// Contract.js
 class Contract {
     // --- Singleton instance ---
     static _instance = null;
@@ -59,7 +58,7 @@ class Contract {
           </div>
           
           <div class="filter-block">
-            <button class="delete-selected-btn" data-tab="contractTab"><i class="fas fa-trash-alt"></i> Delete</button>
+            <button class="delete-selected-btn" data-tab="contractTab"><i class="fas fa-trash-alt"></i> Delete Expired (3+ months)</button>
           </div>
           
           <div class="filter-block">
@@ -91,10 +90,9 @@ class Contract {
                 <label for="contract_type">Contract Type *</label>
                 <select id="contract_type" name="contract_type" required>
                   <option value="">---Select---</option>
-                  <option value="fixed_term">Fixed term</option>
-                  <option value="indefinite">Indefinite</option>
-                  <option value="seasonal">Seasonal</option>
-
+                  <option value="1">Fixed term</option>
+                  <option value="2">Indefinite</option>
+                  <option value="3">Seasonal</option>
                 </select>
               </div>
               <div class="form-group">
@@ -145,10 +143,16 @@ class Contract {
                 editor: "list",
                 editorParams: {
                     values: {
-                        "fixed_term": "Fixed term", // cố định
-                        "indefinite": "Indefinite", // ko xác định
-                        "seasonal": "Seasonal" //thời vụ
+                        1: "Fixed term",
+                        2: "Indefinite", 
+                        3: "Seasonal"
                     }
+                },
+                formatter: "lookup",
+                formatterParams: {
+                    1: "Fixed term",
+                    2: "Indefinite",
+                    3: "Seasonal"
                 }
             },
             {
@@ -190,9 +194,8 @@ class Contract {
                 editor: "list",
                 editorParams: {
                     values: {
-                        "active": "Active", // mafu xanh 
-                        // "expired": "Expired", hết hạn auto màu vàng
-                        "terminated": "Terminated" // chấm dứt đỏ
+                        "active": "Active",
+                        "terminated": "Terminated"
                     }
                 },
                 formatter: function (cell) {
@@ -202,19 +205,19 @@ class Contract {
 
                     switch (value) {
                         case "active":
-                            color = "#00c853"; // xanh
+                            color = "#00c853";
                             label = "Active";
                             break;
                         case "expired":
-                            color = "#fbc02d"; // vàng
+                            color = "#fbc02d";
                             label = "Expired";
                             break;
                         case "terminated":
-                            color = "#d32f2f"; // đỏ
+                            color = "#d32f2f";
                             label = "Terminated";
                             break;
                         default:
-                            color = "#9e9e9e"; // xám cho unknown
+                            color = "#9e9e9e";
                             label = value;
                     }
 
@@ -229,7 +232,6 @@ class Contract {
                         ${label}
                     </span>`;
                 },
-                
             },
             { title: "Description", field: "description", editor: "textarea" },
             {
@@ -261,6 +263,17 @@ class Contract {
         if (!value) return "";
         const date = new Date(value);
         return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // --- Check if contract is expired for at least 3 months ---
+    static isExpiredAtLeast3Months(expiryDate) {
+        if (!expiryDate) return false;
+
+        const expiry = new Date(expiryDate);
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+        return expiry < threeMonthsAgo;
     }
 
     // --- Return HTML ---
@@ -337,95 +350,87 @@ class Contract {
 
         // Form submission
         submitBtn.addEventListener("click", async function () {
-
             // Basic validation
             const id_employee = document.getElementById("id_employee").value;
             const contract_type = document.getElementById("contract_type").value;
             const base_salary = document.getElementById("base_salary").value;
             const effective_date = document.getElementById("effective_date").value;
             const expiry_date = document.getElementById("expiry_date").value;
-            const status = "active";
 
             if (!id_employee || !contract_type || !base_salary || !effective_date) {
                 alert("Please fill in all required fields (marked with *)");
                 return;
             }
 
-
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-            //validate employee
-            // 1️⃣ Kiểm tra nhân viên tồn tại
-            const resEmployee = await fetch(`/modelController/employees/${id_employee}`, {
-                headers: { "X-CSRF-TOKEN": csrfToken }
-            });
-
-            if (!resEmployee.ok) { alert("Nhân viên không tồn tại!"); return; }
-            const employeeData = await resEmployee.json();
-
-
-            // 2️⃣ Kiểm tra nhân viên đã có hợp đồng active chưa
-            const resCheck = await fetch(`/modelController/contracts/${id_employee}/activeCheck`, { headers: { "X-CSRF-TOKEN": csrfToken } });
-            if (!resCheck.ok) throw new Error("Không thể kiểm tra hợp đồng active");
-
-            const dataCheck = await resCheck.json();
-            if (dataCheck.hasActive) {
-                alert(`Employee: ${employeeData.id_employee} \n${employeeData.name} \nCurrent Contract: ${dataCheck.data.id_contract}`);
-                return;
-            }
-
-            // Validate base salary
-            if (base_salary < 0) {
-                alert("Base salary cannot be negative");
-                return;
-            }
-
-
-            if (expiry_date && new Date(expiry_date) <= new Date(effective_date)) {
-                alert("Expiry date must be after effective date");
-                return;
-            }
-
-            // Here you would typically send the data to your server
-            const formData = new FormData(contractForm);
-            const data = Object.fromEntries(formData.entries());
-
-
-
+            // Validate employee exists
             try {
-                const res = await fetch(`/modelController/${Contract._cfgTable.tableName}`,
-                    {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-                        body: JSON.stringify(data)
-                    });
+                const resEmployee = await fetch(`/modelController/employees/${id_employee}`, {
+                    headers: { "X-CSRF-TOKEN": csrfToken }
+                });
+
+                if (!resEmployee.ok) {
+                    alert("Employee does not exist!");
+                    return;
+                }
+                const employeeData = await resEmployee.json();
+
+                // Check if employee already has an active contract
+                const resCheck = await fetch(`/modelController/contracts/${id_employee}/activeCheck`, {
+                    headers: { "X-CSRF-TOKEN": csrfToken }
+                });
+
+                if (!resCheck.ok) throw new Error("Could not check active contract");
+
+                const dataCheck = await resCheck.json();
+                if (dataCheck.hasActive) {
+                    alert(`Employee: ${employeeData.id_employee}\n${employeeData.name}\nCurrent Contract: ${dataCheck.data.id_contract}`);
+                    return;
+                }
+
+                // Validate base salary
+                if (base_salary < 0) {
+                    alert("Base salary cannot be negative");
+                    return;
+                }
+
+                // Validate dates
+                if (expiry_date && new Date(expiry_date) <= new Date(effective_date)) {
+                    alert("Expiry date must be after effective date");
+                    return;
+                }
+
+                // Prepare data for submission
+                const formData = new FormData(contractForm);
+                const data = Object.fromEntries(formData.entries());
+                data.status = "active"; // Set default status
+
+                // Submit the form
+                const res = await fetch(`/modelController/${Contract._cfgTable.tableName}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
 
                 const result = await res.json();
 
                 if (res.ok) {
                     alert("Contract added successfully!");
-                    // Thêm row vào Tabulator
+                    // Add row to Tabulator
                     Contract._instanceTable.addRow(result, true);
                     closeModal();
-                    console.log(Contract._cfgTable);
-                    console.log("New Contract data:", data);
-                    alert("Contract added successfully! (This would connect to your backend in a real application)");
-
-                }
-                else {
-                    // Nếu server trả lỗi validation
+                } else {
+                    // Server validation error
                     alert("Error: " + (result.message || "Invalid input"));
                 }
-            }
-            catch (err) {
+            } catch (err) {
                 console.error(err);
                 alert("Network or server error");
-                console.log(JSON.stringify(data));
-                console.log(Contract._cfgTable?.tableName);
-
             }
-
-            closeModal();
         });
     }
 
@@ -468,14 +473,28 @@ class Contract {
             if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
         });
 
-        // Cell edit validation
+        // Setup delete button functionality
+        this.setupDeleteButton();
+
+        // Cell edit validation - only for editable fields
+        Contract._instanceTable.on("cellEditing", (cell) => {
+            const columnDef = cell.getColumn().getDefinition();
+
+            // Chỉ cho phép sửa các cột có editor khác false
+            if (!columnDef.editor || columnDef.editor === false) {
+                return false; // Prevent editing for non-editable columns
+            }
+
+            return true; // Allow editing for editable columns
+        });
+
         Contract._instanceTable.on("cellEdited", async cell => {
             const newValue = cell.getValue();
             const oldValue = cell.getOldValue();
 
-            // Chỉ rollback khi newValue là null hoặc rỗng string
+            // Don't update if value hasn't changed or is empty
             if (newValue === null || newValue === "" || newValue === oldValue) {
-                cell.setValue(oldValue, true);
+                cell.setValue(oldValue, false);
                 return;
             }
 
@@ -483,65 +502,149 @@ class Contract {
                 const rowData = cell.getRow().getData();
                 const field = cell.getField();
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const curr_date = Date.now();
 
-                // Update status nếu expired
+                // Update status if expired
                 if (rowData.expiry_date && rowData.status === "active") {
-                    const expiry_ts = new Date(rowData.expiry_date).getTime();
-                    if (expiry_ts < curr_date) {
+                    const expiryDate = new Date(rowData.expiry_date);
+                    const currentDate = new Date();
+                    if (expiryDate < currentDate) {
                         cell.getRow().getCell("status").setValue("expired", true);
                     }
                 }
 
-                // URL PUT chuẩn nested resource
-                const url = `/modelController/employees/${rowData.id_employee}/contracts/${rowData.id_contract}`;
-
-                // Dữ liệu gửi lên
-                const payload = { [field]: newValue, status: rowData.status };
+                // Prepare data for update
+                const payload = { [field]: newValue };
 
                 const resPut = await fetch(`/modelController/contracts/${rowData.id_contract}`, {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
                     body: JSON.stringify(payload)
                 });
 
-                if (!resPut.ok) {
-                    alert("Contract update failed.");
-                    cell.setValue(cell.getOldValue(), true);
+                const mess = await resPut.json(); //đọc trong try
+                if (!resPut.ok) 
+                { 
+                    cell.setValue(oldValue, false);
+                    alert(mess.message);
                     return;
                 }
 
-                if (resPut.headers.get("content-type")?.includes("application/json")) {
-                    const result = await resPut.json();
-                    console.log("Update success:", result);
-                } else {
-                    console.log("Update success (no content).");
-                }
-
+               
+                console.log("Update successful");
             } catch (err) {
+                const report = err.json();
                 console.error(err);
-                cell.setValue(cell.getOldValue(), true);
+                cell.setValue(oldValue, false);
+                alert(report.message);
             }
-
         });
     }
 
-    // --- Render table vào container ---
+    // --- Setup delete button functionality ---
+    setupDeleteButton() {
+        const deleteBtn = document.querySelector(".delete-selected-btn");
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", async () => {
+                const selectedRows = Contract._instanceTable.getSelectedRows();
+                if (selectedRows.length === 0) {
+                    alert("Please select at least one contract to delete.");
+                    return;
+                }
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                let deletedCount = 0;
+                let failedCount = 0;
+                const failedMessages = [];
+
+                try {
+                    // Kiểm tra và xóa từng hợp đồng đã chọn
+                    for (const row of selectedRows) {
+                        const contractData = row.getData();
+                        const contractId = contractData.id_contract;
+
+                        // Kiểm tra xem hợp đồng có hết hạn quá 3 tháng không
+                        if (!contractData.expiry_date || !Contract.isExpiredAtLeast3Months(contractData.expiry_date)) {
+                            failedCount++;
+                            failedMessages.push(`Contract ${contractId}: Not expired for at least 3 months`);
+                            continue;
+                        }
+
+                        // Kiểm tra xem hợp đồng có đang được sử dụng ở bảng khác không
+                        const checkUsageRes = await fetch(`/modelController/contracts/${contractId}/checkUsage`, {
+                            method: "GET",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": csrfToken
+                            }
+                        });
+
+                        const usageResult = await checkUsageRes.json();
+
+                        if (usageResult.isUsed) {
+                            failedCount++;
+                            failedMessages.push(`Contract ${contractId}: Is being used in ${usageResult.usageLocation}`);
+                            continue;
+                        }
+
+                        // Gọi API để xóa hợp đồng
+                        const res = await fetch(`/modelController/contracts/${contractId}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": csrfToken
+                            }
+                        });
+
+                        const result = await res.json();
+
+                        if (res.ok && result.success) {
+                            // Xóa khỏi table nếu thành công
+                            row.delete();
+                            deletedCount++;
+                        } else {
+                            failedCount++;
+                            failedMessages.push(`Contract ${contractId}: ${result.message || "Delete failed"}`);
+                        }
+                    }
+
+                    // Hiển thị kết quả
+                    let message = `Deleted ${deletedCount} contract(s) successfully.`;
+
+                    if (failedCount > 0) {
+                        message += `\nFailed to delete ${failedCount} contract(s):\n${failedMessages.join('\n')}`;
+                    }
+
+                    alert(message);
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error deleting contracts: " + err.message);
+                }
+            });
+        }
+    }
+
+    // --- Render table into container ---
     render(container) {
         container.innerHTML = this.getHTML();
 
         if (!Contract._instanceTable) {
             this.createTable();
         } else {
-            // Reattach bảng vào div mới
+            // Reattach table to the new div
             const tableDiv = container.querySelector(Contract._cfgTable.selector);
-            tableDiv.appendChild(Contract._instanceTable.element);
+            if (tableDiv && Contract._instanceTable.element) {
+                tableDiv.appendChild(Contract._instanceTable.element);
+            }
         }
 
-        // Setup filters và search
+        // Setup filters and search
         this.setupFilters();
 
-        // Thiết lập modal
+        // Setup modal
         this.setupModal();
     }
 }

@@ -185,6 +185,109 @@ class Attendance {
 
     // --- Setup modal functionality ---
     setupModal() { }
+// --- Setup delete functionality ---
+    setupDeleteButton() {
+        const deleteBtn = document.querySelector('.delete-selected-btn[data-tab="attendanceTab"]');
+        if (!deleteBtn || !Attendance._instanceTable) return;
+
+        deleteBtn.addEventListener('click', async () => {
+            const selectedRows = Attendance._instanceTable.getSelectedRows();
+            
+            if (selectedRows.length === 0) {
+                alert('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                return;
+            }
+
+            // Kiểm tra điều kiện ngày tháng
+            const currentDate = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+            
+            const validRecords = [];
+            const invalidRecords = [];
+            
+            selectedRows.forEach(row => {
+                const recordDate = new Date(row.getData().of_date);
+                if (recordDate <= threeMonthsAgo) {
+                    validRecords.push(row);
+                } else {
+                    invalidRecords.push(row);
+                }
+            });
+
+            // Thông báo nếu có bản ghi không đủ điều kiện
+            if (invalidRecords.length > 0) {
+                alert(`Có ${invalidRecords.length} bản ghi không thể xóa vì chưa đủ 3 tháng. Chỉ có thể xóa những bản ghi từ ngày ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước.`);
+                
+                // Nếu không có bản ghi nào hợp lệ, dừng lại
+                if (validRecords.length === 0) {
+                    return;
+                }
+                
+                // Nếu có cả hợp lệ và không hợp lệ, hỏi người dùng có muốn xóa những bản ghi hợp lệ không
+                if (!confirm(`Bạn có muốn xóa ${validRecords.length} bản ghi hợp lệ (từ ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước) không?`)) {
+                    return;
+                }
+            } else {
+                // Xác nhận xóa nếu tất cả đều hợp lệ
+                if (!confirm(`Bạn có chắc chắn muốn xóa ${validRecords.length} bản ghi không?`)) {
+                    return;
+                }
+            }
+
+            // Thực hiện xóa các bản ghi hợp lệ
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const deletePromises = [];
+                
+                for (const row of validRecords) {
+                    const id = row.getData().id_attendance;
+                    const deletePromise = fetch(`/modelController/attendances/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    });
+                    deletePromises.push(deletePromise);
+                }
+                
+                // Chờ tất cả các yêu cầu xóa hoàn thành
+                const results = await Promise.allSettled(deletePromises);
+                
+                // Kiểm tra kết quả
+                let successCount = 0;
+                let failCount = 0;
+                
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value.ok) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        console.error(`Lỗi khi xóa bản ghi ${validRecords[index].getData().id_attendance}:`, result.reason || result.value);
+                    }
+                });
+                
+                // Thông báo kết quả
+                if (successCount > 0) {
+                    alert(`Đã xóa thành công ${successCount} bản ghi.`);
+                    
+                    // Làm mới bảng để cập nhật dữ liệu
+                    Attendance._instanceTable.setData();
+                    
+                    // Bỏ chọn tất cả các hàng
+                    Attendance._instanceTable.deselectRow();
+                }
+                
+                if (failCount > 0) {
+                    alert(`Có ${failCount} bản ghi xóa không thành công. Vui lòng thử lại.`);
+                }
+                
+            } catch (error) {
+                console.error('Lỗi khi xóa bản ghi:', error);
+                alert('Đã xảy ra lỗi khi xóa bản ghi. Vui lòng thử lại.');
+            }
+        });
+    }
 
     // --- Create Tabulator table ---
     createTable() {
@@ -292,5 +395,7 @@ class Attendance {
 
         // Thiết lập modal
         this.setupModal();
+
+        this.setupDeleteButton();
     }
 }

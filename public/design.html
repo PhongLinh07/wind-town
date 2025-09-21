@@ -1,690 +1,633 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-  <title>Dashboard - Win Town</title>
-
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-  <link href="bootstrap/css/styles.css" rel="stylesheet" />
-  
-  <!-- Tabulator CSS -->
-  <link href="/css/styles.css" rel="stylesheet">
-  <link href="/css/tabulator.min.css" rel="stylesheet">
-
-  <!-- Tabulator JS UMD đầy đủ -->
-  <script src="/js/tabulator.min.js"></script>
-
-  <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-
-  <style>
-    :root {
-      --primary-color: #2c52ed;
-      --secondary-color: #6c757d;
-      --success-color: #1cc88a;
-      --info-color: #36b9cc;
-      --warning-color: #f6c23e;
-      --danger-color: #e74a3b;
-      --light-bg: #f8f9fa;
-      --dark-bg: #212529;
-      --sidebar-width: 250px;
-      --sidebar-collapsed-width: 80px;
-      --transition-speed: 0.3s;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: var(--light-bg);
-      overflow-x: hidden;
-      transition: all var(--transition-speed) ease;
-    }
-
-    /* Top Navigation */
-    .sb-topnav {
-      background: linear-gradient(90deg, var(--dark-bg) 0%, #2c3e50 100%);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-      z-index: 1030;
-      padding: 0;
-      transition: all var(--transition-speed) ease;
-    }
-
-    .sb-topnav .navbar-brand {
-      font-weight: 600;
-      color: white;
-      padding: 1rem 1.5rem;
-      transition: all var(--transition-speed) ease;
-    }
-
-    .sb-topnav .navbar-brand i {
-      margin-right: 10px;
-      color: var(--primary-color);
-    }
-
-    #sidebarToggle {
-      color: white;
-      border: none;
-      background: transparent;
-      font-size: 1.2rem;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: all var(--transition-speed) ease;
-    }
-
-    #sidebarToggle:hover {
-      color: var(--primary-color);
-      transform: rotate(90deg);
-    }
-
-    /* Search Form */
-    .sb-topnav .form-inline {
-      padding: 0.5rem 0;
-    }
-
-    .sb-topnav .input-group {
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .sb-topnav .form-control {
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      padding: 0.5rem 1rem;
-    }
-
-    .sb-topnav .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .sb-topnav .btn {
-      background: var(--primary-color);
-      border: none;
-      padding: 0.5rem 1rem;
-    }
-
-    /* User Dropdown */
-    .sb-topnav .navbar-nav .nav-link {
-      color: white;
-      padding: 1rem;
-      transition: all 0.2s ease;
-    }
-
-    .sb-topnav .navbar-nav .nav-link:hover {
-      color: var(--primary-color);
-    }
-
-    .sb-topnav .dropdown-menu {
-      border: none;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      border-radius: 10px;
-      padding: 0.5rem;
-    }
-
-    .sb-topnav .dropdown-item {
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      transition: all 0.2s ease;
-    }
-
-    .sb-topnav .dropdown-item:hover {
-      background-color: var(--light-bg);
-    }
-
-    /* Sidebar */
-    #layoutSidenav {
-      display: flex;
-      position: relative;
-    }
-
-    #layoutSidenav_nav {
-      position: fixed;
-      top: 56px;
-      left: 0;
-      height: calc(100vh - 56px);
-      width: var(--sidebar-width);
-      z-index: 1020;
-      transition: all var(--transition-speed) ease;
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
-
-    .sb-sidenav {
-      background: linear-gradient(180deg, var(--dark-bg) 0%, #2c3e50 100%);
-      height: 100%;
-      padding: 1rem 0;
-      display: flex;
-      flex-direction: column;
-      transition: all var(--transition-speed) ease;
-    }
-
-    .sb-sidenav-menu {
-      flex-grow: 1;
-    }
-
-    .sb-sidenav-menu-heading {
-      color: rgba(255, 255, 255, 0.6);
-      padding: 1rem 1.5rem 0.5rem;
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      transition: all var(--transition-speed) ease;
-    }
-
-    .sb-sidenav .nav {
-      flex-direction: column;
-    }
-
-    .sb-sidenav .nav-link {
-      color: rgba(255, 255, 255, 0.8);
-      padding: 0.75rem 1.5rem;
-      position: relative;
-      display: flex;
-      align-items: center;
-      transition: all 0.3s ease;
-      border-left: 3px solid transparent;
-    }
-
-    .sb-sidenav .nav-link:hover {
-      color: white;
-      background: rgba(255, 255, 255, 0.05);
-      border-left-color: var(--primary-color);
-    }
-
-    .sb-sidenav .nav-link.active {
-      color: white;
-      background: rgba(255, 255, 255, 0.1);
-      border-left-color: var(--primary-color);
-    }
-
-    .sb-sidenav .nav-link .sb-nav-link-icon {
-      margin-right: 0.75rem;
-      font-size: 1.1rem;
-      width: 24px;
-      text-align: center;
-      transition: all var(--transition-speed) ease;
-    }
-
-    .sb-sidenav .nav-link.active .sb-nav-link-icon,
-    .sb-sidenav .nav-link:hover .sb-nav-link-icon {
-      color: var(--primary-color);
-    }
-
-    .sb-sidenav .nav-link.collapsed .sb-sidenav-collapse-arrow {
-      transform: rotate(0deg);
-    }
-
-    .sb-sidenav .nav-link .sb-sidenav-collapse-arrow {
-      margin-left: auto;
-      transition: transform var(--transition-speed) ease;
-    }
-
-    .sb-sidenav-menu-nested {
-      margin-left: 1.5rem;
-      padding-left: 0.5rem;
-      border-left: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .sb-sidenav-menu-nested .nav-link {
-      padding: 0.6rem 1rem;
-      font-size: 0.9rem;
-    }
-
-    .collapse {
-      transition: height var(--transition-speed) ease;
-    }
-
-    /* Sidebar Footer */
-    .sb-sidenav-footer {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 0.75rem;
-      color: rgba(255, 255, 255, 0.6);
-      font-size: 0.85rem;
-    }
-
-    .sb-sidenav-footer .small {
-      font-size: 0.75rem;
-      margin-bottom: 0.25rem;
-    }
-
-    /* Main Content */
-    #layoutSidenav_content {
-      margin-left: var(--sidebar-width);
-      transition: all var(--transition-speed) ease;
-      width: calc(100% - var(--sidebar-width));
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    main#app {
-      flex: 1;
-      padding: 1.5rem;
-      opacity: 1;
-      transition: opacity 0.4s ease-in-out;
-    }
-
-    /* Footer */
-    footer {
-      background: white;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-      padding: 1rem;
-      margin-top: auto;
-    }
-
-    /* Cards */
-    .card {
-      border: none;
-      border-radius: 10px;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 1.5rem;
-      transition: all 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .card-header {
-      background: white;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      font-weight: 600;
-      padding: 1rem 1.5rem;
-      border-radius: 10px 10px 0 0 !important;
-    }
-
-    .card-body {
-      padding: 1.5rem;
-    }
-
-    /* Breadcrumb */
-    .breadcrumb {
-      background: transparent;
-      padding: 0.5rem 0;
-      margin-bottom: 1.5rem;
-    }
-
-    .breadcrumb-item a {
-      color: var(--primary-color);
-      text-decoration: none;
-      transition: all 0.2s ease;
-    }
-
-    .breadcrumb-item a:hover {
-      text-decoration: underline;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .fade-in {
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    .card {
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeIn 0.5s ease forwards;
-    }
-
-    .row > div:nth-child(1) .card { animation-delay: 0.1s; }
-    .row > div:nth-child(2) .card { animation-delay: 0.2s; }
-    .row > div:nth-child(3) .card { animation-delay: 0.3s; }
-    .row > div:nth-child(4) .card { animation-delay: 0.4s; }
-
-    /* Toggle sidebar state */
-    .sb-sidenav-toggled #layoutSidenav_nav {
-      width: var(--sidebar-collapsed-width);
-    }
-
-    .sb-sidenav-toggled #layoutSidenav_content {
-      margin-left: var(--sidebar-collapsed-width);
-      width: calc(100% - var(--sidebar-collapsed-width));
-    }
-
-    .sb-sidenav-toggled .sb-sidenav .nav-link {
-      padding: 0.75rem;
-      justify-content: center;
-    }
-
-    .sb-sidenav-toggled .sb-sidenav .nav-link .sb-nav-link-icon {
-      margin-right: 0;
-      font-size: 1.25rem;
-    }
-
-    .sb-sidenav-toggled .sb-sidenav .nav-link .sb-nav-link-text,
-    .sb-sidenav-toggled .sb-sidenav .sb-sidenav-collapse-arrow,
-    .sb-sidenav-toggled .sb-sidenav-menu-heading,
-    .sb-sidenav-toggled .sb-sidenav-menu-nested,
-    .sb-sidenav-toggled .sb-sidenav-footer {
-      display: none;
-    }
-
-    .sb-sidenav-toggled .sb-sidenav .nav-link {
-      border-left: none;
-      border-radius: 8px;
-      margin: 0.25rem 0.5rem;
-      width: calc(var(--sidebar-collapsed-width) - 1rem);
-    }
-
-    .sb-sidenav-toggled .sb-sidenav .nav-link:hover {
-      background: var(--primary-color);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      #layoutSidenav_nav {
-        width: var(--sidebar-collapsed-width);
-        transform: translateX(-var(--sidebar-collapsed-width));
-      }
-
-      #layoutSidenav_content {
-        margin-left: 0;
-        width: 100%;
-      }
-
-      .sb-sidenav-mobile-toggled #layoutSidenav_nav {
-        transform: translateX(0);
-        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-      }
-
-      .sb-sidenav-mobile-toggled #layoutSidenav_content::before {
-        content: '';
-        position: fixed;
-        top: 56px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1019;
-      }
-    }
-  </style>
-</head>
-
-<body class="sb-nav-fixed">
-  <!-- Top Navbar -->
-  <nav class="sb-topnav navbar navbar-expand navbar-dark">
-      <!-- Navbar Brand-->
-      <a class="navbar-brand ps-3" href="index.html">
-        <i class="fas fa-city"></i> Win Town
-      </a>
-      <!-- Sidebar Toggle-->
-      <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle">
-        <i class="fas fa-bars"></i>
-      </button>
-      <!-- Navbar Search-->
-      <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
-          <div class="input-group">
-              <input class="form-control" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
-              <button class="btn btn-primary" id="btnNavbarSearch" type="button"><i class="fas fa-search"></i></button>
+class Contract {
+    // --- Singleton instance ---
+    static _instance = null;
+    static _instanceTable = null;
+
+    // HTML template
+    static _html = `
+    <div class="main-container">
+      <div class="filter-container">
+        <div class="filter-left">
+          <div class="filter-block">
+            <h3><i class="fas fa-filter"></i> Field:</h3>
+            <select class="input-field" id="filter-field">
+              <option></option>
+              <option value="id_contract">ID</option>
+              <option value="id_employee">ID Employee</option>
+              <option value="contract_type">Contract Type</option>
+              <option value="base_salary">Base Salary</option>
+              <option value="effective_date">Effective Date</option>
+              <option value="expiry_date">Expiry Date</option>
+              <option value="status">Status</option>
+              <option value="description">Description</option>
+              <option value="created_at">Create At</option>
+              <option value="updated_at">Update At</option>
+            </select>
           </div>
-      </form>
-      <!-- Navbar-->
-      <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
-          <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                  <li><a class="dropdown-item" href="#!">Settings</a></li>
-                  <li><a class="dropdown-item" href="#!">Activity Log</a></li>
-                  <li><hr class="dropdown-divider" /></li>
-                  <li><a class="dropdown-item" href="#!">Logout</a></li>
-              </ul>
-          </li>
-      </ul>
-  </nav>
 
-  <div id="layoutSidenav">
-    <!-- Sidebar -->
-    <div id="layoutSidenav_nav">
-      <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-        <div class="sb-sidenav-menu">
-          <div class="nav">
-            <div class="sb-sidenav-menu-heading">Core</div>
-            <a class="nav-link" href="#" data-page="dashboard">
-              <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-              Dashboard
-            </a>
+          <div class="filter-block">
+            <h3><i class="fas fa-code"></i> Type:</h3>
+            <select class="input-field" id="filter-type">
+              <option value="=">=</option>
+              <option value="<"><</option>
+              <option value="<="><=</option>
+              <option value=">">></option>
+              <option value=">=">>=</option>
+              <option value="!=">!=</option>
+              <option value="like">like</option>
+            </select>
+          </div>
 
-            <div class="sb-sidenav-menu-heading">Interface</div>
+          <div class="filter-block">
+            <h3><i class="fas fa-search"></i> Value:</h3>
+            <input class="input-field" id="filter-value" type="text" placeholder="Value to filter">
+          </div>
 
-            <!-- Internal Policies -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePolicies" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-gavel"></i></div>
-              Internal policies & regulations
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapsePolicies" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="hierarchy">Hierarchys</a>
-                <a class="nav-link" href="#" data-page="payroll_rule">Payroll Rules</a>
-              </nav>
-            </div>
-
-            <!-- Employees -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseEmployees" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
-              Employees
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseEmployees" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="employee_information">Personal Information</a>
-                <a class="nav-link" href="#" data-page="employee_hierarchy">Hierarchy</a>
-                <a class="nav-link" href="#" data-page="employee_bank_information">Bank Information</a>
-              </nav>
-            </div>
-
-            <!-- Contracts & Payroll -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseContracts" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-              Contracts & Payroll
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseContracts" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="contract">Contracts</a>
-                <a class="nav-link" href="#" data-page="salary_detail">Salary Details</a>
-              </nav>
-            </div>
-
-            <!-- Attendance -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseAttendance" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-calendar-check"></i></div>
-              Attendance Management
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseAttendance" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="attendance">Attendances</a>
-              </nav>
-            </div>
-
-            <!-- Leave Management -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLeaves" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-plane-departure"></i></div>
-              Leave Management
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseLeaves" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="leave">Leaves</a>
-              </nav>
-            </div>
-
-            <!-- Reports & Analytics -->
-            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReports" aria-expanded="false">
-              <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-              Reports & Analytics
-              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-            </a>
-            <div class="collapse" id="collapseReports" data-bs-parent="#sidenavAccordion">
-              <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" data-page="charts">Charts</a>
-                <a class="nav-link" href="#" data-page="tables">Tables</a>
-              </nav>
-            </div>
+          <div class="filter-block">
+            <button id="filter-clear"><i class="fas fa-broom"></i> Clear</button>
           </div>
         </div>
-        <div class="sb-sidenav-footer">
-          <div class="small">Logged in as:</div>
-          Start Bootstrap
+
+        <div class="filter-right">
+          <div class="filter-block">
+            <input type="text" id="contract-search-input" placeholder="Search contracts...">
+          </div>
+          
+          <div class="filter-block">
+            <button class="add-row-btn" id="open-modal-btn"><i class="fas fa-plus-circle"></i> Add</button>
+          </div>
+          
+          <div class="filter-block">
+            <button class="delete-selected-btn" data-tab="contractTab"><i class="fas fa-trash-alt"></i> Delete Expired (3+ months)</button>
+          </div>
+          
+          <div class="filter-block">
+            <span class="select-stats"><i class="fas fa-check-circle"></i> Selected: 0</span>
+          </div>
         </div>
-      </nav>
+      </div>
+
+      <div class="table-container">
+        <div id="tabulator-table"></div>
+      </div>
     </div>
 
-    <!-- Main Content -->
-    <div id="layoutSidenav_content">
-      <main id="app" class="container-fluid px-4">
-        <h1 class="mt-4">Dashboard</h1>
-        <ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Dashboard</li></ol>
-
-        <!-- Cards -->
-        <div class="row">
-          <div class="col-xl-3 col-md-6">
-            <div class="card bg-primary text-white mb-4">
-              <div class="card-body">Primary Card</div>
-              <div class="card-footer d-flex align-items-center justify-content-between">
-                <a class="small text-white stretched-link" href="#">View Details</a>
-                <div class="small text-white"><i class="fas fa-angle-right"></i></div>
+    <!-- Modal Form -->
+    <div id="add-contract-modal" class="modal">
+      <div class="modal-content"  style="margin: 10% auto">
+        <div class="modal-header">
+          <h2><i class="fas fa-file-contract"></i> Add New Contract</h2>
+          <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="contract-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="id_employee">Employee ID *</label>
+                <input type="number" id="id_employee" name="id_employee" required>
+              </div>
+              <div class="form-group">
+                <label for="contract_type">Contract Type *</label>
+                <select id="contract_type" name="contract_type" required>
+                  <option value="">---Select---</option>
+                  <option value="1">Fixed term</option>
+                  <option value="2">Indefinite</option>
+                  <option value="3">Seasonal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="base_salary">Base Salary *</label>
+                <input type="number" id="base_salary" name="base_salary" step="0.01" min="0" required>
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Charts -->
-        <div class="row">
-          <div class="col-xl-6">
-            <div class="card mb-4">
-              <div class="card-header"><i class="fas fa-chart-area me-1"></i>Area Chart Example</div>
-              <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="effective_date">Effective Date *</label>
+                <input type="date" id="effective_date" name="effective_date" required>
+              </div>
+              <div class="form-group">
+                <label for="expiry_date">Expiry Date</label>
+                <input type="date" id="expiry_date" name="expiry_date">
+              </div>
             </div>
-          </div>
-          <div class="col-xl-6">
-            <div class="card mb-4">
-              <div class="card-header"><i class="fas fa-chart-bar me-1"></i>Bar Chart Example</div>
-              <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
-            </div>
-          </div>
-        </div>
-      </main>
 
-      <!-- Footer -->
-      <footer class="py-4 bg-light mt-auto">
-        <div class="container-fluid px-4">
-          <div class="d-flex align-items-center justify-content-between small">
-            <div class="text-muted">&copy; 2023 Win Town</div>
-            <div>
-              <a href="#">Privacy Policy</a> &middot; <a href="#">Terms &amp; Conditions</a>
+            <div class="form-row">
+              <div class="form-group-full">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" placeholder="Contract description"></textarea>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
-      </footer>
+        <div class="modal-footer">
+          <button class="btn-cancel" id="cancel-btn"><i class="fas fa-times"></i> Cancel</button>
+          <button class="btn-submit" id="submit-btn"><i class="fas fa-check"></i> Add Contract</button>
+        </div>
+      </div>
     </div>
-  </div>
+  `;
 
-  <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-  <script src="bootstrap/js/scripts.js"></script> <!-- open/Close sidebarToggle--> 
-  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
-   <!-- Scripts Page-->
-  <script src="/js/employee_information.js"></script>
-  <script src="/js/employee_hierarchy.js"></script>
-  <script src="/js/employee_bank_information.js"></script>
+    // Tabulator config
+    static _cfgTable = {
+        selector: "#tabulator-table",
+        tableName: "contracts",
+        searchInput: "#contract-search-input",
+        primaryKey: "id_contract",
+        columns: [
+            { title: "ID Contract", field: "id_contract", editor: false },
+            { title: "ID Employee", field: "id_employee", editor: false },
+            {
+                title: "Contract Type",
+                field: "contract_type",
+                editor: "list",
+                editorParams: {
+                    values: {
+                        1: "Fixed term",
+                        2: "Indefinite",
+                        3: "Seasonal"
+                    }
+                },
+                formatter: "lookup",
+                formatterParams: {
+                    1: "Fixed term",
+                    2: "Indefinite",
+                    3: "Seasonal"
+                }
+            },
+            {
+                title: "Base Salary",
+                field: "base_salary",
+                editor: "number",
+                editorParams: { step: 0.01, min: 0 },
+                formatter: "money",
+                formatterParams: {
+                    symbol: "$",
+                    precision: 2,
+                    thousand: ",",
+                    decimal: "."
+                }
+            },
+            {
+                title: "Effective Date",
+                field: "effective_date",
+                editor: "date",
+                formatter: Contract.formatDate,
+                formatterParams: {
+                    outputFormat: "YYYY-MM-DD",
+                    invalidPlaceholder: "(invalid date)"
+                }
+            },
+            {
+                title: "Expiry Date",
+                field: "expiry_date",
+                editor: "date",
+                formatter: Contract.formatDate,
+                formatterParams: {
+                    outputFormat: "YYYY-MM-DD",
+                    invalidPlaceholder: "(invalid date)"
+                }
+            },
+            {
+                title: "Status",
+                field: "status",
+                editor: "list",
+                editorParams: {
+                    values: {
+                        "active": "Active",
+                        "terminated": "Terminated"
+                    }
+                },
+                formatter: function (cell) {
+                    const value = cell.getValue();
+                    let color = "";
+                    let label = "";
 
-  <script src="/js/hierarchy.js"></script>
-  <script src="/js/payroll_rule.js"></script>
+                    switch (value) {
+                        case "active":
+                            color = "#00c853";
+                            label = "Active";
+                            break;
+                        case "expired":
+                            color = "#fbc02d";
+                            label = "Expired";
+                            break;
+                        case "terminated":
+                            color = "#d32f2f";
+                            label = "Terminated";
+                            break;
+                        default:
+                            color = "#9e9e9e";
+                            label = value;
+                    }
 
-  <script src="/js/contract.js"></script>
-  <script src="/js/salary_detail.js"></script>
-
-  <script src="/js/attendance.js"></script>
-
-  <script src="/js/leave.js"></script>
-
-  <!-- SPA JS -->
-  <script>
-    const app = document.getElementById('app');
-
-    // --- Tab modules (lazy load) ---
-    const TabModules = 
-    {
-      employee_information: null, // Singleton sẽ tạo khi click lần đầu
-      employee_hierarchy: null,
-      employee_bank_information: null,
-
-      hierachy: null,
-      payroll_rule:null,
-
-      contract: null,
-      salary_detail: null,
-
-      attendance:null,
-      
-      leave: null,
+                    return `<span style="
+                    display:inline-block;
+                    padding:2px 8px;
+                    border-radius:12px;
+                    background:${color};
+                    color:#fff;
+                    font-size:12px;
+                    font-weight:500;">
+                        ${label}
+                    </span>`;
+                },
+            },
+            { title: "Description", field: "description", editor: "textarea" },
+            {
+                title: "Create At",
+                field: "created_at",
+                editor: false,
+                formatter: Contract.formatDate
+            },
+            {
+                title: "Update At",
+                field: "updated_at",
+                editor: false,
+                formatter: Contract.formatDate
+            }
+        ]
     };
 
-    function loadPage(page)
-    {
-      const content = app;
-      // Highlight active menu
-      document.querySelectorAll('[data-page]').forEach(el => el.classList.remove('active'));
-      const activeEl = document.querySelector(`[data-page="${page}"]`);
-      if(activeEl) activeEl.classList.add('active');
-
-      // Load page content
-      switch(page)
-      {
-        case 'Home': { content.innerHTML = `<h1 class="mt-4">Dashboard</h1> <ol class="breadcrumb mb-4"><li class="breadcrumb-item active">Dashboard</li></ol>`; } break;
-        case 'employee_information': { Employee_Information.getInstance().render(content); } break;
-        case 'employee_hierarchy': { Employee_Hierarchy.getInstance().render(content); } break;
-        case 'employee_bank_information': { Employee_Bank_Information.getInstance().render(content)} break;
-
-        case 'hierarchy': { Hierarchy.getInstance().render(content); } break;
-        case 'payroll_rule': { Payroll_Rule.getInstance().render(content); } break;
-
-        case 'contract': { Contract.getInstance().render(content); } break;
-        case 'salary_detail': { Salary_Detail.getInstance().render(content); } break;
-
-        case 'attendance': { Attendance.getInstance().render(content); } break;
-
-        case 'leave': { Leave.getInstance().render(content); } break;
-
-        default: content.innerHTML = `<p>Page not found: ${page}</p>`; break;
-      }
-
-      window.location.hash = page;
+    // --- Singleton getInstance ---
+    static getInstance() {
+        if (!Contract._instance) {
+            Contract._instance = new Contract();
+        }
+        return Contract._instance;
     }
 
-    document.addEventListener('click', e => {
-      const a = e.target.closest('[data-page]');
-      if(!a) return;
-      if(a.getAttribute('data-bs-toggle')) return;
-      e.preventDefault();
-      const page = a.getAttribute('data-page');
-      if(page) loadPage(page);
-    });
+    // --- Format date ---
+    static formatDate(cell) {
+        const value = cell.getValue();
+        if (!value) return "";
+        const date = new Date(value);
+        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    }
 
-    // --- Load default page ---
-    const defaultPage = window.location.hash ? window.location.hash.slice(1) : 'dashboard';
-    loadPage(defaultPage);
-  </script>
-</body>
-</html>
+    // --- Check if contract is expired for at least 3 months ---
+    static isExpiredAtLeast3Months(expiryDate) {
+        if (!expiryDate) return false;
+
+        const expiry = new Date(expiryDate);
+        const threeMonthsAgo = new Date();
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+        return expiry < threeMonthsAgo;
+    }
+
+    // --- Return HTML ---
+    getHTML() {
+        return Contract._html;
+    }
+
+    // --- Setup filters ---
+    setupFilters() {
+        const table = Contract._instanceTable;
+        if (!table) return;
+
+        const fieldEl = document.getElementById("filter-field");
+        const typeEl = document.getElementById("filter-type");
+        const valueEl = document.getElementById("filter-value");
+
+        const updateFilter = () => {
+            const filterVal = fieldEl.value;
+            const typeVal = typeEl.value;
+            if (!filterVal) {
+                table.clearFilter();
+                return;
+            }
+            table.setFilter(filterVal, typeVal, valueEl.value);
+        };
+
+        fieldEl.addEventListener("change", updateFilter);
+        typeEl.addEventListener("change", updateFilter);
+        valueEl.addEventListener("keyup", updateFilter);
+
+        document.getElementById("filter-clear").addEventListener("click", () => {
+            fieldEl.value = "";
+            typeEl.value = "=";
+            valueEl.value = "";
+            table.clearFilter();
+        });
+
+        // Search filter
+        const searchInput = document.getElementById(Contract._cfgTable.searchInput);
+        if (searchInput) {
+            searchInput.addEventListener("keyup", e => {
+                table.setFilter([
+                    { field: "id_employee", type: "like", value: e.target.value },
+                    { field: "contract_type", type: "like", value: e.target.value },
+                    { field: "status", type: "like", value: e.target.value },
+                    { field: "description", type: "like", value: e.target.value }
+                ]);
+            });
+        }
+    }
+
+    // --- Setup modal functionality ---
+    setupModal() {
+        const modal = document.getElementById("add-contract-modal");
+        const openModalBtn = document.getElementById("open-modal-btn");
+        const closeModalBtn = document.querySelector(".close");
+        const cancelBtn = document.getElementById("cancel-btn");
+        const submitBtn = document.getElementById("submit-btn");
+        const contractForm = document.getElementById("contract-form");
+
+        // Open modal
+        openModalBtn.addEventListener("click", function () {
+            modal.style.display = "block";
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.style.display = "none";
+            contractForm.reset();
+        };
+
+        closeModalBtn.addEventListener("click", closeModal);
+        cancelBtn.addEventListener("click", closeModal);
+
+        // Form submission
+        submitBtn.addEventListener("click", async function () {
+            // Basic validation
+            const id_employee = document.getElementById("id_employee").value;
+            const contract_type = document.getElementById("contract_type").value;
+            const base_salary = document.getElementById("base_salary").value;
+            const effective_date = document.getElementById("effective_date").value;
+            const expiry_date = document.getElementById("expiry_date").value;
+
+            if (!id_employee || !contract_type || !base_salary || !effective_date) {
+                alert("Please fill in all required fields (marked with *)");
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            // Validate employee exists
+            try {
+                const resEmployee = await fetch(`/modelController/employees/${id_employee}`, {
+                    headers: { "X-CSRF-TOKEN": csrfToken }
+                });
+
+                if (!resEmployee.ok) {
+                    alert("Employee does not exist!");
+                    return;
+                }
+                const employeeData = await resEmployee.json();
+
+                // Check if employee already has an active contract
+                const resCheck = await fetch(`/modelController/contracts/${id_employee}/activeCheck`, {
+                    headers: { "X-CSRF-TOKEN": csrfToken }
+                });
+
+                if (!resCheck.ok) throw new Error("Could not check active contract");
+
+                const dataCheck = await resCheck.json();
+                if (dataCheck.hasActive) {
+                    alert(`Employee: ${employeeData.id_employee}\n${employeeData.name}\nCurrent Contract: ${dataCheck.data.id_contract}`);
+                    return;
+                }
+
+                // Validate base salary
+                if (base_salary < 0) {
+                    alert("Base salary cannot be negative");
+                    return;
+                }
+
+                // Validate dates
+                if (expiry_date && new Date(expiry_date) <= new Date(effective_date)) {
+                    alert("Expiry date must be after effective date");
+                    return;
+                }
+
+                // Prepare data for submission
+                const formData = new FormData(contractForm);
+                const data = Object.fromEntries(formData.entries());
+                data.status = "active"; // Set default status
+
+                // Submit the form
+                const res = await fetch(`/modelController/${Contract._cfgTable.tableName}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert("Contract added successfully!");
+                    // Add row to Tabulator
+                    Contract._instanceTable.addRow(result, true);
+                    closeModal();
+                } else {
+                    // Server validation error
+                    alert("Error: " + (result.message || "Invalid input"));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Network or server error");
+            }
+        });
+    }
+
+    // --- Create Tabulator table ---
+    createTable() {
+        if (Contract._instanceTable) return;
+
+        const cfg = Contract._cfgTable;
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+        Contract._instanceTable = new Tabulator(cfg.selector, {
+            ajaxURL: `/modelController/${cfg.tableName}`,
+            pagination: "local",
+            paginationSize: 10,
+            paginationSizeSelector: [10, 20, 30, 50],
+            movableColumns: true,
+            paginationCounter: "pages",
+            paginationButtonCount: 0,
+            index: cfg.primaryKey,
+            columns: cfg.columns,
+            rowHeader: {
+                headerSort: false,
+                width: 30,
+                headerHozAlign: "center",
+                hozAlign: "center",
+                formatter: "rowSelection",
+                titleFormatter: "rowSelection"
+            },
+            ajaxConfig: {
+                method: "GET",
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken
+                }
+            }
+        });
+
+        // Row selection stats
+        Contract._instanceTable.on("rowSelectionChanged", data => {
+            const stats = document.querySelector(".select-stats");
+            if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
+        });
+
+        // Setup delete button functionality
+        this.setupDeleteButton();
+
+        // Cell edit validation - only for editable fields
+        Contract._instanceTable.on("cellEditing", (cell) => {
+            const columnDef = cell.getColumn().getDefinition();
+
+            // Chỉ cho phép sửa các cột có editor khác false
+            if (!columnDef.editor || columnDef.editor === false) {
+                return false; // Prevent editing for non-editable columns
+            }
+
+            return true; // Allow editing for editable columns
+        });
+
+        Contract._instanceTable.on("cellEdited", async cell => {
+            const newValue = cell.getValue();
+            const oldValue = cell.getOldValue();
+
+
+            // Don't update if value hasn't changed or is empty
+            if (newValue === null || newValue === "" || newValue === oldValue) {
+                cell.setValue(oldValue, false);
+                return;
+            }
+
+            try {
+                const rowData = cell.getRow().getData();
+                const field = cell.getField();
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // Update status if expired
+                if (rowData.expiry_date && rowData.status === "active") {
+                    const expiryDate = new Date(rowData.expiry_date);
+                    const currentDate = new Date();
+                    if (expiryDate < currentDate) {
+                        cell.getRow().getCell("status").setValue("expired", true);
+                    }
+                }
+
+                // Prepare data for update
+                const payload = { [field]: newValue };
+
+                const resPut = await fetch(`/modelController/contracts/${rowData.id_contract}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+
+                if (!resPut.ok) {
+                    const errorData = await resPut.json();
+                    alert(errorData.message);
+                    cell.setValue(oldValue, false);
+                    return;
+                }
+
+
+                console.log("Update successful");
+            } catch (err) {
+                console.error(err);
+                cell.setValue(oldValue, false);
+                alert("Error updating contract");
+            }
+        });
+    }
+
+    // --- Setup delete button functionality ---
+    setupDeleteButton() {
+        const deleteBtn = document.querySelector(".delete-selected-btn");
+        if (deleteBtn) {
+            deleteBtn.addEventListener("click", async () => {
+                const selectedRows = Contract._instanceTable.getSelectedRows();
+                if (selectedRows.length === 0) {
+                    alert("Please select at least one contract to delete.");
+                    return;
+                }
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                let deletedCount = 0;
+                let failedCount = 0;
+                const failedMessages = [];
+
+                try {
+                    // Kiểm tra và xóa từng hợp đồng đã chọn
+                    for (const row of selectedRows) {
+                        const contractData = row.getData();
+                        const contractId = contractData.id_contract;
+
+                        // Kiểm tra xem hợp đồng có hết hạn quá 3 tháng không
+                        if (!contractData.expiry_date || !Contract.isExpiredAtLeast3Months(contractData.expiry_date)) {
+                            failedCount++;
+                            failedMessages.push(`Contract ${contractId}: Not expired for at least 3 months`);
+                            continue;
+                        }
+
+                        // Gọi API để kiểm tra và xóa (server sẽ kiểm tra tham chiếu salary_details)
+                        const res = await fetch(`/modelController/contracts/${contractId}`, {
+                            method: "DELETE",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": csrfToken
+                            }
+                        });
+
+                        const result = await res.json();
+
+                        if (res.ok && result.success) {
+                            // Xóa khỏi table nếu thành công
+                            row.delete();
+                            deletedCount++;
+                        } else {
+                            failedCount++;
+                            failedMessages.push(`Contract ${contractId}: ${result.message || "Delete failed"}`);
+                        }
+                    }
+
+                    // Hiển thị kết quả
+                    let message = `Deleted ${deletedCount} contract(s) successfully.`;
+
+                    if (failedCount > 0) {
+                        message += `\nFailed to delete ${failedCount} contract(s):\n${failedMessages.join('\n')}`;
+                    }
+
+                    alert(message);
+
+                } catch (err) {
+                    console.error(err);
+                    alert("Error deleting contracts: " + err.message);
+                }
+            });
+        }
+    }
+
+    // --- Render table into container ---
+    render(container) {
+        container.innerHTML = this.getHTML();
+
+        if (!Contract._instanceTable) {
+            this.createTable();
+        } else {
+            // Reattach table to the new div
+            const tableDiv = container.querySelector(Contract._cfgTable.selector);
+            if (tableDiv && Contract._instanceTable.element) {
+                tableDiv.appendChild(Contract._instanceTable.element);
+            }
+        }
+
+        // Setup filters and search
+        this.setupFilters();
+
+        // Setup modal
+        this.setupModal();
+    }
+}

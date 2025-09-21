@@ -19,8 +19,8 @@ class Payroll_Rule {
               <option value="effective_date">Effective Date</option>
               <option value="expiry_date">Expiry Date</option>
               <option value="description">Description</option>
-              <option value="created_at">Create At</option>
-              <option value="updated_at">Update At</option>
+              <option value="created_at">Created At</option>
+              <option value="updated_at">Updated At</option>
             </select>
           </div>
 
@@ -57,7 +57,7 @@ class Payroll_Rule {
           </div>
           
           <div class="filter-block">
-            <button class="delete-selected-btn" data-tab="payrollRuleTab"><i class="fas fa-trash-alt"></i> Delete</button>
+            <button class="delete-selected-btn" id="delete-selected-btn" data-tab="payrollRuleTab"><i class="fas fa-trash-alt"></i> Delete</button>
           </div>
           
           <div class="filter-block">
@@ -88,8 +88,8 @@ class Payroll_Rule {
               <div class="form-group">
                 <label for="value_type">Value Type *</label>
                 <select id="value_type" name="value_type" required>
-                  <option value="percentage">Percentage</option>
-                  <option value="fixed">Fixed Amount</option>
+                  <option value="Percentage">Percentage</option>
+                  <option value="'Fixed Amount">Fixed Amount</option>
                 </select>
               </div>
               <div class="form-group">
@@ -104,8 +104,9 @@ class Payroll_Rule {
                 <input type="date" id="effective_date" name="effective_date" required>
               </div>
               <div class="form-group">
-                <label for="expiry_date">Expiry Date</label>
-                <input type="date" id="expiry_date" name="expiry_date">
+                <label for="expiry_date">Expiry Date *</label>
+                <input type="date" id="expiry_date" name="expiry_date" required>
+                <small style="color: #666; font-size: 12px;">Must be at least 3 months from effective date</small>
               </div>
             </div>
 
@@ -132,22 +133,22 @@ class Payroll_Rule {
     searchInput: "#payroll-rule-search-input",
     primaryKey: "id_rule",
     columns: [
-      { title: "Type",  field: "type",  editor: "input"},
-      { 
-        title: "Value Type", 
-        field: "value_type", 
-        editor: "list", 
-        editorParams: { values: { "percentage": "Percentage", "fixed": "Fixed Amount" } }
+      { title: "Type", field: "type", editor: "input" },
+      {
+        title: "Value Type",
+        field: "value_type",
+        editor: "list",
+        editorParams: { values: { "Percentage": "Percentage", "Fixed Amount": "Fixed Amount" } }
       },
-      { 
-        title: "Value", 
-        field: "value", 
+      {
+        title: "Value",
+        field: "value",
         editor: "number",
         editorParams: { step: 0.01 },
-        formatter: function(cell) {
+        formatter: function (cell) {
           const value = cell.getValue();
           const valueType = cell.getRow().getData().value_type;
-          
+
           if (valueType === "percentage") {
             return value + "%";
           } else {
@@ -155,9 +156,9 @@ class Payroll_Rule {
           }
         }
       },
-      { 
-        title: "Effective Date", 
-        field: "effective_date", 
+      {
+        title: "Effective Date",
+        field: "effective_date",
         editor: "date",
         formatter: Payroll_Rule.formatDate,
         formatterParams: {
@@ -165,28 +166,45 @@ class Payroll_Rule {
           invalidPlaceholder: "(invalid date)"
         }
       },
-      { 
-        title: "Expiry Date", 
-        field: "expiry_date", 
+      {
+        title: "Expiry Date",
+        field: "expiry_date",
         editor: "date",
         formatter: Payroll_Rule.formatDate,
         formatterParams: {
           outputFormat: "YYYY-MM-DD",
           invalidPlaceholder: "(invalid date)"
+        },
+        validator: function (cell, value, parameters) {
+          const rowData = cell.getRow().getData();
+          const effectiveDate = new Date(rowData.effective_date);
+          const expiryDate = new Date(value);
+
+          if (!value) return "Expiry date is required";
+
+          // Calculate minimum expiry date (3 months from effective date)
+          const minExpiryDate = new Date(effective_date);
+          minExpiryDate.setMonth(minExpiryDate.getMonth() + 3);
+
+          if (expiryDate < minExpiryDate) {
+            return "Expiry date must be at least 3 months after effective date";
+          }
+
+          return true;
         }
       },
       { title: "Description", field: "description", editor: "textarea" },
-      { 
-        title: "Create At", 
-        field: "created_at", 
-        editor: false, 
-        formatter: Payroll_Rule.formatDate 
+      {
+        title: "Created At",
+        field: "created_at",
+        editor: false,
+        formatter: Payroll_Rule.formatDate
       },
-      { 
-        title: "Update At", 
-        field: "updated_at", 
-        editor: false, 
-        formatter: Payroll_Rule.formatDate 
+      {
+        title: "Updated At",
+        field: "updated_at",
+        editor: false,
+        formatter: Payroll_Rule.formatDate
       }
     ]
   };
@@ -204,7 +222,23 @@ class Payroll_Rule {
     const value = cell.getValue();
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString("en-US") + " " + date.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // --- Check if expiry date is at least 1 day after effective date ---
+  static validateExpiryDate(effectiveDate, expiryDate) {
+    if (!effectiveDate || !expiryDate) return false;
+
+    const effDate = new Date(effectiveDate);
+    const expDate = new Date(expiryDate);
+
+    if (isNaN(effDate) || isNaN(expDate)) return false;
+
+    // Expiry date phải >= effective date + 1 ngày
+    const minExpiryDate = new Date(effDate);
+    minExpiryDate.setDate(minExpiryDate.getDate() + 1);
+
+    return expDate >= minExpiryDate;
   }
 
   // --- Return HTML ---
@@ -224,9 +258,9 @@ class Payroll_Rule {
     const updateFilter = () => {
       const filterVal = fieldEl.value;
       const typeVal = typeEl.value;
-      if (!filterVal) { 
-        table.clearFilter(); 
-        return; 
+      if (!filterVal) {
+        table.clearFilter();
+        return;
       }
       table.setFilter(filterVal, typeVal, valueEl.value);
     };
@@ -264,8 +298,17 @@ class Payroll_Rule {
     const submitBtn = document.getElementById("submit-btn");
     const payrollRuleForm = document.getElementById("payroll-rule-form");
 
+    // Set today's date as default for effective date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("effective_date").value = today;
+
+    // Calculate and set default expiry date (3 months from today)
+    const defaultExpiryDate = new Date();
+    defaultExpiryDate.setMonth(defaultExpiryDate.getMonth() + 3);
+    document.getElementById("expiry_date").value = defaultExpiryDate.toISOString().split('T')[0];
+
     // Open modal
-    openModalBtn.addEventListener("click", function() {
+    openModalBtn.addEventListener("click", function () {
       modal.style.display = "block";
     });
 
@@ -273,83 +316,177 @@ class Payroll_Rule {
     const closeModal = () => {
       modal.style.display = "none";
       payrollRuleForm.reset();
+
+      // Reset to default dates
+      document.getElementById("effective_date").value = today;
+      document.getElementById("expiry_date").value = defaultExpiryDate.toISOString().split('T')[0];
     };
 
     closeModalBtn.addEventListener("click", closeModal);
     cancelBtn.addEventListener("click", closeModal);
 
     // Form submission
-    submitBtn.addEventListener("click", async function() {
+    submitBtn.addEventListener("click", async function () {
       // Basic validation
       const type = document.getElementById("type").value;
       const value_type = document.getElementById("value_type").value;
       const value = document.getElementById("value").value;
       const effective_date = document.getElementById("effective_date").value;
-      
-      if (!type || !value_type || !value || !effective_date) {
+      const expiry_date = document.getElementById("expiry_date").value;
+
+      if (!type || !value_type || !value || !effective_date || !expiry_date) {
         alert("Please fill in all required fields (marked with *)");
         return;
       }
-      
+
       // Validate value based on value type
       if (value_type === "percentage" && (value < 0 || value > 100)) {
         alert("Percentage value must be between 0 and 100");
         return;
       }
-      
+
       if (value_type === "fixed" && value < 0) {
         alert("Fixed amount cannot be negative");
         return;
       }
-      
+
+      if (!Payroll_Rule.validateExpiryDate(effective_date, expiry_date)) {
+        alert("Expiry date must be at least 1 day after the effective date");
+        return;
+      }
+
       // Here you would typically send the data to your server
       const formData = new FormData(payrollRuleForm);
       const data = Object.fromEntries(formData.entries());
-      
+
       const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-      try 
-      {
-        const res = await fetch(`/modelController/${Payroll_Rule._cfgTable.tableName}`, 
-       {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken},
-          body: JSON.stringify(data)
-        }); 
+      try {
+        const res = await fetch(`/modelController/${Payroll_Rule._cfgTable.tableName}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+            body: JSON.stringify(data)
+          });
 
         const result = await res.json();
 
-        if (res.ok) 
-        {
-          alert("Payroll_Rule added successfully!");
-          // Thêm row vào Tabulator
-          Payroll_Rule._instanceTable.addRow(data, true);
+        if (res.ok) {
+          alert("Payroll Rule added successfully!");
+          // Add row to Tabulator
+          Payroll_Rule._instanceTable.addRow(result, true);
           closeModal();
-          console.log(Payroll_Rule._cfgTable);
-          console.log("New Payroll_Rule data:", data);
-          alert("Payroll_Rule added successfully! (This would connect to your backend in a real application)");
-
-        } 
-        else 
-        {
-          // Nếu server trả lỗi validation
+        }
+        else {
+          // If server returns validation error
           alert("Error: " + (result.message || "Invalid input"));
         }
-      } 
-      catch (err) 
-      {
+      }
+      catch (err) {
         console.error(err);
         alert("Network or server error");
-        console.log(JSON.stringify(data));
-        console.log(Payroll_Rule._cfgTable?.tableName);
-          
       }
-
-
-      
-      closeModal();
     });
   }
+
+  // --- Setup delete button functionality ---
+setupDeleteButton() {
+  const deleteBtn = document.getElementById("delete-selected-btn");
+
+  if (deleteBtn) {
+    deleteBtn.addEventListener("click", async () => {
+      const selectedRows = Payroll_Rule._instanceTable.getSelectedRows();
+
+      if (selectedRows.length === 0) {
+        alert("Please select at least one row to delete.");
+        return;
+      }
+
+      const currentDate = new Date();
+      const rowsToDelete = [];
+      const cannotDeleteRows = [];
+
+      // Lọc các hàng có thể xóa (expiry date đã qua ít nhất 3 tháng)
+      selectedRows.forEach(row => {
+        const rowData = row.getData();
+        const expiryDate = new Date(rowData.expiry_date);
+        
+        // Tính toán thời điểm được phép xóa (3 tháng sau expiry date)
+        const minDeletionDate = new Date(expiryDate);
+        minDeletionDate.setMonth(minDeletionDate.getMonth() + 3);
+
+        if (currentDate >= minDeletionDate) {
+          rowsToDelete.push(row);
+        } else {
+          cannotDeleteRows.push(rowData);
+        }
+      });
+
+      // Hiển thị thông báo cho các hàng không thể xóa
+      if (cannotDeleteRows.length > 0) {
+        const cannotDeleteIds = cannotDeleteRows.map(row => 
+          `ID: ${row.id_rule} (Expiry: ${row.expiry_date}) - Can be deleted after: ${new Date(new Date(row.expiry_date).setMonth(new Date(row.expiry_date).getMonth() + 3)).toLocaleDateString()}`
+        ).join('\n');
+        
+        alert(`Cannot delete the following rules. They must be expired for at least 3 months before deletion:\n${cannotDeleteIds}`);
+      }
+
+      // Nếu không có hàng nào có thể xóa
+      if (rowsToDelete.length === 0) {
+        return;
+      }
+
+      // Xác nhận xóa
+      if (!confirm(`Are you sure you want to delete ${rowsToDelete.length} payroll rule(s)?\n\nNote: ${cannotDeleteRows.length} rule(s) cannot be deleted yet as they haven't been expired for 3 months.`)) {
+        return;
+      }
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+      const deletePromises = [];
+
+      for (const row of rowsToDelete) {
+        const id = row.getData().id_rule;
+        const deletePromise = fetch(`/modelController/${Payroll_Rule._cfgTable.tableName}/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': csrfToken
+          }
+        });
+        deletePromises.push(deletePromise);
+      }
+
+      try {
+        const results = await Promise.allSettled(deletePromises);
+
+        let successCount = 0;
+        let failCount = 0;
+
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value.ok) {
+            successCount++;
+          } else {
+            failCount++;
+            console.error(`Error deleting record ${rowsToDelete[index].getData().id_rule}:`, result.reason || result.value);
+          }
+        });
+
+        if (successCount > 0) {
+          alert(`Successfully deleted ${successCount} payroll rule(s).${failCount > 0 ? ` ${failCount} rule(s) failed to delete.` : ''}`);
+          Payroll_Rule._instanceTable.setData();
+          Payroll_Rule._instanceTable.deselectRow();
+        }
+
+        if (failCount > 0 && successCount === 0) {
+          alert(`${failCount} payroll rule(s) failed to delete. Please try again.`);
+        }
+
+      } catch (error) {
+        console.error('Error deleting records:', error);
+        alert('An error occurred while deleting records. Please try again.');
+      }
+    });
+  }
+}
 
   // --- Create Tabulator table ---
   createTable() {
@@ -391,29 +528,77 @@ class Payroll_Rule {
     });
 
     // Cell edit validation
-    Payroll_Rule._instanceTable.on("cellEdited", cell => {
-      if (cell.getValue() === "" || cell.getValue() === null) {
+    Payroll_Rule._instanceTable.on("cellEdited", async cell => {
+      const field = cell.getField();
+      const columnDef = cfg.columns.find(col => col.field === field);
+
+      // Only update if field is editable (not false)
+      if (columnDef && columnDef.editor !== false) {
+        if (cell.getValue() === "" || cell.getValue() === null) {
+          cell.setValue(cell.getOldValue(), true);
+          return;
+        }
+
+        // Special validation for expiry date
+        if (field === 'expiry_date') {
+          const rowData = cell.getRow().getData();
+          if (!Payroll_Rule.validateExpiryDate(rowData.effective_date, cell.getValue())) {
+            alert("Expiry date must be at least 1 day after the effective date");
+            cell.setValue(cell.getOldValue(), true);
+            return;
+          }
+        }
+
+        // Send update to server
+        try {
+          const rowData = cell.getRow().getData();
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const url = `/modelController/${Payroll_Rule._cfgTable.tableName}/${rowData.id_rule}`;
+          const payload = { [field]: cell.getValue() };
+
+          const resPut = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+            body: JSON.stringify(payload)
+          });
+
+          if (!resPut.ok) {
+            alert("Update failed.");
+            cell.setValue(cell.getOldValue(), true);
+          } else {
+            console.log("Update successful");
+          }
+
+        } catch (err) {
+          console.error(err);
+          cell.setValue(cell.getOldValue(), true);
+        }
+      } else {
+        // Revert changes for non-editable fields
         cell.setValue(cell.getOldValue(), true);
       }
     });
   }
 
-  // --- Render table vào container ---
+  // --- Render table into container ---
   render(container) {
     container.innerHTML = this.getHTML();
 
     if (!Payroll_Rule._instanceTable) {
       this.createTable();
     } else {
-      // Reattach bảng vào div mới
+      // Reattach table to new div
       const tableDiv = container.querySelector(Payroll_Rule._cfgTable.selector);
       tableDiv.appendChild(Payroll_Rule._instanceTable.element);
     }
 
-    // Setup filters và search
+    // Setup filters and search
     this.setupFilters();
-    
-    // Thiết lập modal
+
+    // Setup modal
     this.setupModal();
+
+    // Setup delete button
+    this.setupDeleteButton();
   }
 }

@@ -74,7 +74,10 @@ Route::apiResource('/modelController/attendances', AttendanceController::class);
 Route::get('/dataTables/contracts', function () { return view('fornt/dashboard/dataTables/contracts'); })->name('contracts'); 
 Route::apiResource('/modelController/contracts', ContractController::class);
 Route::apiResource('/modelController/employees.contracts', EmployeeContractController::class);
-Route::get('/modelController/contracts/{id_employee}/activeCheck', [ContractController::class, 'activeCheck'])->name('contractCurrent');
+Route::get('/modelController/contracts/{idEmployee}/activeCheck', [ContractController::class, 'activeCheck']);
+Route::get('/modelController/contracts/{id}/checkUsage', [ContractController::class, 'checkUsage']);
+
+
 
 
 

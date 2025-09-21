@@ -30,7 +30,7 @@ class PayrollRuleController extends Controller
     {
         $data = $request->validate([
             'type' => 'nullable|string',
-            'value_type' => 'nullable',
+            'value_type' => ['nullable', Rule::in(['money','multiplier'])],
             'value' => 'required|numeric|min:0',
             'description' => 'nullable|string',
             'effective_date' => 'required|date',
@@ -48,7 +48,7 @@ class PayrollRuleController extends Controller
         $rule = PayrollRule::findOrFail($id);
 
         $data = $request->validate([
-            'type' => ['required', Rule::in(['attendance_bonus','overtime_rate','night_shift','holiday_bonus','meal_allowance','late_penalty','other'])],
+            'type' => 'nullable|string',
             'value_type' => ['nullable', Rule::in(['money','multiplier'])],
             'value' => 'required|numeric|min:0',
             'description' => 'nullable|string',

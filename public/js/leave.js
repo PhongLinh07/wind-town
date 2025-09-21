@@ -1,4 +1,4 @@
-// Leave.js // bản này ko thể sửa vì do máy chấm côbng đưa về 
+// Leave.js
 class Leave {
     // --- Singleton instance ---
     static _instance = null;
@@ -94,17 +94,53 @@ class Leave {
                 <label for="type">Leave Type *</label>
                 <select id="type" name="type" required>
                   <option value="">Select Type</option>
-                  <option value="Sick leave">Sick leave</option>
-                  <option value="Maternity">Maternity</option>
-                  <option value="Family leave">Family leave</option>
-                  <option value="Paid leave">Paid leave</option>
-                  <option value="Personal leave">Personal leave</option>
-                  <option value="Work assignment">Work assignment</option>
+                  <option value="paid">Paid</option>
+                  <option value=unpaid">Unpaid</option>
                 </select>
               </div>
             </div>
 
-            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="start_date">Start Date *</label>
+                <input type="date" id="start_date" name="start_date" required>
+              </div>
+              <div class="form-group">
+                <label for="end_date">End Date *</label>
+                <input type="date" id="end_date" name="end_date" required>
+              </div>
+              <div class="form-group">
+                <label for="status">Status *</label>
+                <select id="status" name="status" required>
+                  <option value="">Select Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="approved">Approved</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="reason">Reason *</label>
+                <input type="text" id="reason" name="reason" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3"></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="cancel-btn">Cancel</button>
+          <button type="button" id="submit-btn">Submit</button>
+        </div>
+      </div>
+    </form>
   `;
 
     // Tabulator config
@@ -119,7 +155,7 @@ class Leave {
             {
                 title: "Start Date",
                 field: "start_date",
-                editor: false,
+                editor: "boll",
                 formatter: Leave.formatDate,
                 formatterParams: {
                     outputFormat: "YYYY-MM-DD",
@@ -129,7 +165,7 @@ class Leave {
             {
                 title: "End Date",
                 field: "end_date",
-                editor: false,
+                editor: "input",
                 formatter: Leave.formatDate,
                 formatterParams: {
                     outputFormat: "YYYY-MM-DD",
@@ -137,21 +173,38 @@ class Leave {
                 }
             },
             {
-                title: "Type",
-                field: "type",
-                editor: false
+                title: "Is Paid",
+                field: "is_paid",
+                editor: "list",
+                editorParams: {
+                    values: {
+                        "1": "Paid",
+                        "0": "Unpaid"
+                    }
+                },
+                formatter: "lookup",
+                formatterParams: {
+                    "1": "Paid",
+                    "0": "Unpaid"
+                }
             },
-            { title: "Reason", field: "reason", editor: false },
+            { title: "Reason", field: "reason", editor: "input" },
             {
                 title: "Status",
                 field: "status",
-                editor: false,
+                editor: "select",
+                editorParams: {
+                    values: {
+                        "pending": "Pending",
+                        "approved": "Approved",
+                        "rejected": "Rejected",
+                    }
+                },
                 formatter: "lookup",
                 formatterParams: {
                     "pending": "⏳ Pending",
                     "approved": "✅ Approved",
                     "rejected": "❌ Rejected",
-                    "cancelled": "🚫 Cancelled"
                 },
                 cellStyled: function (cell) {
                     const value = cell.getValue();
@@ -238,7 +291,7 @@ class Leave {
             searchInput.addEventListener("keyup", e => {
                 table.setFilter([
                     { field: "id_employee", type: "like", value: e.target.value },
-                    { field: "type", type: "like", value: e.target.value },
+                    { field: "is_paid", type: "like", value: e.target.value },
                     { field: "reason", type: "like", value: e.target.value },
                     { field: "status", type: "like", value: e.target.value },
                     { field: "description", type: "like", value: e.target.value }
@@ -248,8 +301,213 @@ class Leave {
     }
 
     // --- Setup modal functionality ---
-    setupModal() { }
+    setupModal() {
+        const modal = document.getElementById("add-leave-modal");
+        const openModalBtn = document.getElementById("open-modal-btn");
+        const closeModalBtn = document.querySelector(".close");
+        const cancelBtn = document.getElementById("cancel-btn");
+        const submitBtn = document.getElementById("submit-btn");
+        const leaveForm = document.getElementById("leave-form");
 
+        // Open modal
+        openModalBtn.addEventListener("click", function () {
+            modal.style.display = "block";
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.style.display = "none";
+            leaveForm.reset();
+        };
+
+        closeModalBtn.addEventListener("click", closeModal);
+        if (cancelBtn) cancelBtn.addEventListener("click", closeModal);
+
+        // Form submission
+        submitBtn.addEventListener("click", async () => {
+            // Basic validation
+            const id_employee = document.getElementById("id_employee").value;
+            const type = document.getElementById("is_paid").value;
+            const start_date = document.getElementById("start_date").value;
+            const end_date = document.getElementById("end_date").value;
+            const status = document.getElementById("status").value;
+            const reason = document.getElementById("reason").value;
+
+            if (!id_employee || !type || !start_date || !end_date || !status || !reason) {
+                alert("Please fill in all required fields (marked with *)");
+                return;
+            }
+
+            // Validate date range
+            if (new Date(end_date) < new Date(start_date)) {
+                alert("End date cannot be before start date");
+                return;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const formData = new FormData(leaveForm);
+                const data = Object.fromEntries(formData.entries());
+
+                const response = await fetch(`/modelController/${Leave._cfgTable.tableName}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert("Leave request added successfully!");
+                    // Refresh the table
+                    Leave._instanceTable.setData();
+                    closeModal();
+                } else {
+                    alert("Error adding leave request. Please try again.");
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert("Error adding leave request. Please try again.");
+            }
+        });
+    }
+
+    // --- Setup delete functionality ---
+    setupDeleteButton() {
+        const deleteBtn = document.querySelector('.delete-selected-btn[data-tab="leaveTab"]');
+        if (!deleteBtn || !Leave._instanceTable) return;
+
+        deleteBtn.addEventListener('click', async () => {
+            const selectedRows = Leave._instanceTable.getSelectedRows();
+
+            if (selectedRows.length === 0) {
+                alert('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                return;
+            }
+
+            // Kiểm tra điều kiện ngày tháng (dựa trên end_date)
+            const currentDate = new Date();
+            const threeMonthsAgo = new Date();
+            threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
+
+            const validRecords = [];
+            const invalidRecords = [];
+            const errorRecords = [];
+
+            selectedRows.forEach(row => {
+                const endDateStr = row.getData().end_date;
+
+                // Kiểm tra nếu end_date không tồn tại hoặc không hợp lệ
+                if (!endDateStr) {
+                    errorRecords.push({ row, reason: "Không có ngày kết thúc" });
+                    return;
+                }
+
+                try {
+                    const recordDate = new Date(endDateStr);
+
+                    // Kiểm tra nếu ngày không hợp lệ
+                    if (isNaN(recordDate.getTime())) {
+                        errorRecords.push({ row, reason: "Ngày kết thúc không hợp lệ" });
+                        return;
+                    }
+
+                    if (recordDate <= threeMonthsAgo) {
+                        validRecords.push(row);
+                    } else {
+                        invalidRecords.push({ row, date: recordDate });
+                    }
+                } catch (e) {
+                    errorRecords.push({ row, reason: "Lỗi khi xử lý ngày tháng" });
+                }
+            });
+
+            // Thông báo nếu có bản ghi lỗi
+            if (errorRecords.length > 0) {
+                alert(`Có ${errorRecords.length} bản ghi không thể xử lý do lỗi dữ liệu.`);
+            }
+
+            // Thông báo nếu có bản ghi không đủ điều kiện
+            if (invalidRecords.length > 0) {
+                const earliestInvalidDate = invalidRecords.reduce((min, item) => {
+                    return item.date < min ? item.date : min;
+                }, new Date());
+
+                alert(`Có ${invalidRecords.length} bản ghi không thể xóa vì chưa đủ 3 tháng kể từ ngày kết thúc. Chỉ có thể xóa những bản ghi có ngày kết thúc từ ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước. Bản ghi sớm nhất trong số này kết thúc vào ${earliestInvalidDate.toLocaleDateString("vi-VN")}.`);
+
+                // Nếu không có bản ghi nào hợp lệ, dừng lại
+                if (validRecords.length === 0) {
+                    return;
+                }
+
+                // Nếu có cả hợp lệ và không hợp lệ, hỏi người dùng có muốn xóa những bản ghi hợp lệ không
+                if (!confirm(`Bạn có muốn xóa ${validRecords.length} bản ghi hợp lệ (có ngày kết thúc từ ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước) không?`)) {
+                    return;
+                }
+            } else if (validRecords.length > 0) {
+                // Xác nhận xóa nếu tất cả đều hợp lệ
+                if (!confirm(`Bạn có chắc chắn muốn xóa ${validRecords.length} bản ghi không?`)) {
+                    return;
+                }
+            } else {
+                // Không có bản ghi nào hợp lệ để xóa
+                return;
+            }
+
+            // Thực hiện xóa các bản ghi hợp lệ
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const deletePromises = [];
+
+                for (const row of validRecords) {
+                    const id = row.getData().id_leave;
+                    const deletePromise = fetch(`/modelController/leaves/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    });
+                    deletePromises.push(deletePromise);
+                }
+
+                // Chờ tất cả các yêu cầu xóa hoàn thành
+                const results = await Promise.allSettled(deletePromises);
+
+                // Kiểm tra kết quả
+                let successCount = 0;
+                let failCount = 0;
+
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value.ok) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        console.error(`Lỗi khi xóa bản ghi ${validRecords[index].getData().id_leave}:`, result.reason || result.value);
+                    }
+                });
+
+                // Thông báo kết quả
+                if (successCount > 0) {
+                    alert(`Đã xóa thành công ${successCount} bản ghi.`);
+
+                    // Làm mới bảng để cập nhật dữ liệu
+                    Leave._instanceTable.setData();
+
+                    // Bỏ chọn tất cả các hàng
+                    Leave._instanceTable.deselectRow();
+                }
+
+                if (failCount > 0) {
+                    alert(`Có ${failCount} bản ghi xóa không thành công. Vui lòng thử lại.`);
+                }
+
+            } catch (error) {
+                console.error('Lỗi khi xóa bản ghi:', error);
+                alert('Đã xảy ra lỗi khi xóa bản ghi. Vui lòng thử lại.');
+            }
+        });
+    }
 
     // --- Create Tabulator table ---
     createTable() {
@@ -356,5 +614,8 @@ class Leave {
 
         // Thiết lập modal
         this.setupModal();
+
+        // Thiết lập nút xóa
+        this.setupDeleteButton();
     }
 }

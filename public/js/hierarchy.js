@@ -13,6 +13,7 @@ class Hierarchy {
             <h3><i class="fas fa-filter"></i> Field:</h3>
             <select class="input-field" id="filter-field">
               <option></option>
+              <option value="id_hierarchy">ID Hierachy</option>
               <option value="name_position">Position</option>
               <option value="name_level">Level</option>
               <option value="salary_multiplier">Salary Multiplier</option>
@@ -125,6 +126,7 @@ class Hierarchy {
     searchInput: "#hierarchy-search-input",
     primaryKey: "id_hierarchy",
     columns: [
+      { title: "ID Hierarchy", field: "id_hierarchy", editor: false },
       { title: "Position", field: "name_position", editor: "input" },
       { title: "Level", field: "name_level", editor: "input" },
       {
@@ -290,7 +292,7 @@ class Hierarchy {
         {
           alert("hierarchy added successfully!");
           // Thêm row vào Tabulator
-          Hierarchy._instanceTable.addRow(data, true);
+          Hierarchy._instanceTable.addRow(result, true);
           closeModal();
           console.log(Hierarchy._cfgTable);
           console.log("New hierarchy data:", data);
@@ -312,9 +314,112 @@ class Hierarchy {
           
       }
 
-
-
       closeModal();
+    });
+  }
+
+  
+  // --- Setup delete functionality ---
+  setupDeleteButton() {
+    const deleteBtn = document.querySelector('.delete-selected-btn[data-tab="hierarchyTab"]');
+    if (!deleteBtn || !Hierarchy._instanceTable) return;
+
+    deleteBtn.addEventListener('click', async () => {
+      const selectedRows = Hierarchy._instanceTable.getSelectedRows();
+      
+      if (selectedRows.length === 0) {
+        alert('Please select at least one record to delete.');
+        return;
+      }
+
+      // Kiểm tra xem hierarchy có đang được sử dụng bởi employees không
+      try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const checkPromises = [];
+        
+        for (const row of selectedRows) {
+          const id = row.getData().id_hierarchy;
+          const checkPromise = fetch(`/modelController/hierarchy//${id}checkHierarchyUsage`, {
+            method: 'GET',
+            headers: {
+              'X-CSRF-TOKEN': csrfToken
+            }
+          }).then(res => res.json());
+          checkPromises.push(checkPromise);
+        }
+        
+        // Chờ tất cả các yêu cầu kiểm tra hoàn thành
+        const results = await Promise.allSettled(checkPromises);
+        
+        let canDeleteAll = true;
+        const cannotDeleteIds = [];
+        
+        results.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value.inUse) {
+            canDeleteAll = false;
+            cannotDeleteIds.push(selectedRows[index].getData().id_hierarchy);
+          }
+        });
+        
+        if (!canDeleteAll) {
+          alert(`Cannot delete hierarchy with ID(s): ${cannotDeleteIds.join(', ')}. These hierarchies are currently in use by employees.`);
+          return;
+        }
+        
+        // Xác nhận xóa
+        if (!confirm(`Are you sure you want to delete ${selectedRows.length} records?`)) {
+          return;
+        }
+
+        // Thực hiện xóa các bản ghi
+        const deletePromises = [];
+        
+        for (const row of selectedRows) {
+          const id = row.getData().id_hierarchy;
+          const deletePromise = fetch(`/modelController/${Hierarchy._cfgTable.tableName}/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': csrfToken
+            }
+          });
+          deletePromises.push(deletePromise);
+        }
+        
+        // Chờ tất cả các yêu cầu xóa hoàn thành
+        const deleteResults = await Promise.allSettled(deletePromises);
+        
+        // Kiểm tra kết quả
+        let successCount = 0;
+        let failCount = 0;
+        
+        deleteResults.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value.ok) {
+            successCount++;
+          } else {
+            failCount++;
+            console.error(`Error deleting record ${selectedRows[index].getData().id_hierarchy}:`, result.reason || result.value);
+          }
+        });
+        
+        // Thông báo kết quả
+        if (successCount > 0) {
+          alert(`Successfully deleted ${successCount} records.`);
+          
+          // Làm mới bảng để cập nhật dữ liệu
+          Hierarchy._instanceTable.setData();
+          
+          // Bỏ chọn tất cả các hàng
+          Hierarchy._instanceTable.deselectRow();
+        }
+        
+        if (failCount > 0) {
+          alert(`${failCount} records failed to delete. Please try again.`);
+        }
+        
+      } catch (error) {
+        console.error('Error deleting records:', error);
+        alert('An error occurred while deleting records. Please try again.');
+      }
     });
   }
 
@@ -357,10 +462,54 @@ class Hierarchy {
       if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
     });
 
-    // Cell edit validation
-    Hierarchy._instanceTable.on("cellEdited", cell => {
-      if (cell.getValue() === "" || cell.getValue() === null) {
-        cell.setValue(cell.getOldValue(), true);
+    // Cell edit validation - CHỈ CHO PHÉP SỬA CÁC Ô CÓ EDITOR KHÁC FALSE
+    Hierarchy._instanceTable.on("cellEditing", function(cell){
+      const columnDefinition = cell.getColumn().getDefinition();
+      if (columnDefinition.editor === false) {
+        return false; // Ngăn không cho edit
+      }
+    });
+
+    // Xử lý khi cell được edit
+    Hierarchy._instanceTable.on("cellEdited", async cell => {
+      const columnDefinition = cell.getColumn().getDefinition();
+      
+      // Chỉ xử lý nếu ô được phép edit
+      if (columnDefinition.editor !== false) {
+        const newValue = cell.getValue();
+        const oldValue = cell.getOldValue();
+
+        if (newValue === null || newValue === "" || newValue === oldValue) {
+          cell.setValue(oldValue, true);
+          return;
+        }
+
+        try {
+          const rowData = cell.getRow().getData();
+          const field = cell.getField();
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+          const url = `/modelController/${Hierarchy._cfgTable.tableName}/${rowData.id_hierarchy}`;
+          const payload = { [field]: newValue };
+
+          const resPut = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+            body: JSON.stringify(payload)
+          });
+
+          if (!resPut.ok) {
+            alert("Update failed.");
+            cell.setValue(cell.getOldValue(), true);
+            return;
+          }
+
+          console.log("Update successful");
+
+        } catch (err) {
+          console.error(err);
+          cell.setValue(cell.getOldValue(), true);
+        }
       }
     });
   }
@@ -372,15 +521,12 @@ class Hierarchy {
     if (!Hierarchy._instanceTable) {
       this.createTable();
     } else {
-      // Reattach bảng vào div mới
       const tableDiv = container.querySelector(Hierarchy._cfgTable.selector);
       tableDiv.appendChild(Hierarchy._instanceTable.element);
     }
 
-    // Setup filters và search
     this.setupFilters();
-
-    // Thiết lập modal
     this.setupModal();
+    this.setupDeleteButton();
   }
 }
