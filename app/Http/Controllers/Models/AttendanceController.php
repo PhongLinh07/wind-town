@@ -16,16 +16,6 @@ class AttendanceController extends Controller
 
     public function store(Request $request)
     {
-        /*
-        $data = $request->validate([
-            'id_employee' => 'required|exists:employees,id_employee',
-            'check_in' => 'required|date',
-            'check_out' => 'nullable|date|after_or_equal:check_in',
-            'work_hours' => 'nullable|numeric',
-            'status' => 'nullable|in:present,absent,late,leave',
-            'description' => 'nullable|string'
-        ]);
-        */
         $data = [];
         $attendance = Attendance::create($data);
         return response()->json($attendance, 201);

@@ -69,8 +69,8 @@ class Employee_Hierarchy {
     </div>
 
     <!-- Modal Form -->
-    <dive id="add-employee-hierarchy-modal" class="modal" style="margin: 20% auto">
-      <div class="modal-content">
+    <dive id="add-employee-hierarchy-modal" class="modal" >
+      <div class="modal-content" style="margin: 20% auto">
         <div class="modal-header">
           <h2><i class="fas fa-sitemap"></i> Add Employee Hierarchy</h2>
           <span class="close">&times;</span>

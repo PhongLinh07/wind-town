@@ -67,8 +67,8 @@ class Employee_Bank_Information {
     </div>
 
     <!-- Modal Form -->
-    <div id="add-employee-bank-modal" class="modal" style="margin: 10% auto">
-      <div class="modal-content">
+    <div id="add-employee-bank-modal" class="modal">
+      <div class="modal-content"  style="margin: 10% auto">
         <div class="modal-header">
           <h2><i class="fas fa-university"></i> Add Employee Bank Information</h2>
           <span class="close">&times;</span>
@@ -102,7 +102,7 @@ class Employee_Bank_Information {
         searchInput: "employee-bank-search-input",
         primaryKey: "id_employee",
         columns: [
-            { title: "ID", field: "id_employee", editor: false },
+            { title: "ID Employee", field: "id_employee", editor: false },
             { title: "Name", field: "name", editor: false },
             {
                 title: "Bank Information",

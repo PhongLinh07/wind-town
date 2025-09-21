@@ -78,8 +78,8 @@ class Employee_Information {
     </div>
 
     <!-- Modal Form -->
-    <div id="add-employee-modal" class="modal" style="margin: 2% auto">
-      <div class="modal-content">
+    <div id="add-employee-modal" class="modal">
+      <div class="modal-content" style="margin: 5% auto">
         <div class="modal-header">
           <h2><i class="fas fa-user-plus"></i> Add New Employee</h2>
           <span class="close">&times;</span>
@@ -130,18 +130,6 @@ class Employee_Information {
                 <input type="date" id="hire_date" name="hire_date">
               </div>
             </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="status">Status</label>
-                <select id="status" name="status">
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="resigned">Resigned</option>
-                </select>
-              </div>
-            </div>
-
             <div class="form-row">
               <div class="form-group-full">
                 <label for="address">Address</label>
@@ -174,9 +162,10 @@ class Employee_Information {
     columns: [
       { title: "ID", field: "id_employee", editor: false },
       { title: "Name", field: "name", editor: "input" },
-      { title: "Gender", field: "gender", editor: "list", 
-        editorParams: { values: { "1": "Male", "0": "Female", "3": "Unknown" } }, 
-        formatter: "lookup", formatterParams: { "1": "Male", "0": "Female", "3": "Unknown" } 
+      {
+        title: "Gender", field: "gender", editor: "list",
+        editorParams: { values: { "1": "Male", "0": "Female", "3": "Unknown" } },
+        formatter: "lookup", formatterParams: { "1": "Male", "0": "Female", "3": "Unknown" }
       },
       { title: "CCCD", field: "cccd", editor: "input" },
       { title: "Date of Birth", field: "date_of_birth", editor: "date" },
@@ -185,234 +174,261 @@ class Employee_Information {
       { title: "Phone", field: "phone", editor: "input" },
       { title: "Bank Infor", field: "bank_infor", editor: "input" },
       { title: "Hire Date", field: "hire_date", editor: false },
-      { title: "Status", field: "status", editor: "list", 
-        editorParams: { values: { "active": "active", "inactive": "inactive", "resigned": "resigned" } } 
-      },
+      {
+        title: "Status", field: "status", editor: "list",
+        editorParams: { values: { "active": "active", "inactive": "inactive", "resigned": "resigned" } },
+    
+    
+      formatter: function (cell) {
+        const value = cell.getValue();
+        let color = "";
+        let label = "";
+
+        switch (value) {
+          case "active":
+            color = "green";
+            label = "Active";
+            break;
+          case "inactive":
+            color = "orange";
+            label = "Inactive";
+            break;
+          case "resigned":
+            color = "red";
+            label = "Resigned";
+            break;
+          default:
+            color = "gray";
+            label = value;
+        }
+
+        return `<span style="
+      background:${color}; 
+      color:white; 
+      padding:2px 6px; 
+      border-radius:12px; 
+      font-size:12px;">
+        ${label}
+    </span>`;
+      }},
       { title: "Description", field: "description", editor: false },
-      { title: "Create At", field: "created_at", editor: false, formatter: Employee_Information.formatDate },
-      { title: "Update At", field: "updated_at", editor: false, formatter: Employee_Information.formatDate, }
+{ title: "Create At", field: "created_at", editor: false, formatter: Employee_Information.formatDate },
+{ title: "Update At", field: "updated_at", editor: false, formatter: Employee_Information.formatDate, }
     ]
   };
 
   // --- Singleton getInstance ---
   static getInstance() {
-    if (!Employee_Information._instance) {
-      Employee_Information._instance = new Employee_Information();
-    }
-    return Employee_Information._instance;
+  if (!Employee_Information._instance) {
+    Employee_Information._instance = new Employee_Information();
   }
+  return Employee_Information._instance;
+}
 
   // --- Format date ---
   static formatDate(cell) {
-    const value = cell.getValue();
-    if (!value) return "";
-    const date = new Date(value);
-    return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
-  }
+  const value = cell.getValue();
+  if (!value) return "";
+  const date = new Date(value);
+  return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+}
 
-  // --- Return HTML ---
-  getHTML() {
-    return Employee_Information._html;
-  }
+// --- Return HTML ---
+getHTML() {
+  return Employee_Information._html;
+}
 
-  // --- Setup filters ---
-  setupFilters() {
-    const table = Employee_Information._instanceTable;
-    if (!table) return;
+// --- Setup filters ---
+setupFilters() {
+  const table = Employee_Information._instanceTable;
+  if (!table) return;
 
-    const fieldEl = document.getElementById("filter-field");
-    const typeEl = document.getElementById("filter-type");
-    const valueEl = document.getElementById("filter-value");
+  const fieldEl = document.getElementById("filter-field");
+  const typeEl = document.getElementById("filter-type");
+  const valueEl = document.getElementById("filter-value");
 
-    const updateFilter = () => {
-      const filterVal = fieldEl.value;
-      const typeVal = typeEl.value;
-      if (!filterVal) { 
-        table.clearFilter(); 
-        return; 
-      }
-      table.setFilter(filterVal, typeVal, valueEl.value);
-    };
-
-    fieldEl.addEventListener("change", updateFilter);
-    typeEl.addEventListener("change", updateFilter);
-    valueEl.addEventListener("keyup", updateFilter);
-
-    document.getElementById("filter-clear").addEventListener("click", () => {
-      fieldEl.value = "";
-      typeEl.value = "=";
-      valueEl.value = "";
+  const updateFilter = () => {
+    const filterVal = fieldEl.value;
+    const typeVal = typeEl.value;
+    if (!filterVal) {
       table.clearFilter();
-    });
-
-    // Search filter
-    const searchInput = document.getElementById(Employee_Information._cfgTable.searchInput);
-    if (searchInput) {
-      searchInput.addEventListener("keyup", e => {
-        table.setFilter([
-          { field: "name", type: "like", value: e.target.value },
-          { field: "email", type: "like", value: e.target.value },
-          { field: "phone", type: "like", value: e.target.value }
-        ]);
-      });
+      return;
     }
-  }
+    table.setFilter(filterVal, typeVal, valueEl.value);
+  };
 
-  // --- Setup modal functionality ---
-  setupModal() {
-    const modal = document.getElementById("add-employee-modal");
-    const openModalBtn = document.getElementById("open-modal-btn");
-    const closeModalBtn = document.querySelector(".close");
-    const cancelBtn = document.getElementById("cancel-btn");
-    const submitBtn = document.getElementById("submit-btn");
-    const employeeForm = document.getElementById("employee-form");
+  fieldEl.addEventListener("change", updateFilter);
+  typeEl.addEventListener("change", updateFilter);
+  valueEl.addEventListener("keyup", updateFilter);
 
-    // Open modal
-    openModalBtn.addEventListener("click", function() {
-      modal.style.display = "block";
+  document.getElementById("filter-clear").addEventListener("click", () => {
+    fieldEl.value = "";
+    typeEl.value = "=";
+    valueEl.value = "";
+    table.clearFilter();
+  });
+
+  // Search filter
+  const searchInput = document.getElementById(Employee_Information._cfgTable.searchInput);
+  if (searchInput) {
+    searchInput.addEventListener("keyup", e => {
+      table.setFilter([
+        { field: "name", type: "like", value: e.target.value },
+        { field: "email", type: "like", value: e.target.value },
+        { field: "phone", type: "like", value: e.target.value }
+      ]);
     });
-
-    // Close modal
-    const closeModal = () => {
-      modal.style.display = "none";
-      employeeForm.reset();
-    };
-
-    closeModalBtn.addEventListener("click", closeModal);
-    cancelBtn.addEventListener("click", closeModal);
-
-    // Form submission
-    submitBtn.addEventListener("click", async function() 
-    {
-        // Basic validation
-        const name = document.getElementById("name").value;
-        const cccd = document.getElementById("cccd").value;
-        const phone = document.getElementById("phone").value;
-        
-        if (!name || !cccd || !phone) {
-          alert("Please fill in all required fields (marked with *)");
-          return;
-        }
-        
-        // Here you would typically send the data to your server
-        const formData = new FormData(employeeForm);
-        const data = Object.fromEntries(formData.entries());
-        
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-        try 
-        {
-          const res = await fetch(`/modelController/${Employee_Information._cfgTable.tableName}`, 
-        {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken},
-            body: JSON.stringify(data)
-          }); 
-
-          const result = await res.json();
-
-          if (res.ok) 
-          {
-            alert("Employee_Information added successfully!");
-            // Thêm row vào Tabulator
-            Employee_Information._instanceTable.addRow(data, true);
-            closeModal();
-            console.log(Employee_Information._cfgTable);
-            console.log("New Employee_Information data:", data);
-            alert("Employee_Information added successfully! (This would connect to your backend in a real application)");
-
-          } 
-          else 
-          {
-            // Nếu server trả lỗi validation
-            alert("Error: " + (result.message || "Invalid input"));
-          }
-        } 
-        catch (err) 
-        {
-          console.error(err);
-          alert("Network or server error");
-          console.log(JSON.stringify(data));
-          console.log(Employee_Information._cfgTable?.tableName);
-            
-        }
-
-
-
-        closeModal();
-    });
-  
-  
   }
-  // --- Create Tabulator table ---
-  createTable() {
-    if (Employee_Information._instanceTable) return;
+}
 
-    const cfg = Employee_Information._cfgTable;
+// --- Setup modal functionality ---
+setupModal() {
+  const modal = document.getElementById("add-employee-modal");
+  const openModalBtn = document.getElementById("open-modal-btn");
+  const closeModalBtn = document.querySelector(".close");
+  const cancelBtn = document.getElementById("cancel-btn");
+  const submitBtn = document.getElementById("submit-btn");
+  const employeeForm = document.getElementById("employee-form");
+
+  // Open modal
+  openModalBtn.addEventListener("click", function () {
+    modal.style.display = "block";
+  });
+
+  // Close modal
+  const closeModal = () => {
+    modal.style.display = "none";
+    employeeForm.reset();
+  };
+
+  closeModalBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  // Form submission
+  submitBtn.addEventListener("click", async function () {
+    // Basic validation
+    const name = document.getElementById("name").value;
+    const cccd = document.getElementById("cccd").value;
+    const phone = document.getElementById("phone").value;
+
+    if (!name || !cccd || !phone) {
+      alert("Please fill in all required fields (marked with *)");
+      return;
+    }
+
+    // Here you would typically send the data to your server
+    const formData = new FormData(employeeForm);
+    const data = Object.fromEntries(formData.entries());
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-    Employee_Information._instanceTable = new Tabulator(cfg.selector, {
-      ajaxURL: `/modelController/${cfg.tableName}`,
-      pagination: "local",
-      paginationSize: 10,
-      paginationSizeSelector: [10, 20, 30, 50],
-      movableColumns: true,
-      paginationCounter: "pages",
-      paginationButtonCount: 0,
-      index: cfg.primaryKey,
-      columns: cfg.columns,
-      rowHeader: {
-        headerSort: false,
-        resizableColumnFit: false,
-        width: 20,
-        headerHozAlign: "center",
-        hozAlign: "center",
-        formatter: "rowSelection",
-        titleFormatter: "rowSelection"
-      },
-      ajaxConfig: {
-        method: "GET",
-        headers: {
-          'X-CSRF-TOKEN': csrfToken
-        }
+    try {
+      const res = await fetch(`/modelController/${Employee_Information._cfgTable.tableName}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+          body: JSON.stringify(data)
+        });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("Employee_Information added successfully!");
+        // Thêm row vào Tabulator
+        Employee_Information._instanceTable.addRow(data, true);
+        closeModal();
+        console.log(Employee_Information._cfgTable);
+        console.log("New Employee_Information data:", data);
+        alert("Employee_Information added successfully! (This would connect to your backend in a real application)");
+
       }
-    });
-
-    // Row selection stats
-    Employee_Information._instanceTable.on("rowSelectionChanged", data => {
-      const stats = document.querySelector(".select-stats");
-      if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
-    });
-
-    // Cell edit validation
-    Employee_Information._instanceTable.on("cellEdited", cell => {
-      if (cell.getValue() === "" || cell.getValue() === null) {
-        cell.setValue(cell.getOldValue(), true);
+      else {
+        // Nếu server trả lỗi validation
+        alert("Error: " + (result.message || "Invalid input"));
       }
-    });
-  }
-
-  // --- Render table vào container ---
-  render(container) 
-  {
-    container.innerHTML = this.getHTML();
-
-    if (!Employee_Information._instanceTable)
-    {
-      this.createTable();
-    } else
-    {
-      // Reattach bảng vào div mới
-      const tableDiv = container.querySelector(Employee_Information._cfgTable.selector);
-      tableDiv.appendChild(Employee_Information._instanceTable.element);
     }
-    
-    // Thiết lập bộ lọc và tìm kiếm
-    this.setupFilters();
-    
-    // Thiết lập modal
-    this.setupModal();
+    catch (err) {
+      console.error(err);
+      alert("Network or server error");
+      console.log(JSON.stringify(data));
+      console.log(Employee_Information._cfgTable?.tableName);
+
+    }
+
+
+
+    closeModal();
+  });
+
+
+}
+// --- Create Tabulator table ---
+createTable() {
+  if (Employee_Information._instanceTable) return;
+
+  const cfg = Employee_Information._cfgTable;
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+  Employee_Information._instanceTable = new Tabulator(cfg.selector, {
+    ajaxURL: `/modelController/${cfg.tableName}`,
+    pagination: "local",
+    paginationSize: 10,
+    paginationSizeSelector: [10, 20, 30, 50],
+    movableColumns: true,
+    paginationCounter: "pages",
+    paginationButtonCount: 0,
+    index: cfg.primaryKey,
+    columns: cfg.columns,
+    rowHeader: {
+      headerSort: false,
+      resizableColumnFit: false,
+      width: 20,
+      headerHozAlign: "center",
+      hozAlign: "center",
+      formatter: "rowSelection",
+      titleFormatter: "rowSelection"
+    },
+    ajaxConfig: {
+      method: "GET",
+      headers: {
+        'X-CSRF-TOKEN': csrfToken
+      }
+    }
+  });
+
+  // Row selection stats
+  Employee_Information._instanceTable.on("rowSelectionChanged", data => {
+    const stats = document.querySelector(".select-stats");
+    if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
+  });
+
+  // Cell edit validation
+  Employee_Information._instanceTable.on("cellEdited", cell => {
+    if (cell.getValue() === "" || cell.getValue() === null) {
+      cell.setValue(cell.getOldValue(), true);
+    }
+  });
+}
+
+// --- Render table vào container ---
+render(container)
+{
+  container.innerHTML = this.getHTML();
+
+  if (!Employee_Information._instanceTable) {
+    this.createTable();
+  } else {
+    // Reattach bảng vào div mới
+    const tableDiv = container.querySelector(Employee_Information._cfgTable.selector);
+    tableDiv.appendChild(Employee_Information._instanceTable.element);
   }
+
+  // Thiết lập bộ lọc và tìm kiếm
+  this.setupFilters();
+
+  // Thiết lập modal
+  this.setupModal();
+}
 
 }
 

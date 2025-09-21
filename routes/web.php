@@ -50,6 +50,7 @@ Route::post('/confirmOTP', [ConfirmOTPController::class , 'checkOTP'])->name('co
 
 use App\Http\Controllers\Models\AttendanceController;
 use App\Http\Controllers\Models\ContractController;
+use App\http\Controllers\Models\EmployeeContractController;
 use App\Http\Controllers\Models\EmployeeController;
 use App\Http\Controllers\Models\HierarchyController;
 use App\Http\Controllers\Models\LeaveController;
@@ -73,6 +74,8 @@ Route::apiResource('/modelController/attendances', AttendanceController::class);
 Route::get('/dataTables/contracts', function () { return view('fornt/dashboard/dataTables/contracts'); })->name('contracts'); 
 Route::apiResource('/modelController/contracts', ContractController::class);
 Route::apiResource('/modelController/employees.contracts', EmployeeContractController::class);
+Route::get('/modelController/contracts/{id_employee}/activeCheck', [ContractController::class, 'activeCheck'])->name('contractCurrent');
+
 
 
 // 3. Employees

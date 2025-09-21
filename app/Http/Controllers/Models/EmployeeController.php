@@ -24,18 +24,17 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:150',
-            'gender' => 'nullable|integer|in:0,1,3',
-            'cccd' => 'required|string|max:20|unique:employees,cccd',
-            'date_of_birth' => 'nullable|date',
-            'address' => 'nullable|string|max:300',
-            'email' => 'required|email|unique:employees,email',
-            'phone' => 'nullable|string|max:15',
-            'bank_infor' => 'nullable|string|max:20',
-            'hire_date' => 'nullable|date',
-            'id_hierarchy' => 'required|exists:hierarchys,id_hierarchy',
-            'status' => 'nullable|in:active,inactive,resigned',
-            'description' => 'nullable|string',
+            'name' => 'required|string|max:150',  // có thể null và rỗng
+            'gender' => 'nullable|integer|in:0,1,3', // có thể null và rỗng
+            'cccd' => 'required|string|max:20|unique:employees,cccd', // bắt buộc
+            'date_of_birth' => 'nullable|date', // có thể null và rỗng
+            'address' => 'nullable|string|max:300', // có thể null và rỗng
+            'email' => 'nullable|email', // có thể null và rỗng
+            'phone' => 'nullable|string|max:15', // có thể null và rỗng
+            'bank_infor' => 'nullable|string|max:20', // có thể null và rỗng
+            'hire_date' => 'nullable|date', // có thể null và rỗng
+            'id_hierarchy' => 'required|exists:hierarchys,id_hierarchy', // có thể null và rỗng
+            'description' => 'nullable|string', // có thể null và rỗng
         ]);
 
         $employee = Employee::create($validated);
@@ -83,4 +82,6 @@ class EmployeeController extends Controller
 
         return response()->json($columnType);
     }
+
+    
 }

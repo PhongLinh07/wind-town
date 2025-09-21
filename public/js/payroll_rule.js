@@ -72,8 +72,8 @@ class Payroll_Rule {
     </div>
 
     <!-- Modal Form -->
-    <div id="add-payroll-rule-modal" class="modal" style="margin: 10% auto">
-      <div class="modal-content">
+    <div id="add-payroll-rule-modal" class="modal" >
+      <div class="modal-content" style="margin: 10% auto">
         <div class="modal-header">
           <h2><i class="fas fa-money-bill-wave"></i> Add New Payroll Rule</h2>
           <span class="close">&times;</span>

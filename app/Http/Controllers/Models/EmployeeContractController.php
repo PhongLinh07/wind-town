@@ -17,9 +17,9 @@ class EmployeeContractController extends Controller
     public function store(Request $request, Employee $employee)
     {
         $validated = $request->validate([
-            'contract_name' => 'required|string|max:255',
-            'start_date'    => 'required|date',
-            'end_date'      => 'nullable|date',
+            'contract_type' => 'required|string|max:255',
+            'effective_date'    => 'required|date',
+            'expiry_date'      => 'nullable|date',
         ]);
 
         $contract = $employee->contracts()->create($validated);
@@ -34,10 +34,12 @@ class EmployeeContractController extends Controller
     public function update(Request $request, Employee $employee, Contract $contract)
     {
         $validated = $request->validate([
-            'contract_name' => 'sometimes|string|max:255',
-            'start_date'    => 'sometimes|date',
-            'end_date'      => 'nullable|date',
+            'contract_type' => 'sometimes|in:fixed_term,indefinite,seasonal',
+            'base_salary' => 'sometimes|numeric|min:0',
+            'effective_date' => 'sometimes|date',
+            'expiry_date' => 'nullable|date|after_or_equal:effective_date'
         ]);
+        
 
         $contract->update($validated);
         return response()->json($contract);

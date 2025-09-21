@@ -71,8 +71,8 @@ class Hierarchy {
     </div>
 
     <!-- Modal Form -->
-    <div id="add-hierarchy-modal" class="modal" style="margin: 10% auto">
-      <div class="modal-content">
+    <div id="add-hierarchy-modal" class="modal">
+      <div class="modal-content" style="margin: 10% auto">
         <div class="modal-header">
           <h2><i class="fas fa-layer-group"></i> Add New Hierarchy</h2>
           <span class="close">&times;</span>

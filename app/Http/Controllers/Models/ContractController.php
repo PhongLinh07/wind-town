@@ -80,4 +80,24 @@ class ContractController extends Controller
 
         return response()->json(['message' => 'Deleted successfully']);
     }
+
+    public function activeCheck($idEmployee)
+    {
+   
+        $activeContract = Contract::where('id_employee', $idEmployee)
+            ->where('status', 'active')
+            ->where(function ($q) 
+            {
+                $q->whereNull('expiry_date')
+                  ->orWhere('expiry_date', '>=', Carbon::today());
+            })
+            ->first(); // lấy hợp đồng đầu tiên (nếu có)
+
+            return response()->json([
+            'hasActive' => $activeContract ? true : false,
+            'data'  => $activeContract // null nếu không có
+            ]);
+    
+    }
+
 }

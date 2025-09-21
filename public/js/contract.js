@@ -74,8 +74,8 @@ class Contract {
     </div>
 
     <!-- Modal Form -->
-    <div id="add-contract-modal" class="modal" style="margin: 20% auto">
-      <div class="modal-content">
+    <div id="add-contract-modal" class="modal">
+      <div class="modal-content"  style="margin: 10% auto">
         <div class="modal-header">
           <h2><i class="fas fa-file-contract"></i> Add New Contract</h2>
           <span class="close">&times;</span>
@@ -112,14 +112,6 @@ class Contract {
                 <label for="expiry_date">Expiry Date</label>
                 <input type="date" id="expiry_date" name="expiry_date">
               </div>
-              <div class="form-group">
-                <label for="status">Status *</label>
-                <select id="status" name="status" required>
-                  <option value="active">Active</option>
-                  <option value="expired">Expired</option>
-                  <option value="terminated">Terminated</option>
-                </select>
-              </div>
             </div>
 
             <div class="form-row">
@@ -153,9 +145,9 @@ class Contract {
                 editor: "list",
                 editorParams: {
                     values: {
-                        "Fixed term": "Fixed term", // cố định
-                        "Indefinite": "Indefinite", // ko xác định
-                        "Seasonal": "Seasonal" //thời vụ
+                        "fixed_term": "Fixed term", // cố định
+                        "indefinite": "Indefinite", // ko xác định
+                        "seasonal": "Seasonal" //thời vụ
                     }
                 }
             },
@@ -198,11 +190,46 @@ class Contract {
                 editor: "list",
                 editorParams: {
                     values: {
-                        "active": "Active",
-                        "expired": "Expired",
-                        "terminated": "Terminated"
+                        "active": "Active", // mafu xanh 
+                        // "expired": "Expired", hết hạn auto màu vàng
+                        "terminated": "Terminated" // chấm dứt đỏ
                     }
-                }
+                },
+                formatter: function (cell) {
+                    const value = cell.getValue();
+                    let color = "";
+                    let label = "";
+
+                    switch (value) {
+                        case "active":
+                            color = "#00c853"; // xanh
+                            label = "Active";
+                            break;
+                        case "expired":
+                            color = "#fbc02d"; // vàng
+                            label = "Expired";
+                            break;
+                        case "terminated":
+                            color = "#d32f2f"; // đỏ
+                            label = "Terminated";
+                            break;
+                        default:
+                            color = "#9e9e9e"; // xám cho unknown
+                            label = value;
+                    }
+
+                    return `<span style="
+                    display:inline-block;
+                    padding:2px 8px;
+                    border-radius:12px;
+                    background:${color};
+                    color:#fff;
+                    font-size:12px;
+                    font-weight:500;">
+                        ${label}
+                    </span>`;
+                },
+                
             },
             { title: "Description", field: "description", editor: "textarea" },
             {
@@ -309,16 +336,41 @@ class Contract {
         cancelBtn.addEventListener("click", closeModal);
 
         // Form submission
-        submitBtn.addEventListener("click", function () {
+        submitBtn.addEventListener("click", async function () {
+
             // Basic validation
             const id_employee = document.getElementById("id_employee").value;
             const contract_type = document.getElementById("contract_type").value;
             const base_salary = document.getElementById("base_salary").value;
             const effective_date = document.getElementById("effective_date").value;
-            const status = document.getElementById("status").value;
+            const expiry_date = document.getElementById("expiry_date").value;
+            const status = "active";
 
-            if (!id_employee || !contract_type || !base_salary || !effective_date || !status) {
+            if (!id_employee || !contract_type || !base_salary || !effective_date) {
                 alert("Please fill in all required fields (marked with *)");
+                return;
+            }
+
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            //validate employee
+            // 1️⃣ Kiểm tra nhân viên tồn tại
+            const resEmployee = await fetch(`/modelController/employees/${id_employee}`, {
+                headers: { "X-CSRF-TOKEN": csrfToken }
+            });
+
+            if (!resEmployee.ok) { alert("Nhân viên không tồn tại!"); return; }
+            const employeeData = await resEmployee.json();
+
+
+            // 2️⃣ Kiểm tra nhân viên đã có hợp đồng active chưa
+            const resCheck = await fetch(`/modelController/contracts/${id_employee}/activeCheck`, { headers: { "X-CSRF-TOKEN": csrfToken } });
+            if (!resCheck.ok) throw new Error("Không thể kiểm tra hợp đồng active");
+
+            const dataCheck = await resCheck.json();
+            if (dataCheck.hasActive) {
+                alert(`Employee: ${employeeData.id_employee} \n${employeeData.name} \nCurrent Contract: ${dataCheck.data.id_contract}`);
                 return;
             }
 
@@ -328,8 +380,7 @@ class Contract {
                 return;
             }
 
-            // Validate expiry date if provided
-            const expiry_date = document.getElementById("expiry_date").value;
+
             if (expiry_date && new Date(expiry_date) <= new Date(effective_date)) {
                 alert("Expiry date must be after effective date");
                 return;
@@ -339,11 +390,40 @@ class Contract {
             const formData = new FormData(contractForm);
             const data = Object.fromEntries(formData.entries());
 
-            console.log("New contract data:", data);
-            alert("Contract added successfully! (This would connect to your backend in a real application)");
 
-            // In a real application, you would add the row to the table here
-            // Contract._instanceTable.addRow(data, true);
+
+            try {
+                const res = await fetch(`/modelController/${Contract._cfgTable.tableName}`,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+                        body: JSON.stringify(data)
+                    });
+
+                const result = await res.json();
+
+                if (res.ok) {
+                    alert("Contract added successfully!");
+                    // Thêm row vào Tabulator
+                    Contract._instanceTable.addRow(result, true);
+                    closeModal();
+                    console.log(Contract._cfgTable);
+                    console.log("New Contract data:", data);
+                    alert("Contract added successfully! (This would connect to your backend in a real application)");
+
+                }
+                else {
+                    // Nếu server trả lỗi validation
+                    alert("Error: " + (result.message || "Invalid input"));
+                }
+            }
+            catch (err) {
+                console.error(err);
+                alert("Network or server error");
+                console.log(JSON.stringify(data));
+                console.log(Contract._cfgTable?.tableName);
+
+            }
 
             closeModal();
         });
@@ -392,32 +472,57 @@ class Contract {
         Contract._instanceTable.on("cellEdited", async cell => {
             const newValue = cell.getValue();
             const oldValue = cell.getOldValue();
-            if (!newValue || newValue === oldValue) {
+
+            // Chỉ rollback khi newValue là null hoặc rỗng string
+            if (newValue === null || newValue === "" || newValue === oldValue) {
                 cell.setValue(oldValue, true);
                 return;
             }
+
             try {
-
                 const rowData = cell.getRow().getData();
+                const field = cell.getField();
                 const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                const resPut = await fetch(`/modelController/employees/${rowData.id_employee}/contracts/${rowData.id_contract}`,
-                    {
-                        method: "PUT",
-                        headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-                        body: JSON.stringify(rowData),
-                    });
+                const curr_date = Date.now();
 
-                if (!resPut.ok) { alert("Contract update fields."); cell.setValue(oldValue, true); return; }
+                // Update status nếu expired
+                if (rowData.expiry_date && rowData.status === "active") {
+                    const expiry_ts = new Date(rowData.expiry_date).getTime();
+                    if (expiry_ts < curr_date) {
+                        cell.getRow().getCell("status").setValue("expired", true);
+                    }
+                }
 
-                // nếu server trả JSON (optional)
-                const result = await resPut.json();
-                console.log("Update success:", result);
+                // URL PUT chuẩn nested resource
+                const url = `/modelController/employees/${rowData.id_employee}/contracts/${rowData.id_contract}`;
 
-            }
-            catch (err) {
+                // Dữ liệu gửi lên
+                const payload = { [field]: newValue, status: rowData.status };
+
+                const resPut = await fetch(`/modelController/contracts/${rowData.id_contract}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!resPut.ok) {
+                    alert("Contract update failed.");
+                    cell.setValue(cell.getOldValue(), true);
+                    return;
+                }
+
+                if (resPut.headers.get("content-type")?.includes("application/json")) {
+                    const result = await resPut.json();
+                    console.log("Update success:", result);
+                } else {
+                    console.log("Update success (no content).");
+                }
+
+            } catch (err) {
                 console.error(err);
-                cell.setValue(oldValue, true);
+                cell.setValue(cell.getOldValue(), true);
             }
+
         });
     }
 
