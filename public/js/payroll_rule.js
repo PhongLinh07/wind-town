@@ -88,8 +88,8 @@ class Payroll_Rule {
               <div class="form-group">
                 <label for="value_type">Value Type *</label>
                 <select id="value_type" name="value_type" required>
-                  <option value="Percentage">Percentage</option>
-                  <option value="'Fixed Amount">Fixed Amount</option>
+                  <option value="percentage">Percentage</option>
+                  <option value="fixed_amount">Fixed Amount</option>
                 </select>
               </div>
               <div class="form-group">
@@ -138,7 +138,7 @@ class Payroll_Rule {
         title: "Value Type",
         field: "value_type",
         editor: "list",
-        editorParams: { values: { "Percentage": "Percentage", "Fixed Amount": "Fixed Amount" } }
+        editorParams: { values: { "percentage": "Percentage", "fixed_amount": "Fixed Amount" } }
       },
       {
         title: "Value",
@@ -345,7 +345,7 @@ class Payroll_Rule {
         return;
       }
 
-      if (value_type === "fixed" && value < 0) {
+      if (value_type === "fixed_amount" && value < 0) {
         alert("Fixed amount cannot be negative");
         return;
       }
@@ -512,12 +512,6 @@ setupDeleteButton() {
         hozAlign: "center",
         formatter: "rowSelection",
         titleFormatter: "rowSelection"
-      },
-      ajaxConfig: {
-        method: "GET",
-        headers: {
-          'X-CSRF-TOKEN': csrfToken
-        }
       }
     });
 
@@ -554,17 +548,18 @@ setupDeleteButton() {
           const rowData = cell.getRow().getData();
           const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
           const url = `/modelController/${Payroll_Rule._cfgTable.tableName}/${rowData.id_rule}`;
-          const payload = { [field]: cell.getValue() };
+        
 
           const resPut = await fetch(url, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(rowData)
           });
 
           if (!resPut.ok) {
             alert("Update failed.");
             cell.setValue(cell.getOldValue(), true);
+            return;
           } else {
             console.log("Update successful");
           }

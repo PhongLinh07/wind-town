@@ -39,25 +39,31 @@ class HierarchyController extends Controller
         return response()->json($hierarchy, 201);
     }
 
-    // Cập nhật
-    public function update(Request $request, $id)
-    {
-        $hierarchy = Hierarchy::findOrFail($id);
+    // Cập nhật 
+        public function update(Request $request, $id) // luoon luoon duy nhast | request: luôn phải có trong $request
+        {
+            $hierarchy = Hierarchy::findOrFail($id);
 
-        $data = $request->validate([
-            'name_position' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('hierarchy')->ignore($hierarchy->id_hierarchy)->where(function ($query) use ($request) {
+            $data = $request->validate([
+        'name_position' => [
+            'required',// request: luôn phải có trong $request
+            'string',
+            'max:100',
+             Rule::unique('hierarchys')
+            ->ignore($hierarchy->id_hierarchy, 'id_hierarchy') // <-- sửa cột primary key
+            ->where(function ($query) use ($request) {
+                if ($request->filled('name_level')) {
                     return $query->where('name_level', $request->name_level);
-                }),
-            ],
-            'name_level' => 'required|string|max:50',
-            'salary_multiplier' => 'nullable|numeric|min:0',
-            'allowance' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string',
-        ]);
+                }
+                return $query;
+            }),
+        ],
+        'name_level' => 'required|string|max:50', // request: luôn phải có trong $request
+        'salary_multiplier' => 'nullable|numeric|min:0',
+        'allowance' => 'nullable|numeric|min:0',
+        'description' => 'nullable|string',
+]);
+
 
         $hierarchy->update($data);
         return response()->json($hierarchy);

@@ -25,44 +25,57 @@ class PayrollRuleController extends Controller
         return response()->json($rule);
     }
 
-    // Tạo mới
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'type' => 'nullable|string',
-            'value_type' => ['nullable', Rule::in(['money','multiplier'])],
-            'value' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'effective_date' => 'required|date',
-            'expiry_date' => 'nullable|date|after_or_equal:effective_date',
-        ]);
+    // ===================
+// Tạo mới
+// ===================
+public function store(Request $request)
+{
+    $data = $request->validate([
+        'type' => [
+            'required',
+            'string',
+            Rule::unique('payroll_rules', 'type') // type duy nhất
+        ],
+        'value_type' => [
+            'required',
+            Rule::in(['percentage','fixed_amount'])
+        ],
+        'value' => 'required|numeric|min:0',
+        'description' => 'nullable|string',
+        'effective_date' => 'required|date',
+        'expiry_date' => 'nullable|date|after_or_equal:effective_date',
+    ]);
 
-      
-        $rule = PayrollRule::create($data);
-        return response()->json($rule, 201);
-    }
+    $rule = PayrollRule::create($data);
+    return response()->json($rule, 201);
+}
 
-    // Cập nhật
-    public function update(Request $request, $id)
-    {
-        $rule = PayrollRule::findOrFail($id);
+// ===================
+// Cập nhật
+// ===================
+public function update(Request $request, $id)
+{
+    $rule = PayrollRule::findOrFail($id);
 
-        $data = $request->validate([
-            'type' => 'nullable|string',
-            'value_type' => ['nullable', Rule::in(['money','multiplier'])],
-            'value' => 'required|numeric|min:0',
-            'description' => 'nullable|string',
-            'effective_date' => 'required|date',
-            'expiry_date' => 'nullable|date|after_or_equal:effective_date',
-        ]);
+    $data = $request->validate([
+        'type' => [
+            'required',
+            'string',
+            Rule::unique('payroll_rules', 'type')->ignore($rule->id_rule, 'id_rule')
+        ],
+        'value_type' => [
+            'required',
+            Rule::in(['percentage','fixed_amount'])
+        ],
+        'value' => 'required|numeric|min:0',
+        'description' => 'nullable|string',
+        'effective_date' => 'required|date',
+        'expiry_date' => 'nullable|date|after_or_equal:effective_date',
+    ]);
 
-        if (!isset($data['value_type'])) {
-            $data['value_type'] = 'money';
-        }
-
-        $rule->update($data);
-        return response()->json($rule);
-    }
+    $rule->update($data);
+    return response()->json($rule);
+}
 
     // Xóa
     public function destroy($id)
@@ -70,5 +83,17 @@ class PayrollRuleController extends Controller
         $rule = PayrollRule::findOrFail($id);
         $rule->delete();
         return response()->json(['message' => 'Deleted successfully']);
+    }
+
+
+    // API: lấy rule theo type, auto tạo mặc định nếu chưa có
+    public function getRule(Request $request, $type)
+    {
+        $defaultValue = $request->query('defaultValue', 0);
+        $defaultValueType = $request->query('defaultValueType', 'fixed_amount');
+
+        $rule = PayrollRule::getRule($type, $defaultValue, $defaultValueType);
+
+        return response()->json($rule);
     }
 }

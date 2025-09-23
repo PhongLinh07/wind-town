@@ -30,10 +30,6 @@ class AttendanceController extends Controller
     {
         $attendance = Attendance::findOrFail($id);
         $data = $request->validate([
-            'check_in' => 'nullable|date',
-            'check_out' => 'nullable|date|after_or_equal:check_in',
-            'work_hours' => 'nullable|numeric',
-            'status' => 'nullable|in:present,absent,late,leave',
             'description' => 'nullable|string'
         ]);
 
@@ -47,4 +43,15 @@ class AttendanceController extends Controller
         $attendance->delete();
         return response()->json(null, 204);
     }
+
+    public function getByCycle($idEmployee, $startDate, $endDate)
+    {
+        $attendances = Attendance::where('id_employee', $idEmployee)
+            ->whereBetween('of_date', [$startDate, $endDate])
+            ->orderBy('of_date', 'asc')
+            ->get();
+
+        return response()->json(['datas' => $attendances ]);
+    }
+
 }

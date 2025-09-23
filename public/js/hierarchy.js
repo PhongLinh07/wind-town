@@ -468,6 +468,7 @@ class Hierarchy {
       if (columnDefinition.editor === false) {
         return false; // Ngăn không cho edit
       }
+      return true;
     });
 
     // Xử lý khi cell được edit
@@ -475,12 +476,12 @@ class Hierarchy {
       const columnDefinition = cell.getColumn().getDefinition();
       
       // Chỉ xử lý nếu ô được phép edit
-      if (columnDefinition.editor !== false) {
+      if (columnDefinition.editor !== true) {
         const newValue = cell.getValue();
         const oldValue = cell.getOldValue();
 
         if (newValue === null || newValue === "" || newValue === oldValue) {
-          cell.setValue(oldValue, true);
+          cell.update(oldValue, true);
           return;
         }
 
@@ -490,25 +491,25 @@ class Hierarchy {
           const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
           const url = `/modelController/${Hierarchy._cfgTable.tableName}/${rowData.id_hierarchy}`;
-          const payload = { [field]: newValue };
+          
 
           const resPut = await fetch(url, {
             method: "PUT",
             headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(rowData)
           });
 
           if (!resPut.ok) {
-            alert("Update failed.");
             cell.setValue(cell.getOldValue(), true);
+            alert("Update failed.");
             return;
           }
 
           console.log("Update successful");
 
         } catch (err) {
-          console.error(err);
           cell.setValue(cell.getOldValue(), true);
+          console.error(err);
         }
       }
     });

@@ -99,7 +99,7 @@ class Employee_Bank_Information {
     static _cfgTable = {
         selector: "#tabulator-table",
         tableName: "employees",
-        searchInput: "employee-bank-search-input",
+        searchInput: "#employee-bank-search-input",
         primaryKey: "id_employee",
         columns: [
             { title: "ID Employee", field: "id_employee", editor: false },

@@ -15,7 +15,7 @@ class Leave extends Model
         'approved_by',
         'start_date',
         'end_date',
-        'type',
+        'is_paid',
         'reason',
         'status',
         'description'

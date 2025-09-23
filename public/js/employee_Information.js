@@ -25,8 +25,6 @@ class Employee_Information {
               <option value="hire_date">Hire Date</option>
               <option value="status">Status</option>
               <option value="description">Description</option>
-              <option value="created_at">Create At</option>
-              <option value="updated_at">Update At</option>
             </select>
           </div>
 
@@ -212,8 +210,6 @@ class Employee_Information {
     </span>`;
       }},
       { title: "Description", field: "description", editor: false },
-{ title: "Create At", field: "created_at", editor: false, formatter: Employee_Information.formatDate },
-{ title: "Update At", field: "updated_at", editor: false, formatter: Employee_Information.formatDate, }
     ]
   };
 

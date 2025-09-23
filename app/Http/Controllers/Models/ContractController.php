@@ -143,4 +143,35 @@ class ContractController extends Controller
             'data' => $activeContract
         ]);
     }
+
+
+
+    public function getContractsByCycle($idEmployee, $startDate, $endDate)
+    {
+        // Ưu tiên lấy hợp đồng active
+        $activeContract = Contract::where('id_employee', $idEmployee)
+            ->where('status', 'active')
+            ->where(function ($q) use ($endDate) {
+                $q->whereNull('expiry_date')
+                ->orWhere('expiry_date', '>=', $endDate); // còn hiệu lực đến hết kỳ
+            })
+            ->first();
+
+        if ($activeContract) 
+        {
+            return response()->json(['data' => $activeContract ]);
+        }
+
+        // Nếu không có active thì tìm hợp đồng có expiry_date trong chu kỳ
+        $expiredContract = Contract::where('id_employee', $idEmployee)
+            ->whereBetween('expiry_date', [$startDate, $endDate])
+            ->orderBy('expiry_date', 'desc') // gần nhất so với $endDate
+            ->first();
+
+        return response()->json([
+            'data' => $expiredContract
+        ]);
+    }
+
+
 }

@@ -444,4 +444,83 @@
     }
 
 
-    
+    .money-management-section {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.money-controls {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.money-inputs {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+}
+
+.money-inputs input, .money-inputs select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.money-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-danger {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.money-summary {
+  text-align: center;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  border: 2px solid #e9ecef;
+}
+
+.total-display {
+  font-size: 18px;
+}
+
+.total-label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.total-amount {
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.total-amount.positive {
+  color: #28a745;
+}
+
+.total-amount.negative {
+  color: #dc3545;
+}

@@ -52,7 +52,7 @@ class LeaveController extends Controller
         $validated = $request->validate([
             'start_date' => 'sometimes|date',
             'end_date' => 'sometimes|date|after_or_equal:start_date',
-            'type' => 'sometimes|in:annual,sick,unpaid,other',
+            'type' => 'sometimes|in:paid,unpaid',
             'reason' => 'sometimes|string',
             'status' => 'sometimes|in:pending,approved,rejected',
             'description' => 'sometimes|string',

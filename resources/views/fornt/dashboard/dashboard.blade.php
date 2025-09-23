@@ -494,7 +494,7 @@
             <!-- Contracts & Payroll -->
             <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseContracts" aria-expanded="false">
               <div class="sb-nav-link-icon"><i class="fas fa-file-invoice-dollar"></i></div>
-              Contracts & Payroll
+              Contracts & Salary
               <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
             </a>
             <div class="collapse" id="collapseContracts" data-bs-parent="#sidenavAccordion">
@@ -623,24 +623,6 @@
   <!-- SPA JS -->
   <script>
     const app = document.getElementById('app');
-
-    // --- Tab modules (lazy load) ---
-    const TabModules = 
-    {
-      employee_information: null, // Singleton sẽ tạo khi click lần đầu
-      employee_hierarchy: null,
-      employee_bank_information: null,
-
-      hierachy: null,
-      payroll_rule:null,
-
-      contract: null,
-      salary_detail: null,
-
-      attendance:null,
-      
-      leave: null,
-    };
 
     function loadPage(page)
     {
