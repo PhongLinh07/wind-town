@@ -1,278 +1,553 @@
--- =======================
--- DROP BẢNG NẾU TỒN TẠI
--- Thứ tự: con → cha
--- =======================
+-- =============================================
+-- DATABASE SCHEMA - CẤU TRÚC BẢNG
+-- =============================================
+SET FOREIGN_KEY_CHECKS = 0;
+
+
 DROP TABLE IF EXISTS salary_details;
 DROP TABLE IF EXISTS leaves;
 DROP TABLE IF EXISTS attendances;
 DROP TABLE IF EXISTS contracts;
 DROP TABLE IF EXISTS employees;
-DROP TABLE IF EXISTS hierarchys;
 DROP TABLE IF EXISTS payroll_rules;
+DROP TABLE IF EXISTS hierarchys;
 
--- =======================
--- CREATE BẢNG CHA TRƯỚC
--- =======================
+-- 📌 BẢNG HIERARCHY
 CREATE TABLE hierarchys (
     id_hierarchy INT PRIMARY KEY AUTO_INCREMENT,
-    name_position VARCHAR(100) NOT NULL,
-    name_level VARCHAR(50) NOT NULL,
-    salary_multiplier FLOAT,
-    allowance FLOAT,
+    name_position VARCHAR(100) ,
+    name_level VARCHAR(50) ,
+    salary_multiplier DECIMAL(5,2),
+    allowance DECIMAL(15,2),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_position_level (name_position, name_level)
+    CONSTRAINT unique_position_level UNIQUE (name_position, name_level)
 );
 
+-- 📌 BẢNG EMPLOYEES
 CREATE TABLE employees (
     id_employee INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(150) NOT NULL,
-    gender INT COMMENT '1=male, 0=female, 3=unknown',
-    cccd VARCHAR(20) NOT NULL UNIQUE,
+    name VARCHAR(150) ,
+    gender TINYINT CHECK (gender IN (0, 1, 3)),
+    cccd VARCHAR(20) UNIQUE ,
     date_of_birth DATE,
     address VARCHAR(300),
-    email VARCHAR(150) NOT NULL UNIQUE,
+    email VARCHAR(150),
     phone VARCHAR(15),
-    bank_infor VARCHAR(20) COMMENT 'BankType_id',
+    bank_infor VARCHAR(100),
     hire_date DATE,
     id_hierarchy INT,
-    status ENUM('active','inactive','resigned'),
+    status VARCHAR(20) CHECK (status IN ('active', 'inactive', 'resigned')),
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_hierarchy) REFERENCES hierarchys(id_hierarchy)
 );
 
-CREATE TABLE payroll_rules (
-    id_rule INT PRIMARY KEY AUTO_INCREMENT,
-    type VARCHAR(20) NOT NULL UNIQUE,
-    value_type ENUM('Percentage','Fixed Amount') DEFAULT 'Fixed Amount',
-    value FLOAT,
-    effective_date DATE,
-    expiry_date DATE,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
--- =======================
--- CREATE BẢNG CON
--- =======================
-CREATE TABLE contracts (
-    id_contract INT PRIMARY KEY AUTO_INCREMENT,
-    id_employee INT,
-    contract_type ENUM('fixed_term','indefinite','seasonal'),
-    base_salary FLOAT,
-    effective_date DATE,
-    expiry_date DATE,
-    status ENUM('active','expired','terminated'),
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
+-- 📌 BẢNG ATTENDANCES
 CREATE TABLE attendances (
     id_attendance INT PRIMARY KEY AUTO_INCREMENT,
     id_employee INT,
     of_date DATE,
-    office_hours DECIMAL(5,2),
-    over_time DECIMAL(5,2),
-    late_time DECIMAL(5,2),
-    is_night_shift BOOLEAN,
+    office_hours DECIMAL(4,2),
+    over_time DECIMAL(4,2) DEFAULT 0,
+    late_time DECIMAL(4,2) DEFAULT 0,
+    is_night_shift TINYINT(1) DEFAULT 0,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_attendance (id_employee, of_date)
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee),
+    CONSTRAINT unique_employee_date UNIQUE (id_employee, of_date)
 );
 
+-- 📌 BẢNG CONTRACTS
+CREATE TABLE contracts (
+    id_contract INT PRIMARY KEY AUTO_INCREMENT,
+    id_employee INT,
+    contract_type TINYINT CHECK (contract_type IN (1, 2, 3)),
+    base_salary DECIMAL(15,2),
+    effective_date DATE,
+    expiry_date DATE,
+    status VARCHAR(20) CHECK (status IN ('active', 'expired', 'terminated')),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee)
+);
+
+-- 📌 BẢNG SALARY_DETAILS
 CREATE TABLE salary_details (
-    id_salary_details INT PRIMARY KEY AUTO_INCREMENT,
-    id_contract INT,
-    approved_by INT,
-    salary_month DATE NOT NULL,
-    overtime FLOAT DEFAULT 0,
-    bonus FLOAT DEFAULT 0 NOT NULL,
-    attendance_bonus FLOAT DEFAULT 0,
-    deduction FLOAT DEFAULT 0 NOT NULL,
-    net_salary FLOAT,
-    status ENUM('pending','paid') DEFAULT 'pending',
-    description TEXT,
+    id_salary_details INT AUTO_INCREMENT PRIMARY KEY,           -- Khóa chính
+    id_contract INT ,                                   -- FK -> contracts
+    approved_by INT NULL,                                       -- FK -> employees
+
+    salary_month DATE ,                                 -- Tháng lương (luôn là ngày 01)
+
+    base_salary DECIMAL(15,2) ,                         -- Lương cơ bản
+    salary_multiplier DECIMAL(5,2) DEFAULT 1.00 ,       -- Hệ số lương
+
+    office_hours DECIMAL(15,2) DEFAULT 0,                       -- Số giờ làm việc
+    over_time DECIMAL(15,2) DEFAULT 0,                          -- Giờ OT (0 nếu office_hours < 8)
+    late_time DECIMAL(15,2) DEFAULT 0,                          -- Giờ đi muộn (tính từ 8h - office_hours)
+
+    bonus DECIMAL(15,2)  DEFAULT 0,                     -- Thưởng lễ, tết
+    attendance_bonus DECIMAL(15,2) DEFAULT 0,                   -- Phụ cấp chuyên cần
+    deduction DECIMAL(15,2)  DEFAULT 0,                 -- Khấu trừ (phạt, BHXH, thuế)
+
+    net_salary DECIMAL(15,2) ,                          -- Lương thực nhận
+
+    status ENUM('pending','paid') DEFAULT 'pending' ,   -- Trạng thái trả lương
+    description TEXT NULL,                                      -- Mô tả
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_salary (id_contract, salary_month)
+
+    CONSTRAINT fk_salary_details_contract FOREIGN KEY (id_contract) REFERENCES contracts(id_contract),
+    CONSTRAINT fk_salary_details_approver FOREIGN KEY (approved_by) REFERENCES employees(id_employee),
+
+    UNIQUE KEY uq_contract_month (id_contract, salary_month)    -- 1 contract chỉ có 1 bản ghi / tháng
 );
 
+-- 📌 BẢNG LEAVES
 CREATE TABLE leaves (
     id_leave INT PRIMARY KEY AUTO_INCREMENT,
     id_employee INT,
     approved_by INT,
     start_date DATE,
     end_date DATE,
-    type ENUM('annual','sick','unpaid','other'),
+    is_paid TINYINT(1) DEFAULT 0,
     reason TEXT,
-    status ENUM('pending','approved','rejected') DEFAULT 'pending',
+    status VARCHAR(20) CHECK (status IN ('pending', 'approved', 'rejected')),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_employee) REFERENCES employees(id_employee),
+    FOREIGN KEY (approved_by) REFERENCES employees(id_employee)
+);
+
+-- 📌 BẢNG PAYROLL_RULES
+CREATE TABLE payroll_rules (
+    id_rule INT PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100),
+    value_type VARCHAR(20) CHECK (value_type IN ('percentage', 'fixed_amount')),
+    value DECIMAL(10,2),
+    effective_date DATE,
+    expiry_date DATE,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- =======================
--- TẠO KHÓA NGOẠI
--- =======================
-ALTER TABLE employees
-ADD CONSTRAINT fk_employees_hierarchy
-FOREIGN KEY (id_hierarchy) REFERENCES hierarchys(id_hierarchy);
+-- 📌 TẠO INDEXES
+CREATE INDEX idx_employees_status ON employees(status);
+CREATE INDEX idx_contracts_status ON contracts(status);
+CREATE INDEX idx_attendance_date ON attendances(of_date);
+CREATE INDEX idx_salary_month ON salary_details(salary_month);
+CREATE INDEX idx_leaves_dates ON leaves(start_date, end_date);
+CREATE INDEX idx_employees_hierarchy ON employees(id_hierarchy);
+CREATE INDEX idx_contracts_employee ON contracts(id_employee);
 
-ALTER TABLE contracts
-ADD CONSTRAINT fk_contracts_employee
-FOREIGN KEY (id_employee) REFERENCES employees(id_employee);
 
-ALTER TABLE attendances
-ADD CONSTRAINT fk_attendances_employee
-FOREIGN KEY (id_employee) REFERENCES employees(id_employee);
 
-ALTER TABLE salary_details
-ADD CONSTRAINT fk_salarydetails_contract
-FOREIGN KEY (id_contract) REFERENCES contracts(id_contract);
+-- =============================================
+-- SAMPLE DATA - DỮ LIỆU MẪU PHONG PHÚ
+-- =============================================
 
-ALTER TABLE salary_details
-ADD CONSTRAINT fk_salarydetails_approved_by
-FOREIGN KEY (approved_by) REFERENCES employees(id_employee);
-
-ALTER TABLE leaves
-ADD CONSTRAINT fk_leaves_employee
-FOREIGN KEY (id_employee) REFERENCES employees(id_employee);
-
-ALTER TABLE leaves
-ADD CONSTRAINT fk_leaves_approved_by
-FOREIGN KEY (approved_by) REFERENCES employees(id_employee);
-
--- =======================
--- DỮ LIỆU GIẢ
--- =======================
--- hierarchys
+-- 📊 HIERARCHYS (25 bản ghi)
 INSERT INTO hierarchys (name_position, name_level, salary_multiplier, allowance, description) VALUES
-('HR Specialist', 'Junior', 1.0, 400000, 'Chuyên viên nhân sự mới vào'),
-('HR Specialist', 'Senior', 1.3, 800000, 'Chuyên viên nhân sự có kinh nghiệm'),
-('Accountant', 'Junior', 1.0, 500000, 'Kế toán viên'),
-('Accountant', 'Senior', 1.5, 1200000, 'Kế toán trưởng'),
-('Marketing Executive', 'Junior', 1.1, 600000, 'Chuyên viên marketing mới'),
-('Marketing Executive', 'Senior', 1.6, 1300000, 'Chuyên viên marketing có kinh nghiệm'),
-('Graphic Designer', 'Junior', 1.0, 500000, 'Thiết kế đồ họa mới'),
-('Graphic Designer', 'Senior', 1.4, 1100000, 'Thiết kế đồ họa có kinh nghiệm'),
-('Business Analyst', 'Junior', 1.2, 700000, 'Chuyên viên phân tích nghiệp vụ mới'),
-('Business Analyst', 'Senior', 1.8, 1500000, 'Chuyên viên phân tích nghiệp vụ cao cấp'),
-('Project Manager', 'Mid', 2.0, 2000000, 'Quản lý dự án'),
-('Project Manager', 'Senior', 2.5, 2500000, 'Quản lý dự án cấp cao');
+-- IT Department
+-- IT Department
+('Trainee', 'Fresher', 1.0, 200000, 'Thực tập sinh'),
+('Developer', 'Junior', 1.1, 300000, 'Lập trình viên cơ bản'),
+('Developer', 'Middle', 1.3, 600000, 'Lập trình viên trung cấp'),
+('Developer', 'Senior', 1.5, 1000000, 'Lập trình viên cao cấp'),
+('Developer', 'Lead', 1.7, 1500000, 'Trưởng nhóm phát triển'),
+('QA Engineer', 'Junior', 1.05, 250000, 'Kiểm thử viên cơ bản'),
+('QA Engineer', 'Senior', 1.4, 900000, 'Kiểm thử viên cao cấp'),
+('DevOps', 'Middle', 1.35, 700000, 'Vận hành hệ thống'),
+('DevOps', 'Senior', 1.55, 1200000, 'Quản trị hệ thống cao cấp'),
 
--- employees
-INSERT INTO employees (name, gender, cccd, date_of_birth, address, email, phone, bank_infor, hire_date, id_hierarchy, status) VALUES
-('Le Thi Kim', 0, '112233445', '1995-02-15', 'Ha Noi', 'kim.le@example.com', '0912345601', 'vietcombank_112233445', '2023-03-01', 3, 'active'),
-('Hoang Van Nam', 1, '223344556', '1990-08-20', 'Ho Chi Minh', 'nam.hoang@example.com', '0987654302', 'techcombank_223344556', '2022-05-10', 4, 'active'),
-('Nguyen Thi Oanh', 0, '334455667', '1998-11-05', 'Da Nang', 'oanh.nguyen@example.com', '0901234503', 'acb_334455667', '2024-01-20', 1, 'active'),
-('Tran Minh Quan', 1, '445566778', '1993-06-30', 'Can Tho', 'quan.tran@example.com', '0918765404', 'bidv_445566778', '2021-09-15', 2, 'active'),
-('Pham Thi Yen', 0, '556677889', '1996-04-12', 'Hai Phong', 'yen.pham@example.com', '0966778805', 'sacombank_556677889', '2023-07-01', 5, 'active'),
-('Vu Van Tuan', 1, '667788990', '1992-10-25', 'Nha Trang', 'tuan.vu@example.com', '0977889906', 'vietinbank_667788990', '2022-11-01', 6, 'active'),
-('Do Thi Hoa', 0, '778899001', '1997-03-08', 'Vinh', 'hoa.do@example.com', '0909876507', 'vietcombank_778899001', '2024-02-10', 7, 'active'),
-('Le Van Thang', 1, '889900112', '1994-09-18', 'Ha Noi', 'thang.le@example.com', '0919876508', 'techcombank_889900112', '2021-08-05', 8, 'active'),
-('Huynh Thanh Nhan', 1, '990011223', '1991-05-01', 'Ho Chi Minh', 'nhan.huynh@example.com', '0988776609', 'bidv_990011223', '2022-04-20', 9, 'active'),
-('Nguyen Thi Trang', 0, '001122334', '1995-12-28', 'Da Nang', 'trang.nguyen@example.com', '0909988710', 'acb_001122334', '2023-06-15', 10, 'active'),
-('Tran Van Anh', 1, '113355779', '1990-01-01', 'Ha Noi', 'anh.tran@example.com', '0912233411', 'vietcombank_113355779', '2022-01-01', 11, 'active'),
-('Le Mai Phuong', 0, '224466880', '1992-05-05', 'Hai Phong', 'phuong.le@example.com', '0907788912', 'techcombank_224466880', '2021-06-15', 12, 'active'),
-('Vo Quoc Huy', 1, '335577991', '1998-03-20', 'Da Nang', 'huy.vo@example.com', '0913344513', 'acb_335577991', '2023-02-10', 1, 'active'),
-('Phan Thi Ngoc', 0, '446688002', '1997-07-15', 'Vinh', 'ngoc.phan@example.com', '0988445514', 'bidv_446688002', '2023-05-20', 2, 'active'),
-('Duong Van Luc', 1, '557799113', '1993-11-25', 'Ho Chi Minh', 'luc.duong@example.com', '0909010215', 'sacombank_557799113', '2022-08-01', 3, 'active'),
-('Phan Trong Phu', 1, '668800224', '1996-09-02', 'Can Tho', 'phu.phan@example.com', '0918121316', 'vietinbank_668800224', '2024-01-05', 4, 'active'),
-('Dinh Thi Huong', 0, '779911335', '1991-04-12', 'Ha Noi', 'huong.dinh@example.com', '0977788917', 'vietcombank_779911335', '2021-11-11', 5, 'active'),
-('Mai Viet Cuong', 1, '880022446', '1994-06-30', 'Hai Phong', 'cuong.mai@example.com', '0966677818', 'techcombank_880022446', '2022-03-05', 6, 'active'),
-('Nguyen Hoang Lam', 1, '991133557', '1995-08-10', 'Ha Noi', 'lam.nguyen@example.com', '0901122319', 'bidv_991133557', '2023-09-10', 7, 'active');
+-- Management
+('Team Lead', 'Middle', 1.6, 1200000, 'Trưởng nhóm'),
+('Project Manager', 'Senior', 1.8, 2000000, 'Quản lý dự án'),
+('Department Head', 'Director', 2.0, 3000000, 'Trưởng phòng'),
 
--- payroll_rules
-INSERT INTO payroll_rules (type, value_type, value, effective_date)
-VALUES
-('attendance_bonus','Percentage',200000,'2025-01-01'),
-('overtime_rate','Fixed Amount',1.5,'2025-01-01');
+-- HR & Admin
+('HR Specialist', 'Junior', 1.05, 200000, 'Chuyên viên nhân sự'),
+('HR Manager', 'Senior', 1.5, 800000, 'Quản lý nhân sự'),
+('Admin Staff', 'Junior', 1.0, 150000, 'Nhân viên hành chính'),
 
--- contracts
-INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, status) VALUES
-(1, 'indefinite', 10000000, '2022-01-01', 'active'),
-(2, 'indefinite', 12000000, '2021-06-15', 'active'),
-(3, 'indefinite', 9500000, '2023-03-01', 'active'),
-(4, 'indefinite', 11000000, '2022-05-10', 'active'),
-(5, 'fixed_term', 8500000, '2024-01-20', 'active'),
-(6, 'indefinite', 10500000, '2021-09-15', 'active'),
-(7, 'fixed_term', 9000000, '2023-07-01', 'active'),
-(8, 'indefinite', 12000000, '2022-11-01', 'active'),
-(9, 'indefinite', 8800000, '2024-02-10', 'active'),
-(10, 'indefinite', 11500000, '2021-08-05', 'active'),
-(11, 'indefinite', 13000000, '2022-04-20', 'active'),
-(12, 'fixed_term', 9500000, '2023-06-15', 'active'),
-(13, 'indefinite', 14000000, '2022-01-01', 'active'),
-(14, 'indefinite', 16000000, '2021-06-15', 'active'),
-(15, 'fixed_term', 8000000, '2023-02-10', 'active'),
-(16, 'indefinite', 9500000, '2023-05-20', 'active'),
-(17, 'fixed_term', 12500000, '2022-08-01', 'active'),
-(18, 'indefinite', 10500000, '2024-01-05', 'active'),
-(19, 'indefinite', 9000000, '2021-11-11', 'active');
+-- Finance & Accounting
+('Accountant', 'Junior', 1.1, 300000, 'Kế toán viên'),
+('Accountant', 'Senior', 1.4, 800000, 'Kế toán trưởng'),
+('Financial Analyst', 'Middle', 1.45, 900000, 'Chuyên viên phân tích tài chính'),
+
+-- Sales & Marketing
+('Sales Executive', 'Junior', 1.05, 250000, 'Nhân viên kinh doanh'),
+('Sales Manager', 'Senior', 1.5, 1200000, 'Quản lý kinh doanh'),
+('Marketing Specialist', 'Middle', 1.35, 700000, 'Chuyên viên marketing'),
+
+-- Design
+('Designer', 'Junior', 1.1, 300000, 'Thiết kế đồ họa'),
+('Designer', 'Senior', 1.4, 900000, 'Trưởng nhóm thiết kế'),
+
+-- Support
+('Customer Support', 'Junior', 1.0, 200000, 'Hỗ trợ khách hàng'),
+('Technical Support', 'Middle', 1.2, 500000, 'Hỗ trợ kỹ thuật');
 
 
--- attendances
+-- 📊 EMPLOYEES (50 bản ghi)
+INSERT INTO employees (name, gender, cccd, date_of_birth, address, email, phone, bank_infor, hire_date, id_hierarchy, status, description) VALUES
+-- Developer Team (15 người)
+('Nguyễn Văn An', 1, '001201123456', '1990-05-15', 'Hà Nội', 'an.nguyen@company.com', '0912345678', 'vietcombank_123456789', '2020-03-01', 2, 'active', 'Nhân viên chính thức'),
+('Trần Thị Bình', 0, '001201123457', '1992-08-20', 'Hồ Chí Minh', 'binh.tran@company.com', '0912345679', 'techcombank_123456790', '2021-06-15', 3, 'active', 'Developer có kinh nghiệm'),
+('Lê Văn Cường', 1, '001201123458', '1988-12-10', 'Đà Nẵng', 'cuong.le@company.com', '0912345680', 'bidv_123456791', '2019-01-10', 4, 'active', 'Senior developer'),
+('Phạm Thị Dung', 0, '001201123459', '1995-03-25', 'Hải Phòng', 'dung.pham@company.com', '0912345681', 'vietinbank_123456792', '2022-02-20', 2, 'active', 'Mới tuyển dụng'),
+('Hoàng Văn Đạt', 1, '001201123460', '1991-07-30', 'Cần Thơ', 'dat.hoang@company.com', '0912345682', 'agribank_123456793', '2020-11-05', 5, 'active', 'Team lead developer'),
+('Vũ Thị Én', 0, '001201123461', '1993-09-12', 'Hà Nội', 'en.vu@company.com', '0912345683', 'vietcombank_123456794', '2021-09-18', 3, 'active', 'Middle developer'),
+('Đặng Văn Phong', 1, '001201123462', '1989-04-05', 'Hồ Chí Minh', 'phong.dang@company.com', '0912345684', 'techcombank_123456795', '2018-07-22', 4, 'active', 'Senior fullstack'),
+('Bùi Thị Giang', 0, '001201123463', '1994-11-18', 'Đà Nẵng', 'giang.bui@company.com', '0912345685', 'bidv_123456796', '2023-01-30', 2, 'active', 'Frontend developer'),
+('Ngô Văn Hải', 1, '001201123464', '1990-06-22', 'Hải Phòng', 'hai.ngo@company.com', '0912345686', 'vietinbank_123456797', '2020-08-14', 3, 'active', 'Backend developer'),
+('Đỗ Thị Hương', 0, '001201123465', '1992-02-14', 'Cần Thơ', 'huong.do@company.com', '0912345687', 'agribank_123456798', '2021-12-01', 4, 'active', 'Senior mobile dev'),
+('Trịnh Văn Khôi', 1, '001201123466', '1987-10-08', 'Hà Nội', 'khoi.trinh@company.com', '0912345688', 'vietcombank_123456799', '2017-05-20', 5, 'active', 'Technical lead'),
+('Lý Thị Lan', 0, '001201123467', '1996-01-30', 'Hồ Chí Minh', 'lan.ly@company.com', '0912345689', 'techcombank_123456800', '2023-03-10', 2, 'active', 'Fresher developer'),
+('Võ Văn Minh', 1, '001201123468', '1991-08-17', 'Đà Nẵng', 'minh.vo@company.com', '0912345690', 'bidv_123456801', '2020-10-25', 3, 'active', 'DevOps kiêm developer'),
+('Chu Thị Nga', 0, '001201123469', '1993-12-03', 'Hải Phòng', 'nga.chu@company.com', '0912345691', 'vietinbank_123456802', '2022-04-15', 4, 'active', 'Senior QA engineer'),
+('Phan Văn Oanh', 1, '001201123470', '1989-05-28', 'Cần Thơ', 'oanh.phan@company.com', '0912345692', 'agribank_123456803', '2019-09-08', 6, 'active', 'QA engineer'),
+
+-- QA Engineers (5 người)
+('Lâm Thị Phương', 0, '001201123471', '1994-07-19', 'Hà Nội', 'phuong.lam@company.com', '0912345693', 'vietcombank_123456804', '2021-11-12', 7, 'active', 'Senior QA'),
+('Hồ Văn Quân', 1, '001201123472', '1990-03-08', 'Hồ Chí Minh', 'quan.ho@company.com', '0912345694', 'techcombank_123456805', '2020-02-28', 6, 'active', 'Automation QA'),
+('Nguyễn Thị Rò', 0, '001201123473', '1995-09-21', 'Đà Nẵng', 'ro.nguyen@company.com', '0912345695', 'bidv_123456806', '2023-05-05', 7, 'active', 'Manual testing'),
+('Trần Văn Sơn', 1, '001201123474', '1988-11-14', 'Hải Phòng', 'son.tran@company.com', '0912345696', 'vietinbank_123456807', '2018-12-10', 6, 'active', 'QA lead'),
+
+-- DevOps (4 người)
+('Lê Thị Tuyết', 0, '001201123475', '1992-04-26', 'Cần Thơ', 'tuyet.le@company.com', '0912345697', 'agribank_123456808', '2021-07-30', 8, 'active', 'DevOps engineer'),
+('Phạm Văn Uy', 1, '001201123476', '1987-06-09', 'Hà Nội', 'uy.pham@company.com', '0912345698', 'vietcombank_123456809', '2017-08-15', 9, 'active', 'Senior DevOps'),
+('Hoàng Thị Vân', 0, '001201123477', '1993-10-31', 'Hồ Chí Minh', 'van.hoang@company.com', '0912345699', 'techcombank_123456810', '2022-01-20', 8, 'active', 'System admin'),
+
+-- Management (6 người)
+('Vũ Văn Xuyên', 1, '001201123478', '1985-02-18', 'Đà Nẵng', 'xuyen.vu@company.com', '0912345700', 'bidv_123456811', '2015-04-01', 10, 'active', 'Team lead IT'),
+('Đặng Thị Yến', 0, '001201123479', '1986-07-24', 'Hải Phòng', 'yen.dang@company.com', '0912345701', 'vietinbank_123456812', '2016-03-15', 11, 'active', 'Project manager'),
+('Bùi Văn Zũ', 1, '001201123480', '1984-01-11', 'Cần Thơ', 'zu.bui@company.com', '0912345702', 'agribank_123456813', '2014-11-20', 12, 'active', 'IT department head'),
+
+-- HR & Admin (5 người)
+('Ngô Thị Ánh', 0, '001201123481', '1994-08-05', 'Hà Nội', 'anh.ngo@company.com', '0912345703', 'vietcombank_123456814', '2022-06-10', 13, 'active', 'HR specialist'),
+('Đỗ Văn Bằng', 1, '001201123482', '1990-12-19', 'Hồ Chí Minh', 'bang.do@company.com', '0912345704', 'techcombank_123456815', '2020-09-25', 14, 'active', 'HR manager'),
+('Trịnh Thị Chi', 0, '001201123483', '1996-03-22', 'Đà Nẵng', 'chi.trinh@company.com', '0912345705', 'bidv_123456816', '2023-08-12', 15, 'active', 'Admin staff'),
+
+-- Finance & Accounting (5 người)
+('Lý Văn Dũng', 1, '001201123484', '1991-09-07', 'Hải Phòng', 'dung.ly@company.com', '0912345706', 'vietinbank_123456817', '2021-04-18', 16, 'active', 'Junior accountant'),
+('Võ Thị Eo', 0, '001201123485', '1989-05-14', 'Cần Thơ', 'eo.vo@company.com', '0912345707', 'agribank_123456818', '2019-02-22', 17, 'active', 'Senior accountant'),
+('Chu Văn Phúc', 1, '001201123486', '1988-11-28', 'Hà Nội', 'phuc.chu@company.com', '0912345708', 'vietcombank_123456819', '2018-10-05', 18, 'active', 'Financial analyst'),
+
+-- Sales & Marketing (5 người)
+('Phan Thị Giao', 0, '001201123487', '1993-04-16', 'Hồ Chí Minh', 'giao.phan@company.com', '0912345709', 'techcombank_123456820', '2022-07-30', 19, 'active', 'Sales executive'),
+('Lâm Văn Hùng', 1, '001201123488', '1990-10-23', 'Đà Nẵng', 'hung.lam@company.com', '0912345710', 'bidv_123456821', '2020-12-14', 20, 'active', 'Sales manager'),
+('Hồ Thị Iris', 0, '001201123489', '1995-06-09', 'Hải Phòng', 'iris.ho@company.com', '0912345711', 'vietinbank_123456822', '2023-02-28', 21, 'active', 'Marketing specialist'),
+
+-- Design (3 người)
+('Nguyễn Văn John', 1, '001201123490', '1992-07-12', 'Cần Thơ', 'john.nguyen@company.com', '0912345712', 'agribank_123456823', '2021-05-17', 22, 'active', 'Junior designer'),
+('Trần Thị Kelly', 0, '001201123491', '1994-01-25', 'Hà Nội', 'kelly.tran@company.com', '0912345713', 'vietcombank_123456824', '2022-09-03', 23, 'active', 'Senior designer'),
+
+-- Support (2 người)
+('Lê Văn Long', 1, '001201123492', '1996-08-30', 'Hồ Chí Minh', 'long.le@company.com', '0912345714', 'techcombank_123456825', '2023-11-15', 24, 'active', 'Customer support'),
+('Phạm Thị My', 0, '001201123493', '1993-03-17', 'Đà Nẵng', 'my.pham@company.com', '0912345715', 'bidv_123456826', '2021-08-22', 25, 'active', 'Technical support'),
+
+-- Thêm nhân viên để đủ 50 (5 người nữa)
+('Hoàng Văn Nam', 1, '001201123494', '1991-12-04', 'Hải Phòng', 'nam.hoang@company.com', '0912345716', 'vietinbank_123456827', '2020-06-11', 3, 'active', 'Backend developer'),
+('Vũ Thị Oanh', 0, '001201123495', '1995-02-27', 'Cần Thơ', 'oanh.vu@company.com', '0912345717', 'agribank_123456828', '2023-04-19', 2, 'active', 'Frontend fresher'),
+('Đặng Văn Phú', 1, '001201123496', '1989-09-13', 'Hà Nội', 'phu.dang@company.com', '0912345718', 'vietcombank_123456829', '2019-07-26', 4, 'active', 'Senior fullstack'),
+('Bùi Thị Quỳnh', 0, '001201123497', '1994-05-08', 'Hồ Chí Minh', 'quynh.bui@company.com', '0912345719', 'techcombank_123456830', '2022-10-08', 6, 'active', 'QA engineer'),
+('Ngô Văn Rồng', 1, '001201123498', '1990-11-21', 'Đà Nẵng', 'rong.ngo@company.com', '0912345720', 'bidv_123456831', '2021-01-14', 8, 'active', 'DevOps engineer'),
+
+-- Nhân viên resigned (2 người để demo)
+('Trịnh Thị Sao', 0, '001201123499', '1992-06-15', 'Hải Phòng', 'sao.trinh@company.com', '0912345721', 'vietinbank_123456832', '2020-03-20', 2, 'resigned', 'Đã nghỉ việc'),
+('Lý Văn Tú', 1, '001201123500', '1993-10-02', 'Cần Thơ', 'tu.ly@company.com', '0912345722', 'agribank_123456833', '2021-11-30', 3, 'inactive', 'Tạm nghỉ');
+
+
+-- 📊 CONTRACTS (60 bản ghi - mỗi nhân viên có 1-2 hợp đồng)
+INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, expiry_date, status, description) VALUES
+-- Hợp đồng còn hạn (năm 2030) cho tất cả nhân viên active
+(1, 2, 15000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng không xác định thời hạn'),
+(2, 2, 18000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
+(3, 2, 22000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior'),
+(4, 1, 12000000, '2024-01-01', '2026-12-31', 'active', 'Hợp đồng thử việc 3 năm'),
+(5, 2, 28000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng team lead'),
+(6, 2, 19000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
+(7, 2, 23000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
+(8, 1, 11000000, '2024-01-01', '2025-12-31', 'active', 'Hợp đồng fresher 2 năm'),
+(9, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
+(10, 2, 24000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior mobile'),
+(11, 2, 30000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng technical lead'),
+(12, 1, 10000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng thử việc 1 năm'),
+(13, 2, 21000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps developer'),
+(14, 2, 25000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
+(15, 2, 16000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
+(16, 2, 26000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
+(17, 2, 17000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng automation QA'),
+(18, 1, 15000000, '2024-01-01', '2025-06-30', 'active', 'Hợp đồng QA 1.5 năm'),
+(19, 2, 27000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA lead'),
+(20, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps'),
+(21, 2, 32000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior DevOps'),
+(22, 1, 18000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng system admin thử việc'),
+(23, 2, 35000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng team lead IT'),
+(24, 2, 40000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng project manager'),
+(25, 2, 50000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng department head'),
+(26, 2, 13000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng HR specialist'),
+(27, 2, 25000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng HR manager'),
+(28, 1, 9000000, '2024-01-01', '2024-06-30', 'active', 'Hợp đồng admin staff thử việc'),
+(29, 2, 14000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng junior accountant'),
+(30, 2, 26000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior accountant'),
+(31, 2, 30000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng financial analyst'),
+(32, 1, 12000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng sales executive thử việc'),
+(33, 2, 32000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng sales manager'),
+(34, 2, 22000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng marketing specialist'),
+(35, 1, 11000000, '2024-01-01', '2025-01-01', 'active', 'Hợp đồng junior designer'),
+(36, 2, 24000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior designer'),
+(37, 1, 8000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng customer support'),
+(38, 2, 15000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng technical support'),
+(39, 2, 19000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
+(40, 1, 10000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng frontend fresher'),
+(41, 2, 23000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
+(42, 2, 16000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
+(43, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps engineer'),
+
+-- Hợp đồng đã hết hạn (cho nhân viên active - để demo lịch sử)
+(1, 1, 12000000, '2020-03-01', '2023-12-31', 'expired', 'Hợp đồng thử việc đầu tiên'),
+(2, 1, 15000000, '2021-06-15', '2023-12-31', 'expired', 'Hợp đồng có thời hạn'),
+(3, 1, 18000000, '2019-01-10', '2023-12-31', 'expired', 'Hợp đồng 5 năm'),
+(5, 1, 22000000, '2020-11-05', '2023-12-31', 'expired', 'Hợp đồng team lead cũ'),
+(7, 1, 19000000, '2018-07-22', '2023-12-31', 'expired', 'Hợp đồng 5 năm'),
+(11, 1, 25000000, '2017-05-20', '2023-12-31', 'expired', 'Hợp đồng technical lead cũ'),
+(14, 1, 20000000, '2022-04-15', '2023-12-31', 'expired', 'Hợp đồng QA 1 năm'),
+(16, 1, 22000000, '2021-11-12', '2023-12-31', 'expired', 'Hợp đồng senior QA cũ'),
+(21, 1, 28000000, '2017-08-15', '2023-12-31', 'expired', 'Hợp đồng senior DevOps cũ'),
+(24, 1, 35000000, '2016-03-15', '2023-12-31', 'expired', 'Hợp đồng project manager cũ'),
+(25, 1, 45000000, '2014-11-20', '2023-12-31', 'expired', 'Hợp đồng department head cũ'),
+(27, 1, 22000000, '2020-09-25', '2023-12-31', 'expired', 'Hợp đồng HR manager cũ'),
+(30, 1, 23000000, '2019-02-22', '2023-12-31', 'expired', 'Hợp đồng senior accountant cũ'),
+(33, 1, 28000000, '2020-12-14', '2023-12-31', 'expired', 'Hợp đồng sales manager cũ'),
+
+-- Hợp đồng cho nhân viên resigned/inactive
+(49, 1, 10000000, '2020-03-20', '2023-12-31', 'terminated', 'Hợp đồng đã kết thúc'),
+(50, 1, 15000000, '2021-11-30', '2023-06-30', 'terminated', 'Hợp đồng tạm nghỉ'),
+
+-- Thêm hợp đồng thời vụ (contract_type = 3)
+(44, 3, 8000000, '2024-01-01', '2024-06-30', 'active', 'Hợp đồng thời vụ 6 tháng'),
+(45, 3, 9000000, '2024-02-01', '2024-08-31', 'active', 'Hợp đồng theo dự án');
+
+
+
+-- 📊 ATTENDANCES (Tháng 9 & Dữ liệu bổ sung - 120 bản ghi)
 INSERT INTO attendances (id_employee, of_date, office_hours, over_time, late_time, is_night_shift) VALUES
-(1, '2025-09-01', 8.0, 2.0, 0, false),
-(2, '2025-09-01', 7.5, 0, 0.5, false),
-(3, '2025-09-01', 8.0, 0, 0, false),
-(4, '2025-09-01', 8.0, 1.0, 0, false),
-(5, '2025-09-01', 7.5, 0, 0.5, false),
-(6, '2025-09-01', 8.0, 0, 0, false),
-(7, '2025-09-01', 8.0, 2.0, 0, false),
-(8, '2025-09-01', 8.0, 0, 0, false),
-(9, '2025-09-01', 8.0, 0, 0, true),
-(10, '2025-09-01', 7.0, 0, 1.0, false),
-(11, '2025-09-01', 8.0, 0, 0, false),
-(12, '2025-09-01', 8.0, 1.5, 0, false),
-(13, '2025-09-01', 8.0, 0, 0, false),
-(14, '2025-09-01', 8.0, 0, 0, false),
-(15, '2025-09-01', 7.5, 0, 0.5, false),
-(16, '2025-09-01', 8.0, 0, 0, false),
-(17, '2025-09-01', 8.0, 2.0, 0, false),
-(18, '2025-09-01', 8.0, 0, 0, false),
-(19, '2025-09-01', 8.0, 0, 0, false);
+-- Tháng 9/2024 (80 bản ghi)
+-- Nhân viên 1-15
+(1, '2024-09-02', 8.0, 0.0, 0.0, 0), (1, '2024-09-03', 8.0, 1.0, 0.0, 0), (1, '2024-09-04', 8.0, 0.0, 0.0, 0),
+(1, '2024-09-05', 7.5, 0.0, 0.5, 0), (1, '2024-09-06', 8.0, 2.0, 0.0, 0), (1, '2024-09-09', 8.0, 0.0, 0.0, 0),
+(2, '2024-09-02', 8.0, 0.0, 0.0, 0), (2, '2024-09-03', 8.0, 1.5, 0.0, 0), (2, '2024-09-04', 8.0, 0.0, 0.0, 0),
+(3, '2024-09-02', 8.0, 3.0, 0.0, 0), (3, '2024-09-03', 8.0, 0.0, 0.0, 0), (3, '2024-09-04', 8.0, 2.0, 0.0, 0),
+
+-- Nhân viên 16-30
+(16, '2024-09-02', 8.0, 0.0, 0.0, 0), (16, '2024-09-03', 8.0, 1.0, 0.0, 0), (16, '2024-09-04', 7.0, 0.0, 1.0, 0),
+(17, '2024-09-02', 8.0, 2.0, 0.0, 0), (17, '2024-09-03', 8.0, 0.0, 0.0, 0), (17, '2024-09-05', 8.0, 1.5, 0.0, 0),
+(18, '2024-09-02', 8.0, 0.0, 0.0, 0), (18, '2024-09-03', 6.5, 0.0, 1.5, 0), (18, '2024-09-04', 8.0, 0.0, 0.0, 0),
+
+-- Dữ liệu đa dạng hóa (40 bản ghi)
+-- Nghỉ ốm (office_hours = 0)
+(4, '2024-07-10', 0.0, 0.0, 0.0, 0), (7, '2024-08-12', 0.0, 0.0, 0.0, 0), (12, '2024-09-10', 0.0, 0.0, 0.0, 0),
+
+-- Làm nửa ngày
+(5, '2024-07-15', 4.0, 0.0, 0.0, 0), (8, '2024-08-20', 3.5, 0.0, 0.0, 0), (14, '2024-09-15', 4.0, 0.0, 0.0, 0),
+
+-- Đi muộn nhiều
+(6, '2024-07-18', 6.0, 0.0, 2.0, 0), (9, '2024-08-22', 5.5, 0.0, 2.5, 0), (16, '2024-09-18', 5.0, 0.0, 3.0, 0),
+
+-- Tăng ca nhiều
+(10, '2024-07-20', 8.0, 4.0, 0.0, 0), (13, '2024-08-25', 8.0, 5.0, 0.0, 0), (19, '2024-09-20', 8.0, 6.0, 0.0, 0),
+
+-- Ca đêm (is_night_shift = 1)
+(11, '2024-07-22', 8.0, 2.0, 0.0, 1), (15, '2024-08-26', 8.0, 3.0, 0.0, 1), (20, '2024-09-22', 8.0, 1.0, 0.0, 1),
+
+-- Cuối tuần làm thêm (thứ 7, CN)
+(1, '2024-07-06', 8.0, 3.0, 0.0, 0), (3, '2024-07-07', 8.0, 2.5, 0.0, 0),
+(5, '2024-08-03', 8.0, 4.0, 0.0, 0), (7, '2024-08-04', 8.0, 3.0, 0.0, 0),
+(9, '2024-09-07', 8.0, 2.0, 0.0, 0), (11, '2024-09-08', 8.0, 3.5, 0.0, 0),
 
 
--- salary_details
--- salary_details (sửa id_contract từ 1 → 19)
-INSERT INTO salary_details (id_contract, approved_by, salary_month, overtime, bonus, attendance_bonus, deduction, net_salary, status) VALUES
-(1, 2, '2025-09-01', 0, 500000, 200000, 50000, 9650000, 'paid'),
-(2, 2, '2025-09-01', 1.0, 0, 200000, 0, 11200000, 'paid'),
-(3, 2, '2025-09-01', 0, 0, 200000, 50000, 8650000, 'paid'),
-(4, 2, '2025-09-01', 0, 100000, 200000, 0, 10800000, 'paid'),
-(5, 2, '2025-09-01', 2.0, 0, 200000, 0, 9400000, 'pending'),
-(6, 2, '2025-09-01', 0, 0, 200000, 0, 12200000, 'pending'),
-(7, 2, '2025-09-01', 0, 50000, 200000, 0, 9050000, 'paid'),
-(8, 2, '2025-09-01', 0, 0, 200000, 50000, 11650000, 'paid'),
-(9, 2, '2025-09-01', 0, 0, 200000, 0, 13200000, 'paid'),
-(10, 2, '2025-09-01', 1.5, 0, 200000, 0, 9700000, 'paid'),
-(11, 2, '2025-09-01', 0, 0, 200000, 0, 14200000, 'pending'),
-(12, 2, '2025-09-01', 0, 0, 200000, 0, 16200000, 'pending'),
-(13, 2, '2025-09-01', 0, 0, 200000, 50000, 8150000, 'paid'),
-(14, 2, '2025-09-01', 0, 100000, 200000, 0, 9800000, 'paid'),
-(15, 2, '2025-09-01', 2.0, 0, 200000, 0, 12900000, 'paid'),
-(16, 2, '2025-09-01', 0, 0, 200000, 0, 10700000, 'paid'),
-(17, 2, '2025-09-01', 0, 0, 200000, 0, 9200000, 'paid'),
-(18, 2, '2025-09-01', 0, 0, 200000, 0, 11200000, 'paid'),
-(19, 2, '2025-09-01', 0, 0, 200000, 50000, 8650000, 'pending');
+
+-- Nhân viên part-time (ít ngày làm)
+(44, '2024-07-01', 4.0, 0.0, 0.0, 0), (44, '2024-07-03', 4.0, 0.0, 0.0, 0), (44, '2024-07-05', 4.0, 0.0, 0.0, 0),
+(45, '2024-08-01', 5.0, 0.0, 0.0, 0), (45, '2024-08-03', 5.0, 0.0, 0.0, 0), (45, '2024-08-05', 5.0, 0.0, 0.0, 0),
+
+-- Nhân viên resigned (ít dữ liệu)
+(49, '2024-07-01', 8.0, 0.0, 0.0, 0), (49, '2024-07-02', 8.0, 0.0, 0.0, 0),
+(50, '2024-07-01', 8.0, 0.0, 0.0, 0), (50, '2024-07-02', 7.5, 0.0, 0.5, 0);
 
 
--- leaves
-INSERT INTO leaves (id_employee, approved_by, start_date, end_date, type, reason, status) VALUES
-(1, 2, '2025-09-10', '2025-09-12', 'annual', 'Du lịch', 'approved'),
-(3, 1, '2025-09-15', '2025-09-15', 'sick', 'Ốm', 'approved'),
-(4, 1, '2025-09-18', '2025-09-20', 'unpaid', 'Việc riêng', 'pending'),
-(5, 1, '2025-09-25', '2025-09-26', 'annual', 'Nghỉ phép', 'approved'),
-(6, 2, '2025-09-28', '2025-09-29', 'sick', 'Nghỉ ốm', 'approved'),
-(7, 2, '2025-10-01', '2025-10-01', 'sick', 'Ốm', 'approved'),
-(8, 2, '2025-10-05', '2025-10-06', 'annual', 'Du lịch', 'approved'),
-(9, 2, '2025-10-10', '2025-10-12', 'unpaid', 'Việc riêng', 'pending'),
-(10, 2, '2025-10-15', '2025-10-15', 'sick', 'Khám sức khỏe', 'approved'),
-(11, 2, '2025-10-18', '2025-10-18', 'other', 'Gia đình', 'rejected'),
-(12, 2, '2025-10-21', '2025-10-23', 'annual', 'Nghỉ phép', 'pending');
+
+-- 📊 LEAVES (40 bản ghi - đơn xin nghỉ phép)
+INSERT INTO leaves (id_employee, approved_by, start_date, end_date, is_paid, reason, status) VALUES
+-- Nghỉ phép có lương
+(1, 15, '2024-01-10', '2024-01-12', 1, 'Nghỉ ốm', 'approved'),
+(2, 15, '2024-02-15', '2024-02-16', 1, 'Việc gia đình', 'approved'),
+(3, 16, '2024-03-01', '2024-03-03', 1, 'Nghỉ lễ', 'approved'),
+
+-- Nghỉ không lương
+(4, 15, '2024-01-20', '2024-01-22', 0, 'Việc cá nhân', 'approved'),
+(5, 16, '2024-02-10', '2024-02-11', 0, 'Khám sức khỏe', 'approved'),
+
+-- Đơn chờ duyệt
+(6, 15, '2024-04-01', '2024-04-03', 1, 'Nghỉ phép năm', 'pending'),
+
+-- Đơn bị từ chối
+(7, 16, '2024-01-15', '2024-01-18', 1, 'Du lịch', 'rejected');
+
+
+-- 📊 PAYROLL_RULES (15 bản ghi - quy định lương)
+INSERT INTO payroll_rules (type, value_type, value, effective_date, expiry_date, description) VALUES
+('OT_RATE', 'percentage', 150.0, '2024-01-01', NULL, 'Tỷ lệ tính OT (150% lương cơ bản)'),
+('OT_NIGHT_RATE', 'percentage', 200.0, '2024-01-01', NULL, 'Tỷ lệ tính OT ca đêm'),
+('NIGHT_SHIFT_BONUS', 'fixed_amount', 50000.0, '2024-01-01', NULL, 'Phụ cấp ca đêm'),
+('INSURANCE', 'percentage', 10.5, '2024-01-01', '2024-12-31', 'Bảo hiểm xã hội'),
+('HEALTH_INSURANCE', 'percentage', 1.5, '2024-01-01', '2024-12-31', 'Bảo hiểm y tế'),
+('UNEMPLOYMENT_INSURANCE', 'percentage', 1.0, '2024-01-01', '2024-12-31', 'Bảo hiểm thất nghiệp'),
+('TAX_THRESHOLD', 'fixed_amount', 11000000.0, '2024-01-01', NULL, 'Ngưỡng đóng thuế'),
+('TAX_RATE_1', 'percentage', 5.0, '2024-01-01', NULL, 'Thuế suất bậc 1'),
+('TAX_RATE_2', 'percentage', 10.0, '2024-01-01', NULL, 'Thuế suất bậc 2'),
+('LUNCH_ALLOWANCE', 'fixed_amount', 700000.0, '2024-01-01', NULL, 'Phụ cấp ăn trưa'),
+('PHONE_ALLOWANCE', 'fixed_amount', 200000.0, '2024-01-01', NULL, 'Phụ cấp điện thoại'),
+('TRANSPORT_ALLOWANCE', 'fixed_amount', 500000.0, '2024-01-01', NULL, 'Phụ cấp đi lại'),
+('ATTENDANCE_BONUS', 'fixed_amount', 500000.0, '2024-01-01', NULL, 'Thưởng chuyên cần'),
+('PERFORMANCE_BONUS', 'percentage', 10.0, '2024-01-01', NULL, 'Thưởng hiệu suất tối đa'),
+('LATE_PENALTY', 'fixed_amount', 100000.0, '2024-01-01', NULL, 'Phạt đi muộn');
+
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+-- =============================================
+-- SAMPLE QUERIES - TRUY VẤN MẪU
+-- =============================================
+
+-- 📌 1. DANH SÁCH NHÂN VIÊN ĐANG LÀM VIỆC
+SELECT 
+    e.id_employee,
+    e.name,
+    e.email,
+    e.phone,
+    h.name_position,
+    h.name_level,
+    c.base_salary
+FROM employees e
+JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
+JOIN contracts c ON e.id_employee = c.id_employee AND c.status = 'active'
+WHERE e.status = 'active'
+ORDER BY h.salary_multiplier DESC;
+
+-- 📌 2. BÁO CÁO CHẤM CÔNG THÁNG
+SELECT 
+    e.name,
+    a.of_date,
+    a.office_hours,
+    a.over_time,
+    a.late_time,
+    CASE 
+        WHEN a.office_hours >= 8 THEN 'Đủ'
+        ELSE 'Thiếu'
+    END as attendance_status
+FROM attendances a
+JOIN employees e ON a.id_employee = e.id_employee
+WHERE YEAR(a.of_date) = 2024 AND MONTH(a.of_date) = 1
+ORDER BY a.of_date, e.name;
+
+-- 📌 3. TÍNH LƯƠNG THÁNG
+SELECT 
+    e.name,
+    c.base_salary,
+    h.salary_multiplier,
+    h.allowance,
+    sd.overtime,
+    sd.bonus,
+    sd.attendance_bonus,
+    sd.deduction,
+    sd.net_salary
+FROM salary_details sd
+JOIN contracts c ON sd.id_contract = c.id_contract
+JOIN employees e ON c.id_employee = e.id_employee
+JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
+WHERE sd.salary_month = '2024-01-01'
+ORDER BY sd.net_salary DESC;
+
+-- 📌 4. THỐNG KÊ NGHỈ PHÉP
+SELECT 
+    e.name,
+    COUNT(l.id_leave) as total_leaves,
+    SUM(CASE WHEN l.status = 'approved' THEN DATEDIFF(l.end_date, l.start_date) + 1 ELSE 0 END) as approved_days,
+    SUM(CASE WHEN l.is_paid = 1 THEN DATEDIFF(l.end_date, l.start_date) + 1 ELSE 0 END) as paid_days
+FROM employees e
+LEFT JOIN leaves l ON e.id_employee = l.id_employee
+WHERE YEAR(l.start_date) = 2024
+GROUP BY e.id_employee, e.name
+HAVING total_leaves > 0;
+
+-- 📌 5. TOP NHÂN VIÊN CÓ LƯƠNG CAO NHẤT
+SELECT 
+    e.name,
+    h.name_position,
+    h.name_level,
+    MAX(sd.net_salary) as highest_salary,
+    c.base_salary
+FROM employees e
+JOIN contracts c ON e.id_employee = c.id_employee
+JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
+JOIN salary_details sd ON c.id_contract = sd.id_contract
+WHERE sd.status = 'paid'
+GROUP BY e.id_employee, e.name, h.name_position, h.name_level, c.base_salary
+ORDER BY highest_salary DESC
+LIMIT 10;
+
+-- 📌 6. THỐNG KÊ THEO PHÒNG BAN
+SELECT 
+    CASE 
+        WHEN h.name_position LIKE '%Developer%' THEN 'IT Development'
+        WHEN h.name_position LIKE '%QA%' THEN 'Quality Assurance'
+        WHEN h.name_position LIKE '%HR%' THEN 'Human Resources'
+        WHEN h.name_position LIKE '%Account%' THEN 'Finance & Accounting'
+        WHEN h.name_position LIKE '%Sales%' THEN 'Sales & Marketing'
+        ELSE 'Other'
+    END as department,
+    COUNT(e.id_employee) as employee_count,
+    AVG(c.base_salary) as avg_salary,
+    SUM(CASE WHEN e.status = 'active' THEN 1 ELSE 0 END) as active_employees
+FROM employees e
+JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
+JOIN contracts c ON e.id_employee = c.id_employee AND c.status = 'active'
+GROUP BY department
+ORDER BY employee_count DESC;
+
+-- 📌 7. NHÂN VIÊN CÓ SỐ NGÀY ĐI MUỘN NHIỀU NHẤT
+SELECT 
+    e.name,
+    COUNT(a.id_attendance) as late_days,
+    SUM(a.late_time) as total_late_hours
+FROM employees e
+JOIN attendances a ON e.id_employee = a.id_employee
+WHERE a.late_time > 0
+    AND YEAR(a.of_date) = 2024 
+    AND MONTH(a.of_date) = 1
+GROUP BY e.id_employee, e.name
+ORDER BY late_days DESC
+LIMIT 5;
+
+-- 📌 8. BÁO CÁO TỔNG QUAN CÔNG TY
+SELECT 
+    (SELECT COUNT(*) FROM employees WHERE status = 'active') as total_active_employees,
+    (SELECT COUNT(*) FROM contracts WHERE status = 'active') as active_contracts,
+    (SELECT AVG(base_salary) FROM contracts WHERE status = 'active') as avg_base_salary,
+    (SELECT SUM(net_salary) FROM salary_details WHERE salary_month = '2024-01-01' AND status = 'paid') as total_paid_salary,
+    (SELECT COUNT(*) FROM leaves WHERE status = 'approved' AND YEAR(start_date) = 2024) as approved_leaves;
+

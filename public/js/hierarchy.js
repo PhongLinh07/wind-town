@@ -4,7 +4,7 @@ class Hierarchy {
   static _instance = null;
   static _instanceTable = null;
 
-  // HTML template
+  // HTML template (giữ nguyên)
   static _html = `
     <div class="main-container">
       <div class="filter-container">
@@ -119,7 +119,7 @@ class Hierarchy {
     </div>
   `;
 
-  // Tabulator config
+  // Tabulator config - SỬA ĐỊNH DẠNG NGÀY VÀ TIỀN TỆ
   static _cfgTable = {
     selector: "#tabulator-table",
     tableName: "hierarchys",
@@ -138,8 +138,8 @@ class Hierarchy {
         formatterParams: {
           symbol: "",
           precision: 2,
-          thousand: ",",
-          decimal: "."
+          thousand: ".",
+          decimal: ","
         }
       },
       {
@@ -149,10 +149,10 @@ class Hierarchy {
         editorParams: { step: 0.01, min: 0 },
         formatter: "money",
         formatterParams: {
-          symbol: "$",
-          precision: 2,
-          thousand: ",",
-          decimal: "."
+          symbol: "₫",  // Đổi từ $ sang ₫
+          precision: 0,  // VND không có số thập phân
+          thousand: ".",
+          decimal: ","
         }
       },
       { title: "Description", field: "description", editor: "textarea" },
@@ -179,12 +179,18 @@ class Hierarchy {
     return Hierarchy._instance;
   }
 
-  // --- Format date ---
+  // --- Format date - SỬA THÀNH dd-mm-yyyy ---
   static formatDate(cell) {
     const value = cell.getValue();
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    if (isNaN(date)) return "";
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}-${month}-${year}`;
   }
 
   // --- Return HTML ---

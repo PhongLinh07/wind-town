@@ -1,4 +1,3 @@
-// Employee_Bank_Information.js
 class Employee_Bank_Information {
     // --- Singleton instance ---
     static _instance = null;
@@ -137,12 +136,29 @@ class Employee_Bank_Information {
         return Employee_Bank_Information._instance;
     }
 
-    // --- Format date ---
+    // --- Format date mới: dd-mm-yyyy ---
     static formatDate(cell) {
         const value = cell.getValue();
         if (!value) return "";
+        
         const date = new Date(value);
-        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}-${month}-${year}`;
+    }
+
+    // --- Format currency VND ---
+    static formatCurrencyVND(cell) {
+        const value = cell.getValue();
+        if (value === null || value === undefined || value === '') return '';
+        
+        // Chuyển đổi số thành định dạng tiền VND
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(value);
     }
 
     // --- Return HTML ---
@@ -219,6 +235,69 @@ class Employee_Bank_Information {
         // Form submission
         submitBtn.addEventListener("click", async function () {
             //comming--------
+        });
+    }
+
+    // --- Setup delete functionality ---
+    setupDeleteButton() {
+        const deleteBtn = document.querySelector('.delete-selected-btn[data-tab="employeeBankTab"]');
+        if (!deleteBtn || !Employee_Bank_Information._instanceTable) return;
+
+        deleteBtn.addEventListener('click', async () => {
+            const selectedRows = Employee_Bank_Information._instanceTable.getSelectedRows();
+            
+            if (selectedRows.length === 0) {
+                alert('Vui lòng chọn ít nhất một bản ghi để xóa.');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn xóa ${selectedRows.length} bản ghi không?`)) {
+                return;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const deletePromises = [];
+                
+                for (const row of selectedRows) {
+                    const id = row.getData().id_employee;
+                    const deletePromise = fetch(`/modelController/employees/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        }
+                    });
+                    deletePromises.push(deletePromise);
+                }
+                
+                const results = await Promise.allSettled(deletePromises);
+                
+                let successCount = 0;
+                let failCount = 0;
+                
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled' && result.value.ok) {
+                        successCount++;
+                    } else {
+                        failCount++;
+                        console.error(`Lỗi khi xóa bản ghi ${selectedRows[index].getData().id_employee}:`, result.reason || result.value);
+                    }
+                });
+                
+                if (successCount > 0) {
+                    alert(`Đã xóa thành công ${successCount} bản ghi.`);
+                    Employee_Bank_Information._instanceTable.setData();
+                    Employee_Bank_Information._instanceTable.deselectRow();
+                }
+                
+                if (failCount > 0) {
+                    alert(`Có ${failCount} bản ghi xóa không thành công. Vui lòng thử lại.`);
+                }
+                
+            } catch (error) {
+                console.error('Lỗi khi xóa bản ghi:', error);
+                alert('Đã xảy ra lỗi khi xóa bản ghi. Vui lòng thử lại.');
+            }
         });
     }
 
@@ -313,5 +392,8 @@ class Employee_Bank_Information {
 
         // Thiết lập modal
         this.setupModal();
+
+        // Thiết lập nút xóa
+        this.setupDeleteButton();
     }
 }

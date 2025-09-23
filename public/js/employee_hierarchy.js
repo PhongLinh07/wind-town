@@ -144,12 +144,25 @@ class Employee_Hierarchy {
     return Employee_Hierarchy._instance;
   }
 
-  // --- Format date ---
+  // --- Format date (đã sửa thành dd-mm-yyyy) ---
   static formatDate(cell) {
     const value = cell.getValue();
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  // --- Format currency VND (hàm mới) ---
+  static formatCurrencyVND(cell) {
+    const value = cell.getValue();
+    if (!value) return "";
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(value);
   }
 
   // --- Return HTML ---

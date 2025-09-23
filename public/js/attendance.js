@@ -84,11 +84,17 @@ class Attendance {
                 title: "Date",
                 field: "of_date",
                 editor: false,
+                formatter: Attendance.formatDate // Sử dụng hàm formatDate mới
             },
             {
                 title: "Office Hours",
                 field: "office_hours",
                 editor: false,
+                editorParams: { step: 0.5, min: 0 },
+                formatter: function (cell) {
+                    const value = cell.getValue();
+                    return value ? value + "h" : "";
+                }
             },
             {
                 title: "Overtime",
@@ -107,7 +113,7 @@ class Attendance {
                 editorParams: { min: 0 },
                 formatter: function (cell) {
                     const value = cell.getValue();
-                    return value ? value + "m" : "";
+                    return value ? value + "h" : "";
                 }
             },
             {
@@ -128,12 +134,17 @@ class Attendance {
         return Attendance._instance;
     }
 
-    // --- Format date ---
+    // --- Format date mới: dd-mm-yyyy ---
     static formatDate(cell) {
         const value = cell.getValue();
         if (!value) return "";
+        
         const date = new Date(value);
-        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        
+        return `${day}-${month}-${year}`;
     }
 
     // --- Return HTML ---
@@ -185,7 +196,8 @@ class Attendance {
 
     // --- Setup modal functionality ---
     setupModal() { }
-// --- Setup delete functionality ---
+
+    // --- Setup delete functionality ---
     setupDeleteButton() {
         const deleteBtn = document.querySelector('.delete-selected-btn[data-tab="attendanceTab"]');
         if (!deleteBtn || !Attendance._instanceTable) return;

@@ -73,7 +73,7 @@ class Leave {
     </div>
 
     <!-- Modal Form -->
-    <form id="add-leave-modal" class="modal">
+    <div id="add-leave-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
           <h2><i class="fas fa-calendar-times"></i> Add New Leave Request</h2>
@@ -95,7 +95,7 @@ class Leave {
                 <select id="type" name="type" required>
                   <option value="">Select Type</option>
                   <option value="paid">Paid</option>
-                  <option value=unpaid">Unpaid</option>
+                  <option value="unpaid">Unpaid</option>
                 </select>
               </div>
             </div>
@@ -140,7 +140,7 @@ class Leave {
           <button type="button" id="submit-btn">Submit</button>
         </div>
       </div>
-    </form>
+    </div>
   `;
 
     // Tabulator config
@@ -155,10 +155,10 @@ class Leave {
             {
                 title: "Start Date",
                 field: "start_date",
-                editor: "boll",
+                editor: "input",
                 formatter: Leave.formatDate,
                 formatterParams: {
-                    outputFormat: "YYYY-MM-DD",
+                    outputFormat: "DD-MM-YYYY",
                     invalidPlaceholder: "(invalid date)"
                 }
             },
@@ -168,7 +168,7 @@ class Leave {
                 editor: "input",
                 formatter: Leave.formatDate,
                 formatterParams: {
-                    outputFormat: "YYYY-MM-DD",
+                    outputFormat: "DD-MM-YYYY",
                     invalidPlaceholder: "(invalid date)"
                 }
             },
@@ -229,7 +229,11 @@ class Leave {
                 title: "Create At",
                 field: "created_at",
                 editor: false,
-                formatter: Leave.formatDate
+                formatter: Leave.formatDate,
+                formatterParams: {
+                    outputFormat: "DD-MM-YYYY HH:mm",
+                    invalidPlaceholder: "(invalid date)"
+                }
             }
         ]
     };
@@ -242,12 +246,43 @@ class Leave {
         return Leave._instance;
     }
 
-    // --- Format date ---
-    static formatDate(cell) {
+    // --- Format date thành dd-mm-yyyy ---
+    static formatDate(cell, formatterParams) {
         const value = cell.getValue();
         if (!value) return "";
-        const date = new Date(value);
-        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+        
+        try {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return formatterParams?.invalidPlaceholder || "(invalid date)";
+            
+            // Format thành dd-mm-yyyy
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            // Nếu có format params và yêu cầu giờ phút
+            if (formatterParams?.outputFormat?.includes("HH:mm")) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${day}-${month}-${year} ${hours}:${minutes}`;
+            }
+            
+            return `${day}-${month}-${year}`;
+        } catch (error) {
+            return formatterParams?.invalidPlaceholder || "(invalid date)";
+        }
+    }
+
+    // --- Format tiền VND ---
+    static formatCurrency(cell) {
+        const value = cell.getValue();
+        if (value === null || value === undefined || value === "") return "";
+        
+        // Format số thành định dạng tiền VND
+        return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+        }).format(value);
     }
 
     // --- Return HTML ---
@@ -327,7 +362,7 @@ class Leave {
         submitBtn.addEventListener("click", async () => {
             // Basic validation
             const id_employee = document.getElementById("id_employee").value;
-            const type = document.getElementById("is_paid").value;
+            const type = document.getElementById("type").value; // Sửa từ is_paid thành type
             const start_date = document.getElementById("start_date").value;
             const end_date = document.getElementById("end_date").value;
             const status = document.getElementById("status").value;
@@ -348,6 +383,10 @@ class Leave {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
                 const formData = new FormData(leaveForm);
                 const data = Object.fromEntries(formData.entries());
+
+                // Convert type to is_paid for database consistency
+                data.is_paid = data.type === 'paid' ? '1' : '0';
+                delete data.type;
 
                 const response = await fetch(`/modelController/${Leave._cfgTable.tableName}`, {
                     method: 'POST',
@@ -405,18 +444,24 @@ class Leave {
                 }
 
                 try {
-                    const recordDate = new Date(endDateStr);
+                    // Parse date với định dạng dd-mm-yyyy
+                    const dateParts = endDateStr.split('-');
+                    if (dateParts.length === 3) {
+                        const recordDate = new Date(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`);
+                        
+                        // Kiểm tra nếu ngày không hợp lệ
+                        if (isNaN(recordDate.getTime())) {
+                            errorRecords.push({ row, reason: "Ngày kết thúc không hợp lệ" });
+                            return;
+                        }
 
-                    // Kiểm tra nếu ngày không hợp lệ
-                    if (isNaN(recordDate.getTime())) {
-                        errorRecords.push({ row, reason: "Ngày kết thúc không hợp lệ" });
-                        return;
-                    }
-
-                    if (recordDate <= threeMonthsAgo) {
-                        validRecords.push(row);
+                        if (recordDate <= threeMonthsAgo) {
+                            validRecords.push(row);
+                        } else {
+                            invalidRecords.push({ row, date: recordDate });
+                        }
                     } else {
-                        invalidRecords.push({ row, date: recordDate });
+                        errorRecords.push({ row, reason: "Định dạng ngày không hợp lệ" });
                     }
                 } catch (e) {
                     errorRecords.push({ row, reason: "Lỗi khi xử lý ngày tháng" });
@@ -428,13 +473,21 @@ class Leave {
                 alert(`Có ${errorRecords.length} bản ghi không thể xử lý do lỗi dữ liệu.`);
             }
 
+            // Format date để hiển thị
+            const formatDisplayDate = (date) => {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = date.getFullYear();
+                return `${day}-${month}-${year}`;
+            };
+
             // Thông báo nếu có bản ghi không đủ điều kiện
             if (invalidRecords.length > 0) {
                 const earliestInvalidDate = invalidRecords.reduce((min, item) => {
                     return item.date < min ? item.date : min;
                 }, new Date());
 
-                alert(`Có ${invalidRecords.length} bản ghi không thể xóa vì chưa đủ 3 tháng kể từ ngày kết thúc. Chỉ có thể xóa những bản ghi có ngày kết thúc từ ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước. Bản ghi sớm nhất trong số này kết thúc vào ${earliestInvalidDate.toLocaleDateString("vi-VN")}.`);
+                alert(`Có ${invalidRecords.length} bản ghi không thể xóa vì chưa đủ 3 tháng kể từ ngày kết thúc. Chỉ có thể xóa những bản ghi có ngày kết thúc từ ${formatDisplayDate(threeMonthsAgo)} trở về trước. Bản ghi sớm nhất trong số này kết thúc vào ${formatDisplayDate(earliestInvalidDate)}.`);
 
                 // Nếu không có bản ghi nào hợp lệ, dừng lại
                 if (validRecords.length === 0) {
@@ -442,7 +495,7 @@ class Leave {
                 }
 
                 // Nếu có cả hợp lệ và không hợp lệ, hỏi người dùng có muốn xóa những bản ghi hợp lệ không
-                if (!confirm(`Bạn có muốn xóa ${validRecords.length} bản ghi hợp lệ (có ngày kết thúc từ ${threeMonthsAgo.toLocaleDateString("vi-VN")} trở về trước) không?`)) {
+                if (!confirm(`Bạn có muốn xóa ${validRecords.length} bản ghi hợp lệ (có ngày kết thúc từ ${formatDisplayDate(threeMonthsAgo)} trở về trước) không?`)) {
                     return;
                 }
             } else if (validRecords.length > 0) {

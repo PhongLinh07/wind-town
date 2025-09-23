@@ -45,6 +45,9 @@ Route::post('/confirmOTP', [ConfirmOTPController::class , 'checkOTP'])->name('co
 
 
 
+Route::get('/report', function () {
+    return view('frontend/reports/index');
+});
 
 
 
@@ -67,9 +70,16 @@ DELETE	        /modelController/person/{id}
 */
 
 
+// Contracts
+Route::get('modelController/contracts/getContractsByCycle/{idEmployee}', [ContractController::class, 'getContractsByCycle']);
+
+// Attendances
+Route::get('modelController/attendances/{id}/getByCycle', [AttendanceController::class, 'getByCycle']);
+
 // 1. attendences
 Route::apiResource('/modelController/attendances', AttendanceController::class);
 Route::get('/modelController/attendances/getByCycle/{idEmployee}/{startDate}/{endDate}', [AttendanceController::class, 'getByCycle']);
+Route::get('modelController/attendances/{id}/getByCycle', [AttendanceController::class, 'getByCycle']);
 
 
 // 2. contracts

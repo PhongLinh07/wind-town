@@ -44,14 +44,18 @@ class AttendanceController extends Controller
         return response()->json(null, 204);
     }
 
-    public function getByCycle($idEmployee, $startDate, $endDate)
-    {
-        $attendances = Attendance::where('id_employee', $idEmployee)
-            ->whereBetween('of_date', [$startDate, $endDate])
-            ->orderBy('of_date', 'asc')
-            ->get();
+    public function getByCycle($idEmployee, Request $request)
+{
+    $startDate = $request->query('start');
+    $endDate = $request->query('end');
 
-        return response()->json(['datas' => $attendances ]);
-    }
+    $attendances = Attendance::where('id_employee', $idEmployee)
+        ->whereBetween('of_date', [$startDate, $endDate])
+        ->orderBy('of_date', 'asc')
+        ->get();
+
+    return response()->json(['datas' => $attendances]);
+}
+
 
 }

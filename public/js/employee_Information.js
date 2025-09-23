@@ -166,265 +166,294 @@ class Employee_Information {
         formatter: "lookup", formatterParams: { "1": "Male", "0": "Female", "3": "Unknown" }
       },
       { title: "CCCD", field: "cccd", editor: "input" },
-      { title: "Date of Birth", field: "date_of_birth", editor: "date" },
+      { 
+        title: "Date of Birth", 
+        field: "date_of_birth", 
+        editor: "date",
+        formatter: function(cell) {
+          const value = cell.getValue();
+          if (!value) return "";
+          const date = new Date(value);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
+        }
+      },
       { title: "Address", field: "address", editor: "input" },
       { title: "Email", field: "email", editor: "input" },
       { title: "Phone", field: "phone", editor: "input" },
-      { title: "Bank Infor", field: "bank_infor", editor: "input" },
-      { title: "Hire Date", field: "hire_date", editor: false },
+      { 
+        title: "Bank Infor", 
+        field: "bank_infor", 
+        editor: "input",
+        formatter: function(cell) {
+          const value = cell.getValue();
+          if (!value || isNaN(value)) return value;
+          
+          // Format as VND currency
+          return new Intl.NumberFormat('vi-VN', {
+            style: 'currency',
+            currency: 'VND'
+          }).format(value);
+        }
+      },
+      { 
+        title: "Hire Date", 
+        field: "hire_date", 
+        editor: false,
+        formatter: function(cell) {
+          const value = cell.getValue();
+          if (!value) return "";
+          const date = new Date(value);
+          const day = String(date.getDate()).padStart(2, '0');
+          const month = String(date.getMonth() + 1).padStart(2, '0');
+          const year = date.getFullYear();
+          return `${day}-${month}-${year}`;
+        }
+      },
       {
         title: "Status", field: "status", editor: "list",
         editorParams: { values: { "active": "active", "inactive": "inactive", "resigned": "resigned" } },
-    
-    
-      formatter: function (cell) {
-        const value = cell.getValue();
-        let color = "";
-        let label = "";
+        formatter: function (cell) {
+          const value = cell.getValue();
+          let color = "";
+          let label = "";
 
-        switch (value) {
-          case "active":
-            color = "green";
-            label = "Active";
-            break;
-          case "inactive":
-            color = "orange";
-            label = "Inactive";
-            break;
-          case "resigned":
-            color = "red";
-            label = "Resigned";
-            break;
-          default:
-            color = "gray";
-            label = value;
+          switch (value) {
+            case "active":
+              color = "green";
+              label = "Active";
+              break;
+            case "inactive":
+              color = "orange";
+              label = "Inactive";
+              break;
+            case "resigned":
+              color = "red";
+              label = "Resigned";
+              break;
+            default:
+              color = "gray";
+              label = value;
+          }
+
+          return `<span style="
+            background:${color}; 
+            color:white; 
+            padding:2px 6px; 
+            border-radius:12px; 
+            font-size:12px;">
+            ${label}
+          </span>`;
         }
-
-        return `<span style="
-      background:${color}; 
-      color:white; 
-      padding:2px 6px; 
-      border-radius:12px; 
-      font-size:12px;">
-        ${label}
-    </span>`;
-      }},
+      },
       { title: "Description", field: "description", editor: false },
     ]
   };
 
   // --- Singleton getInstance ---
   static getInstance() {
-  if (!Employee_Information._instance) {
-    Employee_Information._instance = new Employee_Information();
-  }
-  return Employee_Information._instance;
-}
-
-  // --- Format date ---
-  static formatDate(cell) {
-  const value = cell.getValue();
-  if (!value) return "";
-  const date = new Date(value);
-  return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
-}
-
-// --- Return HTML ---
-getHTML() {
-  return Employee_Information._html;
-}
-
-// --- Setup filters ---
-setupFilters() {
-  const table = Employee_Information._instanceTable;
-  if (!table) return;
-
-  const fieldEl = document.getElementById("filter-field");
-  const typeEl = document.getElementById("filter-type");
-  const valueEl = document.getElementById("filter-value");
-
-  const updateFilter = () => {
-    const filterVal = fieldEl.value;
-    const typeVal = typeEl.value;
-    if (!filterVal) {
-      table.clearFilter();
-      return;
+    if (!Employee_Information._instance) {
+      Employee_Information._instance = new Employee_Information();
     }
-    table.setFilter(filterVal, typeVal, valueEl.value);
-  };
+    return Employee_Information._instance;
+  }
 
-  fieldEl.addEventListener("change", updateFilter);
-  typeEl.addEventListener("change", updateFilter);
-  valueEl.addEventListener("keyup", updateFilter);
+  // --- Format date (updated to dd-mm-yyyy) ---
+  static formatDate(cell) {
+    const value = cell.getValue();
+    if (!value) return "";
+    const date = new Date(value);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
 
-  document.getElementById("filter-clear").addEventListener("click", () => {
-    fieldEl.value = "";
-    typeEl.value = "=";
-    valueEl.value = "";
-    table.clearFilter();
-  });
+  // --- Return HTML ---
+  getHTML() {
+    return Employee_Information._html;
+  }
 
-  // Search filter
-  const searchInput = document.getElementById(Employee_Information._cfgTable.searchInput);
-  if (searchInput) {
-    searchInput.addEventListener("keyup", e => {
-      table.setFilter([
-        { field: "name", type: "like", value: e.target.value },
-        { field: "email", type: "like", value: e.target.value },
-        { field: "phone", type: "like", value: e.target.value }
-      ]);
+  // --- Setup filters ---
+  setupFilters() {
+    const table = Employee_Information._instanceTable;
+    if (!table) return;
+
+    const fieldEl = document.getElementById("filter-field");
+    const typeEl = document.getElementById("filter-type");
+    const valueEl = document.getElementById("filter-value");
+
+    const updateFilter = () => {
+      const filterVal = fieldEl.value;
+      const typeVal = typeEl.value;
+      if (!filterVal) {
+        table.clearFilter();
+        return;
+      }
+      table.setFilter(filterVal, typeVal, valueEl.value);
+    };
+
+    fieldEl.addEventListener("change", updateFilter);
+    typeEl.addEventListener("change", updateFilter);
+    valueEl.addEventListener("keyup", updateFilter);
+
+    document.getElementById("filter-clear").addEventListener("click", () => {
+      fieldEl.value = "";
+      typeEl.value = "=";
+      valueEl.value = "";
+      table.clearFilter();
+    });
+
+    // Search filter
+    const searchInput = document.getElementById(Employee_Information._cfgTable.searchInput);
+    if (searchInput) {
+      searchInput.addEventListener("keyup", e => {
+        table.setFilter([
+          { field: "name", type: "like", value: e.target.value },
+          { field: "email", type: "like", value: e.target.value },
+          { field: "phone", type: "like", value: e.target.value }
+        ]);
+      });
+    }
+  }
+
+  // --- Setup modal functionality ---
+  setupModal() {
+    const modal = document.getElementById("add-employee-modal");
+    const openModalBtn = document.getElementById("open-modal-btn");
+    const closeModalBtn = document.querySelector(".close");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const submitBtn = document.getElementById("submit-btn");
+    const employeeForm = document.getElementById("employee-form");
+
+    // Open modal
+    openModalBtn.addEventListener("click", function () {
+      modal.style.display = "block";
+    });
+
+    // Close modal
+    const closeModal = () => {
+      modal.style.display = "none";
+      employeeForm.reset();
+    };
+
+    closeModalBtn.addEventListener("click", closeModal);
+    cancelBtn.addEventListener("click", closeModal);
+
+    // Form submission
+    submitBtn.addEventListener("click", async function () {
+      // Basic validation
+      const name = document.getElementById("name").value;
+      const cccd = document.getElementById("cccd").value;
+      const phone = document.getElementById("phone").value;
+
+      if (!name || !cccd || !phone) {
+        alert("Please fill in all required fields (marked with *)");
+        return;
+      }
+
+      // Here you would typically send the data to your server
+      const formData = new FormData(employeeForm);
+      const data = Object.fromEntries(formData.entries());
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+      try {
+        const res = await fetch(`/modelController/${Employee_Information._cfgTable.tableName}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+            body: JSON.stringify(data)
+          });
+
+        const result = await res.json();
+
+        if (res.ok) {
+          alert("Employee added successfully!");
+          // Thêm row vào Tabulator
+          Employee_Information._instanceTable.addRow(data, true);
+          closeModal();
+        }
+        else {
+          // Nếu server trả lỗi validation
+          alert("Error: " + (result.message || "Invalid input"));
+        }
+      }
+      catch (err) {
+        console.error(err);
+        alert("Network or server error");
+      }
+
+      closeModal();
     });
   }
-}
 
-// --- Setup modal functionality ---
-setupModal() {
-  const modal = document.getElementById("add-employee-modal");
-  const openModalBtn = document.getElementById("open-modal-btn");
-  const closeModalBtn = document.querySelector(".close");
-  const cancelBtn = document.getElementById("cancel-btn");
-  const submitBtn = document.getElementById("submit-btn");
-  const employeeForm = document.getElementById("employee-form");
+  // --- Create Tabulator table ---
+  createTable() {
+    if (Employee_Information._instanceTable) return;
 
-  // Open modal
-  openModalBtn.addEventListener("click", function () {
-    modal.style.display = "block";
-  });
-
-  // Close modal
-  const closeModal = () => {
-    modal.style.display = "none";
-    employeeForm.reset();
-  };
-
-  closeModalBtn.addEventListener("click", closeModal);
-  cancelBtn.addEventListener("click", closeModal);
-
-  // Form submission
-  submitBtn.addEventListener("click", async function () {
-    // Basic validation
-    const name = document.getElementById("name").value;
-    const cccd = document.getElementById("cccd").value;
-    const phone = document.getElementById("phone").value;
-
-    if (!name || !cccd || !phone) {
-      alert("Please fill in all required fields (marked with *)");
-      return;
-    }
-
-    // Here you would typically send the data to your server
-    const formData = new FormData(employeeForm);
-    const data = Object.fromEntries(formData.entries());
-
+    const cfg = Employee_Information._cfgTable;
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
-    try {
-      const res = await fetch(`/modelController/${Employee_Information._cfgTable.tableName}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-          body: JSON.stringify(data)
-        });
-
-      const result = await res.json();
-
-      if (res.ok) {
-        alert("Employee_Information added successfully!");
-        // Thêm row vào Tabulator
-        Employee_Information._instanceTable.addRow(data, true);
-        closeModal();
-        console.log(Employee_Information._cfgTable);
-        console.log("New Employee_Information data:", data);
-        alert("Employee_Information added successfully! (This would connect to your backend in a real application)");
-
+    Employee_Information._instanceTable = new Tabulator(cfg.selector, {
+      ajaxURL: `/modelController/${cfg.tableName}`,
+      pagination: "local",
+      paginationSize: 10,
+      paginationSizeSelector: [10, 20, 30, 50],
+      movableColumns: true,
+      paginationCounter: "pages",
+      paginationButtonCount: 0,
+      index: cfg.primaryKey,
+      columns: cfg.columns,
+      rowHeader: {
+        headerSort: false,
+        resizableColumnFit: false,
+        width: 20,
+        headerHozAlign: "center",
+        hozAlign: "center",
+        formatter: "rowSelection",
+        titleFormatter: "rowSelection"
+      },
+      ajaxConfig: {
+        method: "GET",
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        }
       }
-      else {
-        // Nếu server trả lỗi validation
-        alert("Error: " + (result.message || "Invalid input"));
+    });
+
+    // Row selection stats
+    Employee_Information._instanceTable.on("rowSelectionChanged", data => {
+      const stats = document.querySelector(".select-stats");
+      if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
+    });
+
+    // Cell edit validation
+    Employee_Information._instanceTable.on("cellEdited", cell => {
+      if (cell.getValue() === "" || cell.getValue() === null) {
+        cell.setValue(cell.getOldValue(), true);
       }
-    }
-    catch (err) {
-      console.error(err);
-      alert("Network or server error");
-      console.log(JSON.stringify(data));
-      console.log(Employee_Information._cfgTable?.tableName);
-
-    }
-
-
-
-    closeModal();
-  });
-
-
-}
-// --- Create Tabulator table ---
-createTable() {
-  if (Employee_Information._instanceTable) return;
-
-  const cfg = Employee_Information._cfgTable;
-  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-
-  Employee_Information._instanceTable = new Tabulator(cfg.selector, {
-    ajaxURL: `/modelController/${cfg.tableName}`,
-    pagination: "local",
-    paginationSize: 10,
-    paginationSizeSelector: [10, 20, 30, 50],
-    movableColumns: true,
-    paginationCounter: "pages",
-    paginationButtonCount: 0,
-    index: cfg.primaryKey,
-    columns: cfg.columns,
-    rowHeader: {
-      headerSort: false,
-      resizableColumnFit: false,
-      width: 20,
-      headerHozAlign: "center",
-      hozAlign: "center",
-      formatter: "rowSelection",
-      titleFormatter: "rowSelection"
-    },
-    ajaxConfig: {
-      method: "GET",
-      headers: {
-        'X-CSRF-TOKEN': csrfToken
-      }
-    }
-  });
-
-  // Row selection stats
-  Employee_Information._instanceTable.on("rowSelectionChanged", data => {
-    const stats = document.querySelector(".select-stats");
-    if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
-  });
-
-  // Cell edit validation
-  Employee_Information._instanceTable.on("cellEdited", cell => {
-    if (cell.getValue() === "" || cell.getValue() === null) {
-      cell.setValue(cell.getOldValue(), true);
-    }
-  });
-}
-
-// --- Render table vào container ---
-render(container)
-{
-  container.innerHTML = this.getHTML();
-
-  if (!Employee_Information._instanceTable) {
-    this.createTable();
-  } else {
-    // Reattach bảng vào div mới
-    const tableDiv = container.querySelector(Employee_Information._cfgTable.selector);
-    tableDiv.appendChild(Employee_Information._instanceTable.element);
+    });
   }
 
-  // Thiết lập bộ lọc và tìm kiếm
-  this.setupFilters();
+  // --- Render table vào container ---
+  render(container) {
+    container.innerHTML = this.getHTML();
 
-  // Thiết lập modal
-  this.setupModal();
+    if (!Employee_Information._instanceTable) {
+      this.createTable();
+    } else {
+      // Reattach bảng vào div mới
+      const tableDiv = container.querySelector(Employee_Information._cfgTable.selector);
+      tableDiv.appendChild(Employee_Information._instanceTable.element);
+    }
+
+    // Thiết lập bộ lọc và tìm kiếm
+    this.setupFilters();
+
+    // Thiết lập modal
+    this.setupModal();
+  }
 }
-
-}
-

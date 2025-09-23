@@ -146,32 +146,29 @@ class ContractController extends Controller
 
 
 
-    public function getContractsByCycle($idEmployee, $startDate, $endDate)
-    {
-        // Ưu tiên lấy hợp đồng active
-        $activeContract = Contract::where('id_employee', $idEmployee)
-            ->where('status', 'active')
-            ->where(function ($q) use ($endDate) {
-                $q->whereNull('expiry_date')
-                ->orWhere('expiry_date', '>=', $endDate); // còn hiệu lực đến hết kỳ
-            })
-            ->first();
+    public function getContractsByCycle($idEmployee, Request $request)
+{
+    $startDate = $request->query('start');
+    $endDate = $request->query('end');
 
-        if ($activeContract) 
-        {
-            return response()->json(['data' => $activeContract ]);
-        }
+    // 1️⃣ Kiểm tra contract active trước
+    $activeContract = Contract::where('id_employee', $idEmployee)
+        ->where('status', 'active')
+        ->first();
 
-        // Nếu không có active thì tìm hợp đồng có expiry_date trong chu kỳ
-        $expiredContract = Contract::where('id_employee', $idEmployee)
-            ->whereBetween('expiry_date', [$startDate, $endDate])
-            ->orderBy('expiry_date', 'desc') // gần nhất so với $endDate
-            ->first();
-
-        return response()->json([
-            'data' => $expiredContract
-        ]);
+    if ($activeContract) {
+        return response()->json(['data' => $activeContract]);
     }
+
+    // 2️⃣ Nếu không có active, lấy contract đã hết hạn trong khoảng
+    $expiredContract = Contract::where('id_employee', $idEmployee)
+        ->where('status', '!=', 'active')
+        ->whereBetween('expiry_date', [$startDate, $endDate])
+        ->orderBy('expiry_date', 'desc')
+        ->first();
+
+    return response()->json(['data' => $expiredContract]);
+}
 
 
 }

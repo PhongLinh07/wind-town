@@ -12,30 +12,34 @@ class SalaryDetail extends Model
 
     protected $fillable = [
         'id_contract',
-        'approved_by',
-        'salary_month',
-        'overtime',
-        'bonus',
-        'attendance_bonus',
-        'deduction',
-        'net_salary',
-        'status',
-        'description'
+    'approved_by',
+    'salary_month',
+    'base_salary',
+    'salary_multiplier',
+    'office_hours',
+    'over_time',
+    'late_time',
+    'bonus',
+    'attendance_bonus',
+    'deduction',
+    'net_salary',
+    'status',
+    'description',
     ];
 
+    /**
+     * Liên kết đến hợp đồng
+     */
     public function contract()
     {
         return $this->belongsTo(Contract::class, 'id_contract');
     }
 
+    /**
+     * Liên kết đến người duyệt lương
+     */
     public function approvedBy()
     {
         return $this->belongsTo(Employee::class, 'approved_by');
-    }
-
-    // Ràng buộc: không tự duyệt
-    public static function validateApprover($contractOwnerId, $approverId)
-    {
-        return $contractOwnerId !== $approverId;
     }
 }

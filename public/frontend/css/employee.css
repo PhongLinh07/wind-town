@@ -1,0 +1,278 @@
+/* CSS riêng cho trang quản lý nhân viên */
+
+.main {
+    flex: 1;  /* chiếm hết không gian trống */
+    display: flex;
+    justify-content: center; /* căn ngang */
+    align-items: center;     /* căn dọc */
+    padding: 20px;
+}
+
+/* Thanh công cụ */
+.employee-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+
+.employee-table {
+    border-collapse: collapse;
+    width: 96%;
+    margin: 20px auto;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff; /* nền bảng trắng */
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.1); /* bóng đổ nhẹ */
+    border-radius: 8px;
+    overflow: hidden; /* bo tròn góc */
+}
+
+/* Header */
+.employee-table th {
+    background-color: #007BFF; /* xanh dương */
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+    text-align: center;
+    padding: 12px;
+    
+}
+
+
+/* Ô dữ liệu */
+.employee-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hàng xen kẽ màu */
+.employee-table tr:nth-child(even) {
+    background-color: #f8f9fa;
+}
+
+.employee-table tr:nth-child(odd) {
+    background-color: #ffffff;
+}
+
+/* Hover highlight */
+.employee-table tr:hover {
+    background-color: #eaf4ff;
+    transition: 0.3s;
+}
+
+/* Nút sửa, xóa */
+.employee-table .btn-edit {
+    background-color: #28a745; /* xanh lá */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.employee-table .btn-delete {
+    background-color: #dc3545; /* đỏ */
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.employee-table .btn-edit:hover {
+    background-color: #218838;
+}
+
+.employee-table .btn-delete:hover {
+    background-color: #c82333;
+}
+
+
+.search-box {
+    display: flex;
+    gap: 5px;
+}
+
+.search-box input {
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.search-box button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.actions .btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.actions .add { background: #28a745; color: #fff; }
+.actions .export { background: #17a2b8; color: #fff; }
+.actions .import { background: #ffc107; color: #000; }
+.actions .filter { background: #6c757d; color: #fff; }
+
+/* Bảng nhân viên */
+.employee-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.employee-table th,
+.employee-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+.employee-table th {
+    background: #f4f4f4;
+}
+
+.employee-table .status.active {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.employee-table .status.inactive {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* Nút thao tác */
+.employee-table .btn {
+    margin: 0 2px;
+    padding: 5px 8px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.employee-table .edit { background: #007bff; color: #fff; }
+.employee-table .delete { background: #dc3545; color: #fff; }
+.employee-table .view { background: #17a2b8; color: #fff; }
+
+/* Phân trang */
+.pagination {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.pagination button {
+    margin: 0 3px;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.pagination button.active {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Nút cơ bản */
+.btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Nút Thêm nhân viên */
+.btn-add {
+    background: #0ea5e9;
+    color: white;
+}
+.btn-add:hover {
+    background: #0284c7;
+}
+
+/* Nút Sửa */
+.btn-edit {
+    background: #22c55e;
+    color: white;
+}
+.btn-edit:hover {
+    background: #16a34a;
+}
+
+/* Nút Xóa */
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+/* Thanh công cụ */
+.employee-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.employee-toolbar .search-input {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Nút xem */
+.btn.view {
+    background-color: #17a2b8;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.btn.view:hover {
+    transform: scale(1.2);
+}
+
+/* Popup chi tiết nhân viên */
+.viewDetail {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.viewDetail-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    position: relative;
+}
+
+.viewDetail .close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+}

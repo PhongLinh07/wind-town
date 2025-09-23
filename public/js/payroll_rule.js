@@ -106,7 +106,7 @@ class Payroll_Rule {
               <div class="form-group">
                 <label for="expiry_date">Expiry Date *</label>
                 <input type="date" id="expiry_date" name="expiry_date" required>
-                <small style="color: #666; font-size: 12px;">Must be at least 3 months from effective date</small>
+                <small style="color: #666; font-size: 12px;">Must be at least 1 day from effective date</small>
               </div>
             </div>
 
@@ -152,7 +152,13 @@ class Payroll_Rule {
           if (valueType === "percentage") {
             return value + "%";
           } else {
-            return "$" + parseFloat(value).toFixed(2);
+            // Format as VND currency
+            return new Intl.NumberFormat('vi-VN', { 
+              style: 'currency', 
+              currency: 'VND',
+              minimumFractionDigits: 0,
+              maximumFractionDigits: 0
+            }).format(value);
           }
         }
       },
@@ -162,7 +168,7 @@ class Payroll_Rule {
         editor: "date",
         formatter: Payroll_Rule.formatDate,
         formatterParams: {
-          outputFormat: "YYYY-MM-DD",
+          outputFormat: "DD-MM-YYYY",
           invalidPlaceholder: "(invalid date)"
         }
       },
@@ -172,7 +178,7 @@ class Payroll_Rule {
         editor: "date",
         formatter: Payroll_Rule.formatDate,
         formatterParams: {
-          outputFormat: "YYYY-MM-DD",
+          outputFormat: "DD-MM-YYYY",
           invalidPlaceholder: "(invalid date)"
         },
         validator: function (cell, value, parameters) {
@@ -183,7 +189,7 @@ class Payroll_Rule {
           if (!value) return "Expiry date is required";
 
           // Calculate minimum expiry date (3 months from effective date)
-          const minExpiryDate = new Date(effective_date);
+          const minExpiryDate = new Date(effectiveDate);
           minExpiryDate.setMonth(minExpiryDate.getMonth() + 3);
 
           if (expiryDate < minExpiryDate) {
@@ -217,12 +223,18 @@ class Payroll_Rule {
     return Payroll_Rule._instance;
   }
 
-  // --- Format date ---
+  // --- Format date as dd-mm-yyyy ---
   static formatDate(cell) {
     const value = cell.getValue();
     if (!value) return "";
     const date = new Date(value);
-    return date.toLocaleDateString("en-US") + " " + date.toLocaleTimeString("en-US", { hour: '2-digit', minute: '2-digit' });
+    
+    // Format as dd-mm-yyyy
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    
+    return `${day}-${month}-${year}`;
   }
 
   // --- Check if expiry date is at least 1 day after effective date ---
@@ -424,9 +436,21 @@ setupDeleteButton() {
 
       // Hiển thị thông báo cho các hàng không thể xóa
       if (cannotDeleteRows.length > 0) {
-        const cannotDeleteIds = cannotDeleteRows.map(row => 
-          `ID: ${row.id_rule} (Expiry: ${row.expiry_date}) - Can be deleted after: ${new Date(new Date(row.expiry_date).setMonth(new Date(row.expiry_date).getMonth() + 3)).toLocaleDateString()}`
-        ).join('\n');
+        const cannotDeleteIds = cannotDeleteRows.map(row => {
+          const expiry = new Date(row.expiry_date);
+          const minDeleteDate = new Date(expiry);
+          minDeleteDate.setMonth(minDeleteDate.getMonth() + 3);
+          
+          // Format dates as dd-mm-yyyy
+          const formatDate = (date) => {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}-${month}-${year}`;
+          };
+          
+          return `ID: ${row.id_rule} (Expiry: ${formatDate(expiry)}) - Can be deleted after: ${formatDate(minDeleteDate)}`;
+        }).join('\n');
         
         alert(`Cannot delete the following rules. They must be expired for at least 3 months before deletion:\n${cannotDeleteIds}`);
       }

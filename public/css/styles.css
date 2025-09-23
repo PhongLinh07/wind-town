@@ -4,7 +4,7 @@
       --primary-dark: #25682a;
       --secondary-color: #4a5568;
       --accent-color: #4299e1;
-      --light-bg: #f7fafc;
+      --light-bg: #0c0c0c;
       --dark-bg: #2d3748;
       --text-light: #f8f9fa;
       --text-dark: #2d3748;
@@ -20,7 +20,7 @@
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f5f7f9;
+      background-color: #171718;
       color: var(--text-dark);
       line-height: 1.6;
       padding: 20px;
@@ -523,4 +523,47 @@
 
 .total-amount.negative {
   color: #dc3545;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-delete {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-delete:hover {
+  background-color: #c82333;
+}
+
+.selection-display {
+  margin-top: 10px;
+  padding: 8px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.selection-label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.selection-count {
+  color: #007bff;
+  font-weight: bold;
 }

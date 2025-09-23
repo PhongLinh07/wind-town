@@ -3,7 +3,7 @@ class Contract {
     static _instance = null;
     static _instanceTable = null;
 
-    // HTML template
+    // HTML template (giữ nguyên)
     static _html = `
     <div class="main-container">
       <div class="filter-container">
@@ -128,7 +128,7 @@ class Contract {
     </div>
   `;
 
-    // Tabulator config
+    // Tabulator config (sửa định dạng ngày và tiền tệ)
     static _cfgTable = {
         selector: "#tabulator-table",
         tableName: "contracts",
@@ -162,10 +162,11 @@ class Contract {
                 editorParams: { step: 0.01, min: 0 },
                 formatter: "money",
                 formatterParams: {
-                    symbol: "$",
-                    precision: 2,
-                    thousand: ",",
-                    decimal: "."
+                    symbol: "₫",
+                    precision: 0,
+                    thousand: ".",
+                    decimal: ",",
+                    symbolAfter: false
                 }
             },
             {
@@ -174,7 +175,8 @@ class Contract {
                 editor: "date",
                 formatter: Contract.formatDate,
                 formatterParams: {
-                    outputFormat: "YYYY-MM-DD",
+                    inputFormat: "YYYY-MM-DD",
+                    outputFormat: "DD-MM-YYYY",
                     invalidPlaceholder: "(invalid date)"
                 }
             },
@@ -184,7 +186,8 @@ class Contract {
                 editor: "date",
                 formatter: Contract.formatDate,
                 formatterParams: {
-                    outputFormat: "YYYY-MM-DD",
+                    inputFormat: "YYYY-MM-DD",
+                    outputFormat: "DD-MM-YYYY",
                     invalidPlaceholder: "(invalid date)"
                 }
             },
@@ -238,13 +241,13 @@ class Contract {
                 title: "Create At",
                 field: "created_at",
                 editor: false,
-                formatter: Contract.formatDate
+                formatter: Contract.formatDateTime
             },
             {
                 title: "Update At",
                 field: "updated_at",
                 editor: false,
-                formatter: Contract.formatDate
+                formatter: Contract.formatDateTime
             }
         ]
     };
@@ -257,12 +260,44 @@ class Contract {
         return Contract._instance;
     }
 
-    // --- Format date ---
+    // --- Format date thành dd-mm-yyyy ---
     static formatDate(cell) {
         const value = cell.getValue();
         if (!value) return "";
-        const date = new Date(value);
-        return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+        
+        try {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return "(invalid date)";
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            return `${day}-${month}-${year}`;
+        } catch (error) {
+            return "(invalid date)";
+        }
+    }
+
+    // --- Format date time thành dd-mm-yyyy hh:mm ---
+    static formatDateTime(cell) {
+        const value = cell.getValue();
+        if (!value) return "";
+        
+        try {
+            const date = new Date(value);
+            if (isNaN(date.getTime())) return "(invalid date)";
+            
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            
+            return `${day}-${month}-${year} ${hours}:${minutes}`;
+        } catch (error) {
+            return "(invalid date)";
+        }
     }
 
     // --- Check if contract is expired for at least 3 months ---

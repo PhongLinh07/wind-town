@@ -1,0 +1,97 @@
+/* Main content riêng cho trang phòng ban & chức vụ */
+.main-department {
+    padding: 20px;
+    text-align: center;
+}
+
+/* Toolbar */
+.toolbar {
+    margin-bottom: 15px;
+}
+.toolbar .btn {
+    margin-right: 10px;
+}
+.search-input {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Tabs */
+.tabs {
+    margin-bottom: 15px;
+}
+.tab {
+    padding: 8px 15px;
+    border: none;
+    background: #f1f1f1;
+    cursor: pointer;
+    margin-right: 5px;
+    border-radius: 5px;
+}
+.tab.active {
+    background: #007bff;
+    color: #fff;
+}
+
+/* Table */
+.department-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+.department-table th,
+.department-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    color: #000; /* chữ đen */
+}
+.department-table thead {
+    background: #007bff;
+    color: #fff;
+}
+.department-table tbody tr:nth-child(even) {
+    background: #f9f9f9;
+}
+.department-table tbody tr:hover {
+    background: #e6f7ff;
+}
+
+/* Buttons */
+.btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+.btn-add { background: #007bff; }
+.btn-edit { background: #28a745; }
+.btn-delete { background: #dc3545; }
+.btn-detail { background: #17a2b8; }
+.btn:hover { opacity: 0.9; }
+
+/* Popup */
+.popup {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+}
+.popup-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    position: relative;
+}
+.popup-content .close {
+    position: absolute;
+    top: 10px; right: 15px;
+    font-size: 22px;
+    cursor: pointer;
+}

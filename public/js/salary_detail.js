@@ -4,40 +4,40 @@ class Salary_Detail {
   static _instance = null;
   static _instanceTable = null;
 
-  // HTML template
+  // HTML template (updated to English)
   static _html = `
     <div class="main-container">
-      <!-- Phần quản lý các khoản tiền (bên ngoài form) -->
+      <!-- Money management section (outside form) -->
       <div class="money-management-section">
         <div class="section-header">
-          <h2><i class="fas fa-money-bill-wave"></i> Quản Lý Các Khoản Tiền</h2>
+          <h2><i class="fas fa-money-bill-wave"></i> Money Management</h2>
         </div>
         
         <div class="money-controls">
           <div class="money-inputs">
-            <input type="number" id="money-amount" placeholder="Số tiền" min="0">
+            <input type="number" id="money-amount" placeholder="Amount" min="0">
           </div>
           
           <div class="money-buttons">
             <button type="button" id="add-money-btn" class="btn-primary">
-              <i class="fas fa-plus"></i> Thêm Tiền
+              <i class="fas fa-plus"></i> Add Money
             </button>
             <button type="button" id="remove-money-btn" class="btn-danger">
-              <i class="fas fa-minus"></i> Xóa Tiền
+              <i class="fas fa-minus"></i> Remove Money
             </button>
           </div>
         </div>
 
-        <!-- Hiển thị tổng tiền -->
+        <!-- Total money display -->
         <div class="money-summary">
           <div class="total-display">
-            <span class="total-label">Tổng số tiền:</span>
+            <span class="total-label">Total amount:</span>
             <span class="total-amount" id="total-money-amount">0 VND</span>
           </div>
         </div>
       </div>
 
-      <!-- Phần bộ lọc và bảng -->
+      <!-- Filter and table section -->
       <div class="filter-container">
         <div class="filter-left">
           <div class="filter-block">
@@ -87,7 +87,7 @@ class Salary_Detail {
           </div>
           
           <div class="filter-block">
-            <button class="add-bonus" id="open-modal-btn"><i class="fas fa-plus-circle"></i> Add</button>
+            <button class="add-bonus" id="open-modal-btn"><i class="fas fa-plus-circle"></i> Calculate Salary</button>
           </div>
           
           <div class="filter-block">
@@ -105,188 +105,217 @@ class Salary_Detail {
       </div>
     </div>
 
-    <!-- Modal Form Tính Lương (chỉ có ngày và ID) -->
+    <!-- Salary Calculation Modal Form (date and ID only) -->
     <div id="add-salary-detail-modal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
-          <h2><i class="fas fa-money-check"></i> Tính Lương</h2>
+          <h2><i class="fas fa-money-check"></i> Calculate Salary</h2>
           <span class="close">&times;</span>
         </div>
         <div class="modal-body">
           <form id="salary-detail-form">
             <div class="form-row">
               <div class="form-group">
-                <label for="start_date">Ngày Bắt Đầu *</label>
-                <input type="date" id="start_date" name="start_date" required>
-              </div>
-              <div class="form-group">
-                <label for="end_date">Ngày Kết Thúc *</label>
+                <label for="end_date">End Date *</label>
                 <input type="date" id="end_date" name="end_date" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
-                <label for="holidate">Số Ngày Nghỉ Lễ *</label>
+                <label for="holidate">Number of Holidays *</label>
                 <input type="number" id="holidate" name="holidate" min="0" required>
               </div>
+
               <div class="form-group">
-                <label for="id_approved_by">Người Duyệt *</label>
-                <input type="text" id="id_approved_by" name="id_approved_by" placeholder="Nhập tên người duyệt" required>
+                <label for="bonus">Bonus</label>
+                <input type="number" id="bonus" name="bonus" min="0" step="0.01" placeholder="Enter bonus amount">
+              </div>
+
+              <div class="form-group">
+                <label for="id_approved_by">Approved By *</label>
+                <input type="text" id="id_approved_by" name="id_approved_by" placeholder="Enter approver ID" required>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group-full">
-                <label for="description">Ghi Chú</label>
-                <textarea id="description" name="description" placeholder="Ghi chú về quá trình tính lương"></textarea>
+                <label for="description">Note</label>
+                <textarea id="description" name="description" placeholder="Note about the payroll calculation process"></textarea>
               </div>
             </div>
           </form>
         </div>
 
         <div class="modal-footer">
-          <button class="btn-cancel" id="cancel-btn"><i class="fas fa-times"></i> Hủy</button>
-          <button class="btn-submit" id="submit-btn"><i class="fas fa-calculator"></i> Tính Lương</button>
+          <button class="btn-cancel" id="cancel-btn"><i class="fas fa-times"></i> Cancel</button>
+          <button class="btn-submit" id="submit-btn"><i class="fas fa-calculator"></i> Calculate Salary</button>
         </div>
       </div>
     </div>
   `;
 
+  // Tabulator config (updated date format and currency)
   // Tabulator config
-  static _cfgTable = {
-    selector: "#tabulator-table",
-    tableName: "salary_details",
-    searchInput: "salary-detail-search-input",
-    primaryKey: "id_salary_details",
-    columns: [
-      {
-        title: "",
-        formatter: "rowSelection",
-        titleFormatter: "rowSelection",
-        hozAlign: "center",
-        headerSort: false,
-        width: 40
-      },
-      { title: "Contract ID", field: "id_contract", editor: false },
-      {
-        title: "Approved By",
-        field: "approved_by",
-        editor: false,
-        formatter: function (cell) {
-          const value = cell.getValue();
-          if (value && typeof value === 'object') {
-            return value.id_employee || value.name || 'N/A';
-          }
-          return value || 'N/A';
+// Tabulator config (unchanged, only English text remains)
+static _cfgTable = {
+  selector: "#tabulator-table",
+  tableName: "salary_details",
+  searchInput: "salary-detail-search-input",
+  primaryKey: "id_salary_details",
+  columns: [
+    { title: "Contract ID", field: "id_contract", editor: false },
+    {
+      title: "Approved By",
+      field: "approved_by",
+      editor: false,
+      formatter: function (cell) {
+        const value = cell.getValue();
+        if (value && typeof value === 'object') {
+          return value.id_employee || value.name || 'N/A';
         }
-      },
-      {
-        title: "Salary Month",
-        field: "salary_month",
-        editor: false,
-        formatter: function (cell) {
-          const value = cell.getValue();
-          if (!value) return "";
-          try {
-            const date = new Date(value);
-            return date.toLocaleDateString("vi-VN", { year: 'numeric', month: 'long' });
-          } catch (e) {
-            return value;
-          }
-        }
-      },
-      {
-        title: "Overtime",
-        field: "overtime",
-        editor: false,
-        formatter: "money",
-        formatterParams: {
-          symbol: "₫",
-          precision: 0,
-          thousand: ",",
-          decimal: "."
-        }
-      },
-      {
-        title: "Bonus",
-        field: "bonus",
-        editor: false,
-        formatter: "money",
-        formatterParams: {
-          symbol: "₫",
-          precision: 0,
-          thousand: ",",
-          decimal: "."
-        }
-      },
-      {
-        title: "Attendance Bonus",
-        field: "attendance_bonus",
-        editor: false,
-        formatter: "money",
-        formatterParams: {
-          symbol: "₫",
-          precision: 0,
-          thousand: ",",
-          decimal: "."
-        }
-      },
-      {
-        title: "Deduction",
-        field: "deduction",
-        editor: false,
-        formatter: "money",
-        formatterParams: {
-          symbol: "₫",
-          precision: 0,
-          thousand: ",",
-          decimal: "."
-        }
-      },
-      {
-        title: "Net Salary",
-        field: "net_salary",
-        editor: false,
-        editorParams: { step: 0.01, min: 0 },
-        formatter: "money",
-        formatterParams: {
-          symbol: "₫",
-          precision: 0,
-          thousand: ",",
-          decimal: "."
-        }
-      },
-      {
-        title: "Status",
-        field: "status",
-        editor: false,
-        editorParams: {
-          values: {
-            "pending": "⏳ Pending",
-            "paid": "✅ Paid"
-          }
-        },
-        formatter: "lookup",
-        formatterParams: {
-          "pending": "⏳ Pending",
-          "paid": "✅ Paid"
-        }
-      },
-      {
-        title: "Description",
-        field: "description",
-        editor: "textarea",
-        width: 200
-      },
-      {
-        title: "Create At",
-        field: "created_at",
-        editor: false,
-        formatter: Salary_Detail.formatDate
+        return value || 'N/A';
       }
-    ]
-  };
+    },
+    {
+      title: "Salary Month",
+      field: "salary_month",
+      editor: false,
+      formatter: function (cell) {
+        const value = cell.getValue();
+        if (!value) return "";
+        try {
+          const date = new Date(value);
+          return date.toLocaleDateString("vi-VN", { year: 'numeric', month: 'long' });
+        } catch (e) {
+          return value;
+        }
+      }
+    },
+    {
+      title: "Base Salary",
+      field: "base_salary",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Salary Multiplier",
+      field: "salary_multiplier",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        precision: 2
+      }
+    },
+    {
+      title: "Office Hours",
+      field: "office_hours",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        precision: 2
+      }
+    },
+    {
+      title: "Overtime",
+      field: "overtime",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Late Time",
+      field: "late_time",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        precision: 2
+      }
+    },
+    {
+      title: "Bonus",
+      field: "bonus",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Attendance Bonus",
+      field: "attendance_bonus",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Deduction",
+      field: "deduction",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Net Salary",
+      field: "net_salary",
+      editor: false,
+      formatter: "money",
+      formatterParams: {
+        symbol: "₫",
+        precision: 0,
+        thousand: ",",
+        decimal: "."
+      }
+    },
+    {
+      title: "Status",
+      field: "status",
+      editor: false,
+      formatter: "lookup",
+      formatterParams: {
+        "pending": "⏳ Pending",
+        "paid": "✅ Paid"
+      }
+    },
+    {
+      title: "Description",
+      field: "description",
+      editor: "textarea",
+      width: 200
+    },
+    {
+      title: "Create At",
+      field: "created_at",
+      editor: false,
+      formatter: Salary_Detail.formatDate
+    }
+  ]
+};
+
 
   // --- Singleton getInstance ---
   static getInstance() {
@@ -296,13 +325,16 @@ class Salary_Detail {
     return Salary_Detail._instance;
   }
 
-  // --- Format date ---
+  // --- Format date to dd-mm-yyyy ---
   static formatDate(cell) {
     const value = cell.getValue();
     if (!value) return "";
     try {
       const date = new Date(value);
-      return date.toLocaleDateString("vi-VN") + " " + date.toLocaleTimeString("vi-VN", { hour: '2-digit', minute: '2-digit' });
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}-${month}-${year}`;
     } catch (e) {
       return value;
     }
@@ -310,28 +342,23 @@ class Salary_Detail {
 
   // --- Handle Edit ---
   static handleEdit(data) {
-    // Cho phép chỉnh sửa trực tiếp trong bảng
     const table = Salary_Detail._instanceTable;
     if (table) {
       const row = table.getRow(data[Salary_Detail._cfgTable.primaryKey]);
       if (row) {
-        // Kích hoạt chế độ chỉnh sửa cho dòng
-        // Trong Tabulator, các cột có editor sẽ tự động cho phép chỉnh sửa
         console.log("Edit row:", data);
-        // Có thể mở modal chỉnh sửa hoặc để chỉnh sửa trực tiếp
-        alert(`Chức năng chỉnh sửa cho bản ghi ${data[Salary_Detail._cfgTable.primaryKey]}. Dữ liệu sẽ được cập nhật tự động khi bạn chỉnh sửa trong bảng.`);
+        alert(`Edit function for record ${data[Salary_Detail._cfgTable.primaryKey]}. Data will be automatically updated when you edit in the table.`);
       }
     }
   }
 
   // --- Handle Delete ---
   static handleDelete(data) {
-    if (confirm(`Bạn có chắc muốn xóa bản ghi này? (ID: ${data[Salary_Detail._cfgTable.primaryKey]})`)) {
+    if (confirm(`Are you sure you want to delete this record? (ID: ${data[Salary_Detail._cfgTable.primaryKey]})`)) {
       const table = Salary_Detail._instanceTable;
       if (table) {
         const row = table.getRow(data[Salary_Detail._cfgTable.primaryKey]);
         if (row) {
-          // Gửi yêu cầu xóa đến server
           const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
           fetch(`/modelController/${Salary_Detail._cfgTable.tableName}/${data[Salary_Detail._cfgTable.primaryKey]}`, {
@@ -345,14 +372,14 @@ class Salary_Detail {
             .then(result => {
               if (result.success) {
                 row.delete();
-                alert("Xóa thành công!");
+                alert("Delete successfully!");
               } else {
-                alert("Lỗi khi xóa: " + (result.message || "Unknown error"));
+                alert("Error when deleting: " + (result.message || "Unknown error"));
               }
             })
             .catch(error => {
               console.error('Error deleting row:', error);
-              alert("Lỗi kết nối khi xóa");
+              alert("Connection error when deleting");
             });
         }
       }
@@ -415,12 +442,13 @@ class Salary_Detail {
 
     deleteBtn.addEventListener("click", () => {
       const selectedRows = Salary_Detail._instanceTable.getSelectedRows();
+
       if (selectedRows.length === 0) {
-        alert("Vui lòng chọn ít nhất một dòng để xóa");
+        alert("Please select at least one row to delete");
         return;
       }
 
-      if (!confirm(`Bạn có chắc muốn xóa ${selectedRows.length} dòng đã chọn?`)) {
+      if (!confirm(`Are you sure you want to delete ${selectedRows.length} selected rows?`)) {
         return;
       }
 
@@ -447,15 +475,24 @@ class Salary_Detail {
         .then(results => {
           const successCount = results.filter(r => r.success).length;
           if (successCount === selectedRows.length) {
+            // Delete selected rows and refresh table
             selectedRows.forEach(row => row.delete());
-            alert(`Đã xóa thành công ${successCount} dòng`);
+
+            // UPDATE TABLE DATA IMMEDIATELY
+            Salary_Detail._instanceTable.setData();
+
+            alert(`Successfully deleted ${successCount} rows`);
           } else {
-            alert(`Đã xóa ${successCount}/${selectedRows.length} dòng. Một số dòng có thể không xóa được.`);
+            // If there are errors, still refresh the table
+            Salary_Detail._instanceTable.setData();
+            alert(`Deleted ${successCount}/${selectedRows.length} rows. Some rows may not be deleted.`);
           }
         })
         .catch(error => {
           console.error('Error deleting rows:', error);
-          alert("Lỗi khi xóa các dòng đã chọn");
+          // Refresh table even if there are errors
+          Salary_Detail._instanceTable.setData();
+          alert("Error when deleting selected rows");
         });
     });
   }
@@ -468,6 +505,7 @@ class Salary_Detail {
     const cancelBtn = document.getElementById("cancel-btn");
     const submitBtn = document.getElementById("submit-btn");
     const salaryDetailForm = document.getElementById("salary-detail-form");
+ 
 
     if (!modal) return;
 
@@ -486,35 +524,47 @@ class Salary_Detail {
     cancelBtn.addEventListener("click", closeModal);
 
     // Form submission
-    submitBtn.addEventListener("click", function () {
-      const startDate = document.getElementById("start_date").value;
-      const endDate = document.getElementById("end_date").value;
-      const holidate = document.getElementById("holidate").value;
+    submitBtn.addEventListener("click", async function () {
+      const endDate = document.getElementById("end_date").value; // string "YYYY-MM-DD"
+      const holidate = parseInt(document.getElementById("holidate").value, 10);
       const approvedBy = document.getElementById("id_approved_by").value;
+      const bonus = parseFloat(document.getElementById("bonus").value) || 0; // ✅ lấy bonus
 
-      if (!startDate || !endDate || !holidate || !approvedBy) {
-        alert("Vui lòng điền đầy đủ các trường bắt buộc (*)");
-        return;
-      }
-
-      // Validate dates
-      if (new Date(startDate) > new Date(endDate)) {
-        alert("Ngày bắt đầu không thể sau ngày kết thúc");
+      if (!endDate || isNaN(holidate) || !approvedBy) {
+        alert("Please fill in all required fields (*)");
         return;
       }
 
       if (holidate < 0) {
-        alert("Số ngày nghỉ lễ không thể âm");
+        alert("Number of holidays cannot be negative");
         return;
       }
 
-      const formData = new FormData(salaryDetailForm);
-      const data = Object.fromEntries(formData.entries());
+      Salary.holiday = holidate;
+      Salary.id_approved_by = approvedBy;
 
-      console.log("Dữ liệu tính lương:", data);
-      alert("Tính lương thành công! (Trong ứng dụng thực tế sẽ kết nối với backend)");
+      try {
+        // Pass string "YYYY-MM-DD" to calculatePayroll
+        const results = await Salary.calculatePayroll(endDate, bonus); // truyền bonus = 2,000,000
 
-      closeModal();
+        // Update Tabulator table data
+        if (Salary_Detail._instanceTable) {
+          Salary_Detail._instanceTable.setData(results);
+        }
+
+        alert("Calculate payroll successfully!");
+        modal.style.display = "none";
+
+        // Calculate total money and display
+        let totalMoney = results.reduce(
+          (sum, r) => sum + (r.net_salary || 0) + (r.bonus || 0),
+          0
+        );
+        document.getElementById("total-money-amount").textContent = `${totalMoney.toLocaleString()} VND`;
+      } catch (err) {
+        console.error(err);
+        alert("Error when calculating payroll");
+      }
     });
   }
 
@@ -529,7 +579,7 @@ class Salary_Detail {
 
     if (!addMoneyBtn || !removeMoneyBtn || !totalAmountSpan || !moneyAmountInput) return;
 
-    // Cập nhật tổng tiền
+    // Update total amount
     const updateTotalAmount = (amount, isAdding) => {
       if (isAdding) {
         totalAmount += amount;
@@ -540,40 +590,87 @@ class Salary_Detail {
       totalAmountSpan.className = totalAmount >= 0 ? 'positive' : 'negative';
     };
 
-    // Thêm tiền
+    // Add money
     addMoneyBtn.addEventListener('click', () => {
       const amount = parseFloat(moneyAmountInput.value);
 
       if (isNaN(amount) || amount <= 0) {
-        alert('Vui lòng nhập số tiền hợp lệ (lớn hơn 0)');
+        alert('Please enter a valid amount (greater than 0)');
         return;
       }
 
       updateTotalAmount(amount, true);
       moneyAmountInput.value = '';
-      console.log('Thêm tiền:', amount, 'Tổng:', totalAmount);
+      console.log('Add money:', amount, 'Total:', totalAmount);
     });
 
-    // Xóa tiền
+    // Remove money AND selected rows
     removeMoneyBtn.addEventListener('click', () => {
-      const amount = parseFloat(moneyAmountInput.value);
+      // Check if any rows are selected in the table
+      const selectedRows = Salary_Detail._instanceTable?.getSelectedRows() || [];
 
-      if (isNaN(amount) || amount <= 0) {
-        alert('Vui lòng nhập số tiền hợp lệ (lớn hơn 0)');
-        return;
+      if (selectedRows.length > 0) {
+        // If rows are selected, delete the selected rows
+        if (!confirm(`Are you sure you want to delete ${selectedRows.length} selected rows?`)) {
+          return;
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        const deletePromises = [];
+
+        // Loop through all selected rows and delete
+        selectedRows.forEach(row => {
+          const data = row.getData();
+          const primaryKey = data[Salary_Detail._cfgTable.primaryKey];
+
+          deletePromises.push(
+            fetch(`/modelController/${Salary_Detail._cfgTable.tableName}/${primaryKey}`, {
+              method: 'DELETE',
+              headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'Content-Type': 'application/json'
+              }
+            })
+          );
+        });
+
+        Promise.all(deletePromises)
+          .then(responses => Promise.all(responses.map(r => r.json())))
+          .then(results => {
+            const successCount = results.filter(r => r.success).length;
+            if (successCount === selectedRows.length) {
+              // Delete all selected rows from the table
+              selectedRows.forEach(row => row.delete());
+              alert(`Successfully deleted ${successCount} rows`);
+            } else {
+              alert(`Deleted ${successCount}/${selectedRows.length} rows. Some rows may not be deleted.`);
+            }
+          })
+          .catch(error => {
+            console.error('Error deleting selected rows:', error);
+            alert("Error when deleting selected rows");
+          });
+      } else {
+        // If no rows are selected, perform normal money removal
+        const amount = parseFloat(moneyAmountInput.value);
+
+        if (isNaN(amount) || amount <= 0) {
+          alert('Please enter a valid amount (greater than 0)');
+          return;
+        }
+
+        if (amount > totalAmount) {
+          alert('The amount to remove cannot be greater than the current total amount');
+          return;
+        }
+
+        updateTotalAmount(amount, false);
+        moneyAmountInput.value = '';
+        console.log('Remove money:', amount, 'Total:', totalAmount);
       }
-
-      if (amount > totalAmount) {
-        alert('Số tiền xóa không thể lớn hơn tổng số tiền hiện có');
-        return;
-      }
-
-      updateTotalAmount(amount, false);
-      moneyAmountInput.value = '';
-      console.log('Xóa tiền:', amount, 'Tổng:', totalAmount);
     });
 
-    // Cho phép nhấn Enter để thêm
+    // Allow Enter key to add money
     moneyAmountInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
         addMoneyBtn.click();
@@ -612,22 +709,21 @@ class Salary_Detail {
       if (stats) stats.innerHTML = `<i class="fas fa-check-circle"></i> Selected: ${data.length}`;
     });
 
-    // Cell edit validation - CHỈ CHO PHÉP SỬA CÁC Ô CÓ EDITOR KHÁC FALSE
+    // Cell edit validation - ONLY ALLOW EDITING CELLS WITH EDITOR NOT FALSE
     Salary_Detail._instanceTable.on("cellEditing", function (cell) {
       const columnDefinition = cell.getColumn().getDefinition();
       if (columnDefinition.editor === false) {
-        return false; // Ngăn không cho edit
+        return false; // Prevent editing
       }
       return true;
     });
-
 
     // Cell edit - save to server
     Salary_Detail._instanceTable.on("cellEdited", async cell => {
       const columnDefinition = cell.getColumn().getDefinition();
 
-      // Chỉ xử lý nếu ô được phép edit
-      if (columnDefinition.editor !== true) {
+      // Only process if cell is allowed to be edited
+      if (columnDefinition.editor !== false) {
         const newValue = cell.getValue();
         const oldValue = cell.getOldValue();
 
@@ -635,55 +731,52 @@ class Salary_Detail {
           cell.update(oldValue, true);
           return;
         }
-      }
 
-      try 
-      {
-        const rowData = cell.getRow().getData();
-        const field = cell.getField();
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        try {
+          const rowData = cell.getRow().getData();
+          const field = cell.getField();
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        const url = `/modelController/${Salary_Detail._cfgTable.tableName}/${rowData.id_salary_details}`;
+          const url = `/modelController/${Salary_Detail._cfgTable.tableName}/${rowData.id_salary_details}`;
 
+          const resPut = await fetch(url, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
+            body: JSON.stringify(rowData)
+          });
 
-        const resPut = await fetch(url, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json", "X-CSRF-TOKEN": csrfToken },
-          body: JSON.stringify(rowData)
-        });
+          if (!resPut.ok) {
+            cell.setValue(cell.getOldValue(), true);
+            alert("Update failed.");
+            return;
+          }
 
-        if (!resPut.ok) {
+          console.log("Update successful");
+
+        } catch (err) {
           cell.setValue(cell.getOldValue(), true);
-          alert("Update failed.");
-          return;
+          console.error(err);
         }
-
-        console.log("Update successful");
-
-      } catch (err) {
-        cell.setValue(cell.getOldValue(), true);
-        console.error(err);
       }
-    
     });
-}
-
-// --- Render table vào container ---
-render(container) {
-  container.innerHTML = this.getHTML();
-
-  if (!Salary_Detail._instanceTable) {
-    this.createTable();
-  } else {
-    const tableDiv = container.querySelector(Salary_Detail._cfgTable.selector);
-    if (tableDiv && Salary_Detail._instanceTable.element) {
-      tableDiv.appendChild(Salary_Detail._instanceTable.element);
-    }
   }
 
-  this.setupFilters();
-  this.setupModal();
-  this.setupMoneyManagement();
-  this.setupDeleteSelected();
-}
+  // --- Render table into container ---
+  render(container) {
+    container.innerHTML = this.getHTML();
+
+    if (!Salary_Detail._instanceTable) {
+      this.createTable();
+    } else {
+      const tableDiv = container.querySelector(Salary_Detail._cfgTable.selector);
+      if (tableDiv && Salary_Detail._instanceTable.element) {
+        tableDiv.appendChild(Salary_Detail._instanceTable.element);
+      }
+    }
+
+    this.setupFilters();
+    this.setupModal();
+    this.setupMoneyManagement();
+    this.setupDeleteSelected();
+  }
 }
