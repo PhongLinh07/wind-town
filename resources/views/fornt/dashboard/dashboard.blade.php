@@ -89,7 +89,7 @@
 
     /* Top Navigation */
     .sb-topnav {
-      background: linear-gradient(90deg, var(--dark-bg) 0%, #3a2c50ff 100%);
+      background: linear-gradient(90deg, var(--dark-bg) 0%, #1b2436ff 100%);
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       z-index: 1030;
       padding: 0;
@@ -459,7 +459,11 @@
   <nav class="sb-topnav navbar navbar-expand navbar-dark">
       <!-- Navbar Brand-->
       <a class="navbar-brand ps-3" href="{{ route('dashboard') }}">
-        <i class="fas fa-city"></i> Win Town
+        <img src="{{ asset('frontend/images/logoHR.png') }}" 
+                 alt="Avatar" 
+                 class="rounded-circle me-2"
+                 width="100" height="100">
+            <span class="d-none d-lg-inline fw-bold">Win Town</span> 
       </a>
       <!-- Sidebar Toggle-->
       <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle">
@@ -523,7 +527,7 @@
             <div class="sb-sidenav-menu-heading">Core</div>
             <a class="nav-link" href="#" class_db_page="dashboard">
               <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-              Dashboard
+              Statistical
             </a>
 
             <div class="sb-sidenav-menu-heading">Interface</div>
@@ -683,6 +687,8 @@
   <script src="/js/attendance.js"></script>
 
   <script src="/js/leave.js"></script>
+  <script src="/js/report.js"></script>
+
 
   <!-- SPA JS -->
   <script>
@@ -713,6 +719,9 @@
         case 'attendance': { Attendance.getInstance().render(content); } break;
 
         case 'leave': { Leave.getInstance().render(content); } break;
+
+        case 'report': { Report.getInstance().render(content); } break;
+
 
         default: content.innerHTML = `<body class="sb-nav-fixed">
 

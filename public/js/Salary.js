@@ -172,7 +172,7 @@ class Salary {
             const salaryDetail = {
                 id_contract: contract.id_contract,
                 approved_by: this.id_approved_by,
-                salary_month: `${String(startDate.getDate()).padStart(2,'0')}-${String(startDate.getMonth()+1).padStart(2,'0')}-${startDate.getFullYear()}`,
+                salary_month: this.formatDateForAPI(startDate), // sửa ở đây
                 base_salary: base_salary,
                 salary_multiplier: salary_multiplier,
                 office_hours: office_hours,

@@ -6802,10 +6802,11 @@ textarea.form-control-lg {
 
 .fixed-top, .sb-nav-fixed #layoutSidenav #layoutSidenav_nav, .sb-nav-fixed .sb-topnav {
   position: fixed;
-  top: 0;
+  top: 25px;
   right: 0;
   left: 0;
   z-index: 1030;
+  height: 50px;
 }
 
 .fixed-bottom {

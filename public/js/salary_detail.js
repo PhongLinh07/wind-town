@@ -107,8 +107,8 @@ class Salary_Detail {
 
     <!-- Salary Calculation Modal Form (date and ID only) -->
     <div id="add-salary-detail-modal" class="modal">
-      <div class="modal-content">
-        <div class="modal-header">
+      <div class="modal-content"  style="margin: 10% auto">
+        <div class="modal-header" >
           <h2><i class="fas fa-money-check"></i> Calculate Salary</h2>
           <span class="close">&times;</span>
         </div>
