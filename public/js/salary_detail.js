@@ -695,6 +695,14 @@ static _cfgTable = {
       paginationButtonCount: 0,
       index: cfg.primaryKey,
       columns: cfg.columns,
+      rowHeader: {
+        headerSort: false,
+        width: 30,
+        headerHozAlign: "center",
+        hozAlign: "center",
+        formatter: "rowSelection",
+        titleFormatter: "rowSelection"
+      },
       ajaxConfig: {
         method: "GET",
         headers: {

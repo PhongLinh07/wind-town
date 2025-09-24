@@ -604,7 +604,7 @@
             </a>
             <div class="collapse" id="collapseReports" data-bs-parent="#sidenavAccordion">
               <nav class="sb-sidenav-menu-nested nav">
-                <a class="nav-link" href="#" class_db_page="charts">Charts</a>
+                <a class="nav-link" href="#" class_db_page="report">Report</a>
                 <a class="nav-link" href="#" class_db_page="tables">Tables</a>
               </nav>
             </div>

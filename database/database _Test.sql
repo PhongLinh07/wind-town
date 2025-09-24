@@ -270,49 +270,49 @@ INSERT INTO employees (name, gender, cccd, date_of_birth, address, email, phone,
 -- 📊 CONTRACTS (60 bản ghi - mỗi nhân viên có 1-2 hợp đồng)
 INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, expiry_date, status, description) VALUES
 -- Hợp đồng còn hạn (năm 2030) cho tất cả nhân viên active
-(1, 2, 15000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng không xác định thời hạn'),
-(2, 2, 18000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
-(3, 2, 22000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior'),
-(4, 1, 12000000, '2024-01-01', '2026-12-31', 'active', 'Hợp đồng thử việc 3 năm'),
-(5, 2, 28000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng team lead'),
-(6, 2, 19000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
-(7, 2, 23000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
-(8, 1, 11000000, '2024-01-01', '2025-12-31', 'active', 'Hợp đồng fresher 2 năm'),
-(9, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
-(10, 2, 24000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior mobile'),
-(11, 2, 30000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng technical lead'),
-(12, 1, 10000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng thử việc 1 năm'),
-(13, 2, 21000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps developer'),
-(14, 2, 25000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
-(15, 2, 16000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
-(16, 2, 26000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
-(17, 2, 17000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng automation QA'),
-(18, 1, 15000000, '2024-01-01', '2025-06-30', 'active', 'Hợp đồng QA 1.5 năm'),
-(19, 2, 27000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA lead'),
-(20, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps'),
-(21, 2, 32000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior DevOps'),
-(22, 1, 18000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng system admin thử việc'),
-(23, 2, 35000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng team lead IT'),
-(24, 2, 40000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng project manager'),
-(25, 2, 50000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng department head'),
-(26, 2, 13000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng HR specialist'),
-(27, 2, 25000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng HR manager'),
-(28, 1, 9000000, '2024-01-01', '2024-06-30', 'active', 'Hợp đồng admin staff thử việc'),
-(29, 2, 14000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng junior accountant'),
-(30, 2, 26000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior accountant'),
-(31, 2, 30000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng financial analyst'),
-(32, 1, 12000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng sales executive thử việc'),
-(33, 2, 32000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng sales manager'),
-(34, 2, 22000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng marketing specialist'),
-(35, 1, 11000000, '2024-01-01', '2025-01-01', 'active', 'Hợp đồng junior designer'),
-(36, 2, 24000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior designer'),
-(37, 1, 8000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng customer support'),
-(38, 2, 15000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng technical support'),
-(39, 2, 19000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
-(40, 1, 10000000, '2024-01-01', '2024-12-31', 'active', 'Hợp đồng frontend fresher'),
-(41, 2, 23000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
-(42, 2, 16000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
-(43, 2, 20000000, '2024-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps engineer'),
+(1, 2, 15000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng không xác định thời hạn'),
+(2, 2, 18000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
+(3, 2, 22000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior'),
+(4, 1, 12000000, '2025-01-01', '2026-12-31', 'active', 'Hợp đồng thử việc 3 năm'),
+(5, 2, 28000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng team lead'),
+(6, 2, 19000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng chính thức'),
+(7, 2, 23000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
+(8, 1, 11000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng fresher 2 năm'),
+(9, 2, 20000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
+(10, 2, 24000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior mobile'),
+(11, 2, 30000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng technical lead'),
+(12, 1, 10000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng thử việc 1 năm'),
+(13, 2, 21000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps developer'),
+(14, 2, 25000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
+(15, 2, 16000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
+(16, 2, 26000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior QA'),
+(17, 2, 17000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng automation QA'),
+(18, 1, 15000000, '2025-01-01', '2025-06-30', 'active', 'Hợp đồng QA 1.5 năm'),
+(19, 2, 27000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng QA lead'),
+(20, 2, 20000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps'),
+(21, 2, 32000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior DevOps'),
+(22, 1, 18000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng system admin thử việc'),
+(23, 2, 35000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng team lead IT'),
+(24, 2, 40000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng project manager'),
+(25, 2, 50000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng department head'),
+(26, 2, 13000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng HR specialist'),
+(27, 2, 25000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng HR manager'),
+(28, 1, 9000000, '2025-01-01', '2025-06-30', 'active', 'Hợp đồng admin staff thử việc'),
+(29, 2, 14000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng junior accountant'),
+(30, 2, 26000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior accountant'),
+(31, 2, 30000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng financial analyst'),
+(32, 1, 12000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng sales executive thử việc'),
+(33, 2, 32000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng sales manager'),
+(34, 2, 22000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng marketing specialist'),
+(35, 1, 11000000, '2025-01-01', '2025-01-01', 'active', 'Hợp đồng junior designer'),
+(36, 2, 24000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior designer'),
+(37, 1, 8000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng customer support'),
+(38, 2, 15000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng technical support'),
+(39, 2, 19000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng backend developer'),
+(40, 1, 10000000, '2025-01-01', '2025-12-31', 'active', 'Hợp đồng frontend fresher'),
+(41, 2, 23000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng senior fullstack'),
+(42, 2, 16000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng QA engineer'),
+(43, 2, 20000000, '2025-01-01', '2030-12-31', 'active', 'Hợp đồng DevOps engineer'),
 
 -- Hợp đồng đã hết hạn (cho nhân viên active - để demo lịch sử)
 (1, 1, 12000000, '2020-03-01', '2023-12-31', 'expired', 'Hợp đồng thử việc đầu tiên'),
@@ -335,8 +335,8 @@ INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, 
 (50, 1, 15000000, '2021-11-30', '2023-06-30', 'terminated', 'Hợp đồng tạm nghỉ'),
 
 -- Thêm hợp đồng thời vụ (contract_type = 3)
-(44, 3, 8000000, '2024-01-01', '2024-06-30', 'active', 'Hợp đồng thời vụ 6 tháng'),
-(45, 3, 9000000, '2024-02-01', '2024-08-31', 'active', 'Hợp đồng theo dự án');
+(44, 3, 8000000, '2025-01-01', '2025-06-30', 'active', 'Hợp đồng thời vụ 6 tháng'),
+(45, 3, 9000000, '2025-02-01', '2025-08-31', 'active', 'Hợp đồng theo dự án');
 
 
 
@@ -344,210 +344,86 @@ INSERT INTO contracts (id_employee, contract_type, base_salary, effective_date, 
 INSERT INTO attendances (id_employee, of_date, office_hours, over_time, late_time, is_night_shift) VALUES
 -- Tháng 9/2024 (80 bản ghi)
 -- Nhân viên 1-15
-(1, '2024-09-02', 8.0, 0.0, 0.0, 0), (1, '2024-09-03', 8.0, 1.0, 0.0, 0), (1, '2024-09-04', 8.0, 0.0, 0.0, 0),
-(1, '2024-09-05', 7.5, 0.0, 0.5, 0), (1, '2024-09-06', 8.0, 2.0, 0.0, 0), (1, '2024-09-09', 8.0, 0.0, 0.0, 0),
-(2, '2024-09-02', 8.0, 0.0, 0.0, 0), (2, '2024-09-03', 8.0, 1.5, 0.0, 0), (2, '2024-09-04', 8.0, 0.0, 0.0, 0),
-(3, '2024-09-02', 8.0, 3.0, 0.0, 0), (3, '2024-09-03', 8.0, 0.0, 0.0, 0), (3, '2024-09-04', 8.0, 2.0, 0.0, 0),
+(1, '2025-09-02', 8.0, 0.0, 0.0, 0), (1, '2025-09-03', 8.0, 1.0, 0.0, 0), (1, '2025-09-04', 8.0, 0.0, 0.0, 0),
+(1, '2025-09-05', 7.5, 0.0, 0.5, 0), (1, '2025-09-06', 8.0, 2.0, 0.0, 0), (1, '2025-09-09', 8.0, 0.0, 0.0, 0),
+(2, '2025-09-02', 8.0, 0.0, 0.0, 0), (2, '2025-09-03', 8.0, 1.5, 0.0, 0), (2, '2025-09-04', 8.0, 0.0, 0.0, 0),
+(3, '2025-09-02', 8.0, 3.0, 0.0, 0), (3, '2025-09-03', 8.0, 0.0, 0.0, 0), (3, '2025-09-04', 8.0, 2.0, 0.0, 0),
 
 -- Nhân viên 16-30
-(16, '2024-09-02', 8.0, 0.0, 0.0, 0), (16, '2024-09-03', 8.0, 1.0, 0.0, 0), (16, '2024-09-04', 7.0, 0.0, 1.0, 0),
-(17, '2024-09-02', 8.0, 2.0, 0.0, 0), (17, '2024-09-03', 8.0, 0.0, 0.0, 0), (17, '2024-09-05', 8.0, 1.5, 0.0, 0),
-(18, '2024-09-02', 8.0, 0.0, 0.0, 0), (18, '2024-09-03', 6.5, 0.0, 1.5, 0), (18, '2024-09-04', 8.0, 0.0, 0.0, 0),
+(16, '2025-09-02', 8.0, 0.0, 0.0, 0), (16, '2025-09-03', 8.0, 1.0, 0.0, 0), (16, '2025-09-04', 7.0, 0.0, 1.0, 0),
+(17, '2025-09-02', 8.0, 2.0, 0.0, 0), (17, '2025-09-03', 8.0, 0.0, 0.0, 0), (17, '2025-09-05', 8.0, 1.5, 0.0, 0),
+(18, '2025-09-02', 8.0, 0.0, 0.0, 0), (18, '2025-09-03', 6.5, 0.0, 1.5, 0), (18, '2025-09-04', 8.0, 0.0, 0.0, 0),
 
 -- Dữ liệu đa dạng hóa (40 bản ghi)
 -- Nghỉ ốm (office_hours = 0)
-(4, '2024-07-10', 0.0, 0.0, 0.0, 0), (7, '2024-08-12', 0.0, 0.0, 0.0, 0), (12, '2024-09-10', 0.0, 0.0, 0.0, 0),
+(4, '2025-07-10', 0.0, 0.0, 0.0, 0), (7, '2025-08-12', 0.0, 0.0, 0.0, 0), (12, '2025-09-10', 0.0, 0.0, 0.0, 0),
 
 -- Làm nửa ngày
-(5, '2024-07-15', 4.0, 0.0, 0.0, 0), (8, '2024-08-20', 3.5, 0.0, 0.0, 0), (14, '2024-09-15', 4.0, 0.0, 0.0, 0),
+(5, '2025-07-15', 4.0, 0.0, 0.0, 0), (8, '2025-08-20', 3.5, 0.0, 0.0, 0), (14, '2025-09-15', 4.0, 0.0, 0.0, 0),
 
 -- Đi muộn nhiều
-(6, '2024-07-18', 6.0, 0.0, 2.0, 0), (9, '2024-08-22', 5.5, 0.0, 2.5, 0), (16, '2024-09-18', 5.0, 0.0, 3.0, 0),
+(6, '2025-07-18', 6.0, 0.0, 2.0, 0), (9, '2025-08-22', 5.5, 0.0, 2.5, 0), (16, '2025-09-18', 5.0, 0.0, 3.0, 0),
 
 -- Tăng ca nhiều
-(10, '2024-07-20', 8.0, 4.0, 0.0, 0), (13, '2024-08-25', 8.0, 5.0, 0.0, 0), (19, '2024-09-20', 8.0, 6.0, 0.0, 0),
+(10, '2025-07-20', 8.0, 4.0, 0.0, 0), (13, '2025-08-25', 8.0, 5.0, 0.0, 0), (19, '2025-09-20', 8.0, 6.0, 0.0, 0),
 
 -- Ca đêm (is_night_shift = 1)
-(11, '2024-07-22', 8.0, 2.0, 0.0, 1), (15, '2024-08-26', 8.0, 3.0, 0.0, 1), (20, '2024-09-22', 8.0, 1.0, 0.0, 1),
+(11, '2025-07-22', 8.0, 2.0, 0.0, 1), (15, '2025-08-26', 8.0, 3.0, 0.0, 1), (20, '2025-09-22', 8.0, 1.0, 0.0, 1),
 
 -- Cuối tuần làm thêm (thứ 7, CN)
-(1, '2024-07-06', 8.0, 3.0, 0.0, 0), (3, '2024-07-07', 8.0, 2.5, 0.0, 0),
-(5, '2024-08-03', 8.0, 4.0, 0.0, 0), (7, '2024-08-04', 8.0, 3.0, 0.0, 0),
-(9, '2024-09-07', 8.0, 2.0, 0.0, 0), (11, '2024-09-08', 8.0, 3.5, 0.0, 0),
+(1, '2025-07-06', 8.0, 3.0, 0.0, 0), (3, '2025-07-07', 8.0, 2.5, 0.0, 0),
+(5, '2025-08-03', 8.0, 4.0, 0.0, 0), (7, '2025-08-04', 8.0, 3.0, 0.0, 0),
+(9, '2025-09-07', 8.0, 2.0, 0.0, 0), (11, '2025-09-08', 8.0, 3.5, 0.0, 0),
 
 
 
 -- Nhân viên part-time (ít ngày làm)
-(44, '2024-07-01', 4.0, 0.0, 0.0, 0), (44, '2024-07-03', 4.0, 0.0, 0.0, 0), (44, '2024-07-05', 4.0, 0.0, 0.0, 0),
-(45, '2024-08-01', 5.0, 0.0, 0.0, 0), (45, '2024-08-03', 5.0, 0.0, 0.0, 0), (45, '2024-08-05', 5.0, 0.0, 0.0, 0),
+(44, '2025-07-01', 4.0, 0.0, 0.0, 0), (44, '2025-07-03', 4.0, 0.0, 0.0, 0), (44, '2025-07-05', 4.0, 0.0, 0.0, 0),
+(45, '2025-08-01', 5.0, 0.0, 0.0, 0), (45, '2025-08-03', 5.0, 0.0, 0.0, 0), (45, '2025-08-05', 5.0, 0.0, 0.0, 0),
 
 -- Nhân viên resigned (ít dữ liệu)
-(49, '2024-07-01', 8.0, 0.0, 0.0, 0), (49, '2024-07-02', 8.0, 0.0, 0.0, 0),
-(50, '2024-07-01', 8.0, 0.0, 0.0, 0), (50, '2024-07-02', 7.5, 0.0, 0.5, 0);
+(49, '2025-07-01', 8.0, 0.0, 0.0, 0), (49, '2025-07-02', 8.0, 0.0, 0.0, 0),
+(50, '2025-07-01', 8.0, 0.0, 0.0, 0), (50, '2025-07-02', 7.5, 0.0, 0.5, 0);
 
 
 
 -- 📊 LEAVES (40 bản ghi - đơn xin nghỉ phép)
 INSERT INTO leaves (id_employee, approved_by, start_date, end_date, is_paid, reason, status) VALUES
 -- Nghỉ phép có lương
-(1, 15, '2024-01-10', '2024-01-12', 1, 'Nghỉ ốm', 'approved'),
-(2, 15, '2024-02-15', '2024-02-16', 1, 'Việc gia đình', 'approved'),
-(3, 16, '2024-03-01', '2024-03-03', 1, 'Nghỉ lễ', 'approved'),
+(1, 15, '2025-01-10', '2025-01-12', 1, 'Nghỉ ốm', 'approved'),
+(2, 15, '2025-02-15', '2025-02-16', 1, 'Việc gia đình', 'approved'),
+(3, 16, '2025-03-01', '2025-03-03', 1, 'Nghỉ lễ', 'approved'),
 
 -- Nghỉ không lương
-(4, 15, '2024-01-20', '2024-01-22', 0, 'Việc cá nhân', 'approved'),
-(5, 16, '2024-02-10', '2024-02-11', 0, 'Khám sức khỏe', 'approved'),
+(4, 15, '2025-01-20', '2025-01-22', 0, 'Việc cá nhân', 'approved'),
+(5, 16, '2025-02-10', '2025-02-11', 0, 'Khám sức khỏe', 'approved'),
 
 -- Đơn chờ duyệt
-(6, 15, '2024-04-01', '2024-04-03', 1, 'Nghỉ phép năm', 'pending'),
+(6, 15, '2025-04-01', '2025-04-03', 1, 'Nghỉ phép năm', 'pending'),
 
 -- Đơn bị từ chối
-(7, 16, '2024-01-15', '2024-01-18', 1, 'Du lịch', 'rejected');
+(7, 16, '2025-01-15', '2025-01-18', 1, 'Du lịch', 'rejected');
 
 
 -- 📊 PAYROLL_RULES (15 bản ghi - quy định lương)
 INSERT INTO payroll_rules (type, value_type, value, effective_date, expiry_date, description) VALUES
-('OT_RATE', 'percentage', 150.0, '2024-01-01', NULL, 'Tỷ lệ tính OT (150% lương cơ bản)'),
-('OT_NIGHT_RATE', 'percentage', 200.0, '2024-01-01', NULL, 'Tỷ lệ tính OT ca đêm'),
-('NIGHT_SHIFT_BONUS', 'fixed_amount', 50000.0, '2024-01-01', NULL, 'Phụ cấp ca đêm'),
-('INSURANCE', 'percentage', 10.5, '2024-01-01', '2024-12-31', 'Bảo hiểm xã hội'),
-('HEALTH_INSURANCE', 'percentage', 1.5, '2024-01-01', '2024-12-31', 'Bảo hiểm y tế'),
-('UNEMPLOYMENT_INSURANCE', 'percentage', 1.0, '2024-01-01', '2024-12-31', 'Bảo hiểm thất nghiệp'),
-('TAX_THRESHOLD', 'fixed_amount', 11000000.0, '2024-01-01', NULL, 'Ngưỡng đóng thuế'),
-('TAX_RATE_1', 'percentage', 5.0, '2024-01-01', NULL, 'Thuế suất bậc 1'),
-('TAX_RATE_2', 'percentage', 10.0, '2024-01-01', NULL, 'Thuế suất bậc 2'),
-('LUNCH_ALLOWANCE', 'fixed_amount', 700000.0, '2024-01-01', NULL, 'Phụ cấp ăn trưa'),
-('PHONE_ALLOWANCE', 'fixed_amount', 200000.0, '2024-01-01', NULL, 'Phụ cấp điện thoại'),
-('TRANSPORT_ALLOWANCE', 'fixed_amount', 500000.0, '2024-01-01', NULL, 'Phụ cấp đi lại'),
-('ATTENDANCE_BONUS', 'fixed_amount', 500000.0, '2024-01-01', NULL, 'Thưởng chuyên cần'),
-('PERFORMANCE_BONUS', 'percentage', 10.0, '2024-01-01', NULL, 'Thưởng hiệu suất tối đa'),
-('LATE_PENALTY', 'fixed_amount', 100000.0, '2024-01-01', NULL, 'Phạt đi muộn');
+('OT_RATE', 'percentage', 150.0, '2025-01-01', NULL, 'Tỷ lệ tính OT (150% lương cơ bản)'),
+('OT_NIGHT_RATE', 'percentage', 200.0, '2025-01-01', NULL, 'Tỷ lệ tính OT ca đêm'),
+('NIGHT_SHIFT_BONUS', 'fixed_amount', 50000.0, '2025-01-01', NULL, 'Phụ cấp ca đêm'),
+('INSURANCE', 'percentage', 10.5, '2025-01-01', '2025-12-31', 'Bảo hiểm xã hội'),
+('HEALTH_INSURANCE', 'percentage', 1.5, '2025-01-01', '2025-12-31', 'Bảo hiểm y tế'),
+('UNEMPLOYMENT_INSURANCE', 'percentage', 1.0, '2025-01-01', '2025-12-31', 'Bảo hiểm thất nghiệp'),
+('TAX_THRESHOLD', 'fixed_amount', 11000000.0, '2025-01-01', NULL, 'Ngưỡng đóng thuế'),
+('TAX_RATE_1', 'percentage', 5.0, '2025-01-01', NULL, 'Thuế suất bậc 1'),
+('TAX_RATE_2', 'percentage', 10.0, '2025-01-01', NULL, 'Thuế suất bậc 2'),
+('LUNCH_ALLOWANCE', 'fixed_amount', 700000.0, '2025-01-01', NULL, 'Phụ cấp ăn trưa'),
+('PHONE_ALLOWANCE', 'fixed_amount', 200000.0, '2025-01-01', NULL, 'Phụ cấp điện thoại'),
+('TRANSPORT_ALLOWANCE', 'fixed_amount', 500000.0, '2025-01-01', NULL, 'Phụ cấp đi lại'),
+('ATTENDANCE_BONUS', 'fixed_amount', 500000.0, '2025-01-01', NULL, 'Thưởng chuyên cần'),
+('PERFORMANCE_BONUS', 'percentage', 10.0, '2025-01-01', NULL, 'Thưởng hiệu suất tối đa'),
+('LATE_PENALTY', 'fixed_amount', 100000.0, '2025-01-01', NULL, 'Phạt đi muộn');
 
 
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-
-
--- =============================================
--- SAMPLE QUERIES - TRUY VẤN MẪU
--- =============================================
-
--- 📌 1. DANH SÁCH NHÂN VIÊN ĐANG LÀM VIỆC
-SELECT 
-    e.id_employee,
-    e.name,
-    e.email,
-    e.phone,
-    h.name_position,
-    h.name_level,
-    c.base_salary
-FROM employees e
-JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
-JOIN contracts c ON e.id_employee = c.id_employee AND c.status = 'active'
-WHERE e.status = 'active'
-ORDER BY h.salary_multiplier DESC;
-
--- 📌 2. BÁO CÁO CHẤM CÔNG THÁNG
-SELECT 
-    e.name,
-    a.of_date,
-    a.office_hours,
-    a.over_time,
-    a.late_time,
-    CASE 
-        WHEN a.office_hours >= 8 THEN 'Đủ'
-        ELSE 'Thiếu'
-    END as attendance_status
-FROM attendances a
-JOIN employees e ON a.id_employee = e.id_employee
-WHERE YEAR(a.of_date) = 2024 AND MONTH(a.of_date) = 1
-ORDER BY a.of_date, e.name;
-
--- 📌 3. TÍNH LƯƠNG THÁNG
-SELECT 
-    e.name,
-    c.base_salary,
-    h.salary_multiplier,
-    h.allowance,
-    sd.overtime,
-    sd.bonus,
-    sd.attendance_bonus,
-    sd.deduction,
-    sd.net_salary
-FROM salary_details sd
-JOIN contracts c ON sd.id_contract = c.id_contract
-JOIN employees e ON c.id_employee = e.id_employee
-JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
-WHERE sd.salary_month = '2024-01-01'
-ORDER BY sd.net_salary DESC;
-
--- 📌 4. THỐNG KÊ NGHỈ PHÉP
-SELECT 
-    e.name,
-    COUNT(l.id_leave) as total_leaves,
-    SUM(CASE WHEN l.status = 'approved' THEN DATEDIFF(l.end_date, l.start_date) + 1 ELSE 0 END) as approved_days,
-    SUM(CASE WHEN l.is_paid = 1 THEN DATEDIFF(l.end_date, l.start_date) + 1 ELSE 0 END) as paid_days
-FROM employees e
-LEFT JOIN leaves l ON e.id_employee = l.id_employee
-WHERE YEAR(l.start_date) = 2024
-GROUP BY e.id_employee, e.name
-HAVING total_leaves > 0;
-
--- 📌 5. TOP NHÂN VIÊN CÓ LƯƠNG CAO NHẤT
-SELECT 
-    e.name,
-    h.name_position,
-    h.name_level,
-    MAX(sd.net_salary) as highest_salary,
-    c.base_salary
-FROM employees e
-JOIN contracts c ON e.id_employee = c.id_employee
-JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
-JOIN salary_details sd ON c.id_contract = sd.id_contract
-WHERE sd.status = 'paid'
-GROUP BY e.id_employee, e.name, h.name_position, h.name_level, c.base_salary
-ORDER BY highest_salary DESC
-LIMIT 10;
-
--- 📌 6. THỐNG KÊ THEO PHÒNG BAN
-SELECT 
-    CASE 
-        WHEN h.name_position LIKE '%Developer%' THEN 'IT Development'
-        WHEN h.name_position LIKE '%QA%' THEN 'Quality Assurance'
-        WHEN h.name_position LIKE '%HR%' THEN 'Human Resources'
-        WHEN h.name_position LIKE '%Account%' THEN 'Finance & Accounting'
-        WHEN h.name_position LIKE '%Sales%' THEN 'Sales & Marketing'
-        ELSE 'Other'
-    END as department,
-    COUNT(e.id_employee) as employee_count,
-    AVG(c.base_salary) as avg_salary,
-    SUM(CASE WHEN e.status = 'active' THEN 1 ELSE 0 END) as active_employees
-FROM employees e
-JOIN hierarchys h ON e.id_hierarchy = h.id_hierarchy
-JOIN contracts c ON e.id_employee = c.id_employee AND c.status = 'active'
-GROUP BY department
-ORDER BY employee_count DESC;
-
--- 📌 7. NHÂN VIÊN CÓ SỐ NGÀY ĐI MUỘN NHIỀU NHẤT
-SELECT 
-    e.name,
-    COUNT(a.id_attendance) as late_days,
-    SUM(a.late_time) as total_late_hours
-FROM employees e
-JOIN attendances a ON e.id_employee = a.id_employee
-WHERE a.late_time > 0
-    AND YEAR(a.of_date) = 2024 
-    AND MONTH(a.of_date) = 1
-GROUP BY e.id_employee, e.name
-ORDER BY late_days DESC
-LIMIT 5;
-
--- 📌 8. BÁO CÁO TỔNG QUAN CÔNG TY
-SELECT 
-    (SELECT COUNT(*) FROM employees WHERE status = 'active') as total_active_employees,
-    (SELECT COUNT(*) FROM contracts WHERE status = 'active') as active_contracts,
-    (SELECT AVG(base_salary) FROM contracts WHERE status = 'active') as avg_base_salary,
-    (SELECT SUM(net_salary) FROM salary_details WHERE salary_month = '2024-01-01' AND status = 'paid') as total_paid_salary,
-    (SELECT COUNT(*) FROM leaves WHERE status = 'approved' AND YEAR(start_date) = 2024) as approved_leaves;
 

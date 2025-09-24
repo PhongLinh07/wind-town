@@ -30,11 +30,6 @@
             </script>
             @endif
 
-             @if ($errors->has('login_error'))
-            <div style="color: red; margin-bottom: 10px;">
-            {{ $errors->first('login_error') }}
-            </div>
-            @endif
 
         <div class="container">
         <div class="login-box">
@@ -55,6 +50,13 @@
 
         <form action="{{ route('login.post') }}" method="POST">  @csrf
         
+          <div class="input-group">
+            @if ($errors->has('login_error'))
+            <div style="color: red; margin-bottom: 10px;">
+            {{ $errors->first('login_error') }}
+            </div>
+            @endif
+          </div>
           <div class="input-group">
             <span class="icon">📧</span>
             <input type="email" name="email" placeholder="Email" >
